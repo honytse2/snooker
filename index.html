@@ -365,11 +365,6 @@ const uid = () => `s_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 // What you measure — chosen to NOT pull attention off the cue ball mid-frame.
 // All logged AFTER the session, from feel + a few countable facts.
 const FOCUS_FIELDS = [{
-  key: "presence",
-  label: "Presence",
-  hint: "Stayed on the cue ball, not score/opponent",
-  type: "scale"
-}, {
   key: "natural",
   label: "Natural flow",
   hint: "Effortless rhythm vs. forced/soulless",
@@ -744,7 +739,7 @@ function LogForm({
     onChange: v => set("feather", v)
   }), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "02",
-    title: "Presence & feel",
+    title: "Feel & control",
     note: "The rhythm half — rate from memory of the session"
   }), /*#__PURE__*/React.createElement("div", {
     style: st.grid
@@ -1181,9 +1176,6 @@ function History({
     v: `${s.feather ?? "—"}/10`,
     hot: Number(s.feather || 0) >= 8
   }), /*#__PURE__*/React.createElement(Stat, {
-    label: "Presence",
-    v: `${s.presence}/10`
-  }), /*#__PURE__*/React.createElement(Stat, {
     label: "Natural",
     v: `${s.natural}/10`
   }), /*#__PURE__*/React.createElement(Stat, {
@@ -1251,7 +1243,6 @@ function Trends({
   const feather = featherSessions.map(s => Number(s.feather));
   const featherRecent = [...featherSessions].reverse().slice(0, 12);
   const featherAvg = featherRecent.length ? featherRecent.reduce((a, s) => a + Number(s.feather), 0) / featherRecent.length : 0;
-  const presence = chrono.map(s => Number(s.presence));
   const breaks = chrono.map(s => Number(s.highBreak));
 
   // Drill is solo-only — match sessions would inject phantom zeros and
@@ -1274,10 +1265,6 @@ function Trends({
   })), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
-    label: `Avg presence · last ${recentN}`,
-    value: avg("presence").toFixed(1),
-    suffix: "/10"
-  }), /*#__PURE__*/React.createElement(Kpi, {
     label: `Avg natural · last ${recentN}`,
     value: avg("natural").toFixed(1),
     suffix: "/10"
@@ -1329,12 +1316,6 @@ function Trends({
     max: 100,
     color: C.ok
   }), /*#__PURE__*/React.createElement(Spark, {
-    title: "Presence over time",
-    data: presence,
-    suffix: "/10",
-    max: 10,
-    color: C.cue
-  }), /*#__PURE__*/React.createElement(Spark, {
     title: "Highest break over time",
     data: breaks,
     max: Math.max(50, bestBreak),
@@ -1364,7 +1345,7 @@ function Insights({
   // ── 1. Enjoyment-mode split ──
   const on = sessions.filter(s => s.enjoymentMode);
   const off = sessions.filter(s => !s.enjoymentMode);
-  const splitMetrics = [["feather", "Feathering", "/10"], ["presence", "Presence", "/10"], ["natural", "Natural flow", "/10"], ["longpot", "Long pot", "%"], ["safety", "Cue ball", "/10"]];
+  const splitMetrics = [["feather", "Feathering", "/10"], ["natural", "Natural flow", "/10"], ["longpot", "Long pot", "%"], ["safety", "Cue ball", "/10"]];
 
   // ── 2. Table-quality split (rated sessions only) ──
   const goodT = sessions.filter(s => Number(s.tableQ || 0) >= 4);
