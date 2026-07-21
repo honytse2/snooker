@@ -1,0 +1,16 @@
+{
+  "name": "The Cue-Ball Ledger",
+  "short_name": "Cue-Ball",
+  "description": "Snooker practice ledger — feathering awareness, the last last, and the two non-negotiables, logged after every session.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A0A0C",
+  "theme_color": "#0F0F11",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
