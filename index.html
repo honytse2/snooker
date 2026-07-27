@@ -436,8 +436,10 @@ const blankSession = () => ({
   note: "",
   enjoymentMode: true,
   // did you enter enjoyment-snooker mode first
-  // The two non-negotiables — acknowledged every session, solo or match.
+  // The non-negotiables — acknowledged every session, solo or match.
   // Not scored: either you committed to them before play, or you didn't.
+  ruleCueStraight: false,
+  // when you pick up the cue: sight down it, confirm it's straight
   ruleChinChest: false,
   // never touch chin/chest + imagine each shot
   ruleTipFeedback: false,
@@ -513,7 +515,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "expName", "expVerdict", "lastDelivery", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -716,8 +718,10 @@ function LogForm({
   })), /*#__PURE__*/React.createElement("span", {
     style: st.tqVal
   }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), /*#__PURE__*/React.createElement(PreShotRules, {
+    cue: draft.ruleCueStraight,
     chin: draft.ruleChinChest,
     tip: draft.ruleTipFeedback,
+    onCue: () => set("ruleCueStraight", !draft.ruleCueStraight),
     onChin: () => set("ruleChinChest", !draft.ruleChinChest),
     onTip: () => set("ruleTipFeedback", !draft.ruleTipFeedback)
   }), /*#__PURE__*/React.createElement(KeystoneCreed, {
@@ -887,24 +891,42 @@ function DrillRound({
 // ─────────────────────────────────────────── KEYSTONE (final-stroke habit)
 // The one habit everything else serves. It got buried within 10 days of its
 // ─────────────────────────────────────────── PRE-SHOT NON-NEGOTIABLES
-// The two rules that hold on every shot, solo or match. Checked before play.
+// The rules that hold every session, solo or match. Checked before play:
+// a cue-straightness check when you pick it up, then two per-shot rules.
 function PreShotRules({
+  cue,
   chin,
   tip,
+  onCue,
   onChin,
   onTip
 }) {
-  const both = chin && tip;
+  const all = cue && chin && tip;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.rules,
-      ...(both ? st.rulesArmed : {})
+      ...(all ? st.rulesArmed : {})
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.rulesTitle
-  }, "BEFORE EVERY SHOT · 每一球之前", both && /*#__PURE__*/React.createElement("span", {
+  }, "WHEN YOU PICK UP THE CUE · 攞起支cue", all && /*#__PURE__*/React.createElement("span", {
     style: st.rulesArmedTag
   }, "LOCKED IN")), /*#__PURE__*/React.createElement("button", {
+    onClick: onCue,
+    style: {
+      ...st.rule,
+      ...(cue ? st.ruleOn : {})
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.ruleCheck(cue)
+  }, cue ? "✓" : "0"), /*#__PURE__*/React.createElement("span", {
+    style: st.ruleText
+  }, /*#__PURE__*/React.createElement("strong", null, "Check the cue is straight"), " — sight down it one-eyed, butt → tip. Straight = 等邊 symmetrical taper. Rotate 90°, sight again. Bent cue = half-ball off.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.rulesTitle,
+      ...st.rulesSubTitle
+    }
+  }, "BEFORE EVERY SHOT · 每一球之前"), /*#__PURE__*/React.createElement("button", {
     onClick: onChin,
     style: {
       ...st.rule,
@@ -1179,7 +1201,9 @@ function History({
     style: st.rowKeyMid
   }, "last delivery ~"), s.lastDelivery === "forgot" && /*#__PURE__*/React.createElement("span", {
     style: st.rowKeyOff
-  }, "forgot last delivery"), s.ruleChinChest && s.ruleTipFeedback && /*#__PURE__*/React.createElement("span", {
+  }, "forgot last delivery"), s.ruleCueStraight && /*#__PURE__*/React.createElement("span", {
+    style: st.rowCue
+  }, "cue checked ✓"), s.ruleChinChest && s.ruleTipFeedback && /*#__PURE__*/React.createElement("span", {
     style: st.rowRules
   }, "2 rules ✓"), !s.enjoymentMode && /*#__PURE__*/React.createElement("span", {
     style: st.rowFlag
@@ -1387,6 +1411,8 @@ function Insights({
   // ── 3c. Pre-shot two-rules adherence ──
   const bothRules = sessions.filter(s => s.ruleChinChest && s.ruleTipFeedback);
   const rulesPct = sessions.length ? Math.round(bothRules.length / sessions.length * 100) : 0;
+  const cueChecked = sessions.filter(s => s.ruleCueStraight);
+  const cuePct = sessions.length ? Math.round(cueChecked.length / sessions.length * 100) : 0;
 
   // ── 4. Experiment tallies ──
   const expMap = new Map();
@@ -1464,12 +1490,21 @@ function Insights({
   }, /*#__PURE__*/React.createElement("div", {
     style: st.rulesAdhereItem
   }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.rulesAdhereNum,
+      color: C.cue
+    }
+  }, cuePct, "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, "cue checked (", cueChecked.length, "/", sessions.length, ")")), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
     style: st.rulesAdhereNum
   }, rulesPct, "%"), /*#__PURE__*/React.createElement("span", {
     style: st.rulesAdhereLabel
   }, "both pre-shot rules (", bothRules.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "Never touch chin/chest + imagine · always 預先想像 the tip feedback. These aren't scored — they're the floor. Anything below 100% is a session you let the standard slip.")), /*#__PURE__*/React.createElement("div", {
+  }, "Sight the cue straight when you pick it up · never touch chin/chest + imagine · always 預先想像 the tip feedback. These aren't scored — they're the floor. Anything below 100% is a session you let the standard slip.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insKeystone
@@ -2154,6 +2189,12 @@ const st = {
     fontWeight: 700,
     letterSpacing: "0.03em"
   },
+  rowCue: {
+    fontSize: 10,
+    color: C.cue,
+    fontWeight: 700,
+    letterSpacing: "0.03em"
+  },
   rowExp: {
     fontSize: 12,
     color: C.cue,
@@ -2312,6 +2353,9 @@ const st = {
     alignItems: "center",
     gap: 10,
     flexWrap: "wrap"
+  },
+  rulesSubTitle: {
+    marginTop: 4
   },
   rulesArmedTag: {
     fontSize: 9.5,
