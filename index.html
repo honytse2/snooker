@@ -428,6 +428,12 @@ const blankSession = () => ({
   drillHigh: 0,
   // reds cleared, high-black round (0–6) → shown as success rate
   drillMins: 12,
+  // The two bookend drills — every table session opens and closes with these.
+  // Whatever happens in between is free play.
+  drillOpenTable: false,
+  // open table, all balls — 培養入波信心 + how thick/thin each pot needs
+  drillDToD: false,
+  // 白波D區打返D區 — 總結白波力量感覺控制
   // Rolling experiment — whatever you're currently testing (technique, grip,
   // routine). Carries over between sessions until you change or clear it.
   expName: "",
@@ -515,7 +521,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -602,7 +608,7 @@ function App() {
     style: st.h1
   }, "The Cue-Ball Ledger")), /*#__PURE__*/React.createElement(SpotMark, null)), /*#__PURE__*/React.createElement("p", {
     style: st.sub
-  }, "Logged ", /*#__PURE__*/React.createElement("em", null, "after"), " the frame, never during. The session stays yours — this only sharpens the edges between sessions.")), /*#__PURE__*/React.createElement("nav", {
+  }, "Logged ", /*#__PURE__*/React.createElement("em", null, "after"), " the frame, never during.")), /*#__PURE__*/React.createElement("nav", {
     style: st.tabs
   }, [["log", "Log session"], ["history", `History${sessions.length ? ` · ${sessions.length}` : ""}`], ["trends", "Trends"], ["insights", "Insights"]].map(([k, label]) => /*#__PURE__*/React.createElement("button", {
     key: k,
@@ -642,7 +648,7 @@ function App() {
     bestBreak: bestBreak
   }), /*#__PURE__*/React.createElement("footer", {
     style: st.footer
-  }, "Enter enjoyment mode first. Measure second. The number is a tool — the two values are the net."));
+  }, "Enjoyment first. Measure second."));
 }
 
 // ─────────────────────────────────────────── LOG FORM
@@ -724,6 +730,11 @@ function LogForm({
     onCue: () => set("ruleCueStraight", !draft.ruleCueStraight),
     onChin: () => set("ruleChinChest", !draft.ruleChinChest),
     onTip: () => set("ruleTipFeedback", !draft.ruleTipFeedback)
+  }), /*#__PURE__*/React.createElement(MustDoDrills, {
+    open: draft.drillOpenTable,
+    dtod: draft.drillDToD,
+    onOpen: () => set("drillOpenTable", !draft.drillOpenTable),
+    onDtod: () => set("drillDToD", !draft.drillDToD)
   }), /*#__PURE__*/React.createElement(KeystoneCreed, {
     value: draft.lastDelivery,
     onChange: v => set("lastDelivery", v)
@@ -738,14 +749,14 @@ function LogForm({
   }), "Entered enjoyment-snooker mode before play"), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "01",
     title: "Feathering awareness",
-    note: "The one that matters — your felt connection to the cue arm and how straight you deliver"
+    note: "The one that matters — feel vs. straight delivery"
   }), /*#__PURE__*/React.createElement(FeatherRating, {
     value: draft.feather,
     onChange: v => set("feather", v)
   }), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "02",
     title: "Feel & control",
-    note: "The rhythm half — rate from memory of the session"
+    note: "Rate from memory of the session"
   }), /*#__PURE__*/React.createElement("div", {
     style: st.grid
   }, FOCUS_FIELDS.map(f => /*#__PURE__*/React.createElement(Metric, {
@@ -758,7 +769,7 @@ function LogForm({
     title: "One line",
     note: "Optional — what the cue ball taught you"
   }), /*#__PURE__*/React.createElement("textarea", {
-    placeholder: "e.g. one slow smooth acceleration through the white held on the black…",
+    placeholder: "e.g. slow smooth acceleration held on the black…",
     value: draft.note,
     onChange: e => set("note", e.target.value),
     style: st.textarea,
@@ -798,7 +809,7 @@ function ExperimentBlock({
     }
   }, l))), /*#__PURE__*/React.createElement("div", {
     style: st.gripCaption
-  }, "Verdict is for this session only. Insights tallies the verdicts per experiment over time.")));
+  }, "This session's verdict only. Insights tallies them over time.")));
 }
 
 // ─────────────────────────────────────────── MARK ALLEN DRILL
@@ -949,6 +960,54 @@ function PreShotRules({
   }, /*#__PURE__*/React.createElement("strong", null, "Always 預先想像 the cue-tip feedback"), " — see the contact before you strike")));
 }
 
+// ─────────────────────────────────────────── MUST-DO BOOKEND DRILLS
+// Every table session opens and closes with these two. The middle is free play.
+function MustDoDrills({
+  open,
+  dtod,
+  onOpen,
+  onDtod
+}) {
+  const both = open && dtod;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.rules,
+      ...(both ? st.rulesArmed : {})
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.rulesTitle
+  }, "EVERY TIME AT THE TABLE · 每次上枱", both && /*#__PURE__*/React.createElement("span", {
+    style: st.rulesArmedTag
+  }, "BOOKENDED")), /*#__PURE__*/React.createElement("button", {
+    onClick: onOpen,
+    style: {
+      ...st.rule,
+      ...(open ? st.ruleOn : {})
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.ruleCheck(open)
+  }, open ? "✓" : "▶"), /*#__PURE__*/React.createElement("span", {
+    style: st.ruleText
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.drillWhen
+  }, "START · 開波"), /*#__PURE__*/React.createElement("strong", null, "Open table, all balls"), " — 培養入波信心. Feel how thick or thin each pot needs · 幾厚幾簿.")), /*#__PURE__*/React.createElement("div", {
+    style: st.drillGap
+  }, "In between — play whatever you want."), /*#__PURE__*/React.createElement("button", {
+    onClick: onDtod,
+    style: {
+      ...st.rule,
+      ...(dtod ? st.ruleOn : {}),
+      marginBottom: 0
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.ruleCheck(dtod)
+  }, dtod ? "✓" : "■"), /*#__PURE__*/React.createElement("span", {
+    style: st.ruleText
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.drillWhen
+  }, "END · 收波"), /*#__PURE__*/React.createElement("strong", null, "白波D區打返D區"), " — 總結白波力量感覺控制.")));
+}
+
 // last rediscovery (30 Jun → 10 Jul) — this card exists so it can't again.
 function KeystoneCreed({
   value,
@@ -961,7 +1020,7 @@ function KeystoneCreed({
     style: st.keystoneTitle
   }, "THE LAST LAST · 最後一擊"), /*#__PURE__*/React.createElement("div", {
     style: st.keystoneBody
-  }, "A beat of pause at the end of the backswing — then one slow, smooth acceleration through the white. 停一停，最後一下慢而順. Not the final feather — the final ", /*#__PURE__*/React.createElement("em", null, "delivery"), ", the last thing before contact. Every technique you've layered on over the years serves this one stroke. Don't let the next one bury it again."), /*#__PURE__*/React.createElement("div", {
+  }, "Pause at the end of the backswing — then one slow, smooth acceleration through the white. 停一停，最後一下慢而順. Not the final feather — the final ", /*#__PURE__*/React.createElement("em", null, "delivery"), "."), /*#__PURE__*/React.createElement("div", {
     style: st.keystoneAsk
   }, "Did I hold it this session?"), /*#__PURE__*/React.createElement("div", {
     style: st.seg
@@ -1011,7 +1070,7 @@ function FeatherRating({
     }
   }, n))), /*#__PURE__*/React.createElement("div", {
     style: st.featherCreed
-  }, "Each feather has one job: build awareness of the cue arm, feel the action, and map that feeling to how straight the cue delivers. 9 = complete awareness through the feathers. 10 is only for when it carries all the way through the final stroke — the pause, then the slow, smooth acceleration."));
+  }, "Each feather has one job: feel the cue arm, map it to how straight the cue delivers. 9 = full awareness through the feathers. 10 = it carried through the final stroke."));
 }
 
 // ─────────────────────────────────────────── METRIC (scale / pct)
@@ -1123,7 +1182,7 @@ function History({
     style: st.exportBtnAlt
   }, "Open in new tab")), /*#__PURE__*/React.createElement("div", {
     style: st.exportHint
-  }, "Copy is the reliable one — paste into Import on your other device. Open-in-tab lets you save a file if your browser allows it.")), showImport && /*#__PURE__*/React.createElement("div", {
+  }, "Copy, then paste into Import on your other device.")), showImport && /*#__PURE__*/React.createElement("div", {
     style: st.exportPanel
   }, /*#__PURE__*/React.createElement("div", {
     style: st.exportHead
@@ -1171,7 +1230,7 @@ function History({
     }
   }, importMsg.text), /*#__PURE__*/React.createElement("div", {
     style: st.syncHint
-  }, "Export on one device, paste into Import on another — sessions merge with no duplicates. CSV is for analysis in Python or a sheet."));
+  }, "Export here, Import there — sessions merge, no duplicates. CSV is for analysis."));
   if (!sessions.length) return /*#__PURE__*/React.createElement("div", null, SyncBar, /*#__PURE__*/React.createElement("div", {
     style: st.empty
   }, /*#__PURE__*/React.createElement("div", {
@@ -1203,7 +1262,9 @@ function History({
     style: st.rowKeyOff
   }, "forgot last delivery"), s.ruleCueStraight && /*#__PURE__*/React.createElement("span", {
     style: st.rowCue
-  }, "cue checked ✓"), s.ruleChinChest && s.ruleTipFeedback && /*#__PURE__*/React.createElement("span", {
+  }, "cue checked ✓"), s.drillOpenTable && s.drillDToD && /*#__PURE__*/React.createElement("span", {
+    style: st.rowBookend
+  }, "bookends ✓"), s.ruleChinChest && s.ruleTipFeedback && /*#__PURE__*/React.createElement("span", {
     style: st.rowRules
   }, "2 rules ✓"), !s.enjoymentMode && /*#__PURE__*/React.createElement("span", {
     style: st.rowFlag
@@ -1271,7 +1332,7 @@ function Trends({
     style: st.emptyMark
   }, "△"), /*#__PURE__*/React.createElement("p", {
     style: st.emptyText
-  }, "Log at least 2 sessions to see the line of your game taking shape."));
+  }, "Log 2 sessions to see trends."));
 
   // sparkline data — oldest→newest
   const chrono = [...sessions].reverse();
@@ -1376,7 +1437,7 @@ function Insights({
     style: st.emptyMark
   }, "◇"), /*#__PURE__*/React.createElement("p", {
     style: st.emptyText
-  }, "Insights need at least 2 sessions to compare anything."));
+  }, "Insights need 2 sessions to compare."));
   const has = (s, k) => s[k] !== undefined && s[k] !== null;
   const avgOf = (list, key) => {
     const vals = list.filter(s => has(s, key)).map(s => Number(s[key]));
@@ -1413,6 +1474,11 @@ function Insights({
   const rulesPct = sessions.length ? Math.round(bothRules.length / sessions.length * 100) : 0;
   const cueChecked = sessions.filter(s => s.ruleCueStraight);
   const cuePct = sessions.length ? Math.round(cueChecked.length / sessions.length * 100) : 0;
+
+  // ── 3d. Must-do bookend drills — opened and closed the session properly ──
+  const openedWith = sessions.filter(s => s.drillOpenTable);
+  const closedWith = sessions.filter(s => s.drillDToD);
+  const pctOf = list => sessions.length ? Math.round(list.length / sessions.length * 100) : 0;
 
   // ── 4. Experiment tallies ──
   const expMap = new Map();
@@ -1504,7 +1570,30 @@ function Insights({
     style: st.rulesAdhereLabel
   }, "both pre-shot rules (", bothRules.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "Sight the cue straight when you pick it up · never touch chin/chest + imagine · always 預先想像 the tip feedback. These aren't scored — they're the floor. Anything below 100% is a session you let the standard slip.")), /*#__PURE__*/React.createElement("div", {
+  }, "Not scored — they're the floor. Below 100% is a session you let slip.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insBlock,
+      ...st.insKeystone
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "Must-do drills · adherence"), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereRow
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereNum
+  }, pctOf(openedWith), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, "opened · open table (", openedWith.length, "/", sessions.length, ")")), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereNum
+  }, pctOf(closedWith), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, "closed · D 打返 D (", closedWith.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "Open with potting confidence, close with cue-ball control. Free play in between.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insKeystone
@@ -1523,14 +1612,14 @@ function Insights({
     style: {
       color: C.cue
     }
-  }, held.length, " of ", answered.length), " ", "answered sessions (", heldPct, "%).") : /*#__PURE__*/React.createElement(React.Fragment, null, "Not answered yet. Each session, tick whether you held the final delivery — that's the reinstall."))), held.length >= 1 && notHeld.length >= 1 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(SplitTable, {
+  }, held.length, " of ", answered.length), " ", "answered sessions (", heldPct, "%).") : /*#__PURE__*/React.createElement(React.Fragment, null, "Not answered yet. Tick it each session."))), held.length >= 1 && notHeld.length >= 1 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(SplitTable, {
     a: held,
     b: notHeld,
     aLabel: "Held it",
     bLabel: "Didn't"
   }), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "The gap between these two columns is the whole argument for the habit. If \"held it\" isn't clearly better yet, keep logging — a real keystone shows its payoff over time."))), /*#__PURE__*/React.createElement("div", {
+  }, "The gap between these columns is the argument for the habit. Keep logging."))), /*#__PURE__*/React.createElement("div", {
     style: st.insBlock
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
@@ -1566,7 +1655,7 @@ function Insights({
     style: {
       color: C.chalkSoft
     }
-  }, diverged.length, " of ", fSessions.length), ". This is the proof the feathering rating measures felt awareness, not results — the more often these diverge, the more the metric is doing its real job.")), on.length >= 1 && off.length >= 1 && /*#__PURE__*/React.createElement("div", {
+  }, diverged.length, " of ", fSessions.length), ". Proof the rating measures awareness, not results.")), on.length >= 1 && off.length >= 1 && /*#__PURE__*/React.createElement("div", {
     style: st.insBlock
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
@@ -1588,7 +1677,7 @@ function Insights({
     bLabel: "Poor"
   }), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "Separates conditions from form — a dip on a poor table isn't a dip in you.")), experiments.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, "A dip on a poor table isn't a dip in you.")), experiments.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: st.insBlock
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
@@ -1621,7 +1710,7 @@ function Insights({
     }
   }, " · ", e.n, " session", e.n > 1 ? "s" : "")))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "An experiment with 3+ \"helped\" verdicts has earned a place in the routine; 2+ \"hurt\" and it's telling you to drop it.")));
+  }, "3+ \"helped\" — keep it. 2+ \"hurt\" — drop it.")));
 }
 function Spark({
   title,
@@ -2195,6 +2284,13 @@ const st = {
     fontWeight: 700,
     letterSpacing: "0.03em"
   },
+  rowBookend: {
+    fontSize: 10,
+    color: C.chalkSoft,
+    fontWeight: 700,
+    letterSpacing: "0.03em",
+    opacity: 0.85
+  },
   rowExp: {
     fontSize: 12,
     color: C.cue,
@@ -2253,7 +2349,8 @@ const st = {
   rulesAdhereRow: {
     display: "flex",
     gap: 20,
-    marginBottom: 4
+    marginBottom: 4,
+    flexWrap: "wrap"
   },
   rulesAdhereItem: {
     display: "flex",
@@ -2404,6 +2501,21 @@ const st = {
     fontSize: 13.5,
     color: C.bone,
     lineHeight: 1.4
+  },
+  drillWhen: {
+    display: "block",
+    fontSize: 9.5,
+    letterSpacing: "0.14em",
+    color: C.boneDim,
+    fontWeight: 700,
+    marginBottom: 3
+  },
+  drillGap: {
+    fontSize: 11.5,
+    color: C.boneDim,
+    fontStyle: "italic",
+    margin: "0 0 9px",
+    paddingLeft: 2
   },
   keystone: {
     background: "linear-gradient(180deg, rgba(217,178,106,0.14) 0%, rgba(217,178,106,0.05) 100%)",
