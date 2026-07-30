@@ -407,9 +407,21 @@ const blankSession = () => ({
   // where — lets trends separate table conditions from form
   tableQ: 0,
   // table quality 1–5, 0 = unrated
-  // THE critical rating, logged every session (solo + match).
-  // Each feather serves one purpose: build awareness of the cue-arm action,
-  // feel the cueing, and map that feeling to how straight the cue delivers.
+  // ── 中心線路平放大法 — THE method. Everything below is secondary to it. ──
+  // The only route to snooker that is both acceptable and enjoyable. Steps 1–3
+  // are 基本功: they must be complete before a ball is struck. Step 4 is what
+  // finishing them earns — relaxed, free play with the white.
+  clLine: false,
+  // 1 · 睇幾厚幾簿，搵出中心線路
+  clFlat: false,
+  // 2 · 平放支cue落中心線路 — zero grip force, four fingers carry the weight
+  clBody: false,
+  // 3 · 全身（眼、腰、左手枕手）迎合遷就中心線路
+  clFree: false,
+  // 4 · 之後放鬆打，自由發揮，感受白波
+  centreLine: 7,
+  // THE rating (1–10): how well the centre line held this session
+  // Secondary rating — cue-arm awareness mapped to straight delivery.
   // 9 = complete through the feathers. 10 = carried through the final stroke.
   feather: 7,
   presence: 7,
@@ -521,7 +533,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "centreLine", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -723,7 +735,16 @@ function LogForm({
     "aria-label": `table quality ${n} of 5`
   })), /*#__PURE__*/React.createElement("span", {
     style: st.tqVal
-  }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), /*#__PURE__*/React.createElement(PreShotRules, {
+  }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), /*#__PURE__*/React.createElement(CentreLineMethod, {
+    line: draft.clLine,
+    flat: draft.clFlat,
+    body: draft.clBody,
+    free: draft.clFree,
+    onLine: () => set("clLine", !draft.clLine),
+    onFlat: () => set("clFlat", !draft.clFlat),
+    onBody: () => set("clBody", !draft.clBody),
+    onFree: () => set("clFree", !draft.clFree)
+  }), /*#__PURE__*/React.createElement(PreShotRules, {
     cue: draft.ruleCueStraight,
     chin: draft.ruleChinChest,
     tip: draft.ruleTipFeedback,
@@ -748,13 +769,20 @@ function LogForm({
     style: st.toggleDot(draft.enjoymentMode)
   }), "Entered enjoyment-snooker mode before play"), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "01",
+    title: "中心線路 held",
+    note: "THE rating — how well the line held all session"
+  }), /*#__PURE__*/React.createElement(CentreLineRating, {
+    value: draft.centreLine,
+    onChange: v => set("centreLine", v)
+  }), /*#__PURE__*/React.createElement(SectionLabel, {
+    n: "02",
     title: "Feathering awareness",
-    note: "The one that matters — feel vs. straight delivery"
+    note: "Secondary — feel vs. straight delivery"
   }), /*#__PURE__*/React.createElement(FeatherRating, {
     value: draft.feather,
     onChange: v => set("feather", v)
   }), /*#__PURE__*/React.createElement(SectionLabel, {
-    n: "02",
+    n: "03",
     title: "Feel & control",
     note: "Rate from memory of the session"
   }), /*#__PURE__*/React.createElement("div", {
@@ -765,7 +793,7 @@ function LogForm({
     value: draft[f.key],
     onChange: v => set(f.key, v)
   }))), /*#__PURE__*/React.createElement(SectionLabel, {
-    n: "03",
+    n: "04",
     title: "One line",
     note: "Optional — what the cue ball taught you"
   }), /*#__PURE__*/React.createElement("textarea", {
@@ -901,6 +929,67 @@ function DrillRound({
 
 // ─────────────────────────────────────────── KEYSTONE (final-stroke habit)
 // The one habit everything else serves. It got buried within 10 days of its
+// ─────────────────────────────────────────── 中心線路平放大法 — THE METHOD
+// The one that makes snooker both playable and enjoyable. Steps 1–3 are 基本功
+// and must be complete before a ball is struck; step 4 is what they earn.
+function CentreLineMethod({
+  line,
+  flat,
+  body,
+  free,
+  onLine,
+  onFlat,
+  onBody,
+  onFree
+}) {
+  const basics = line && flat && body;
+  const all = basics && free;
+  const steps = [["1", line, onLine, "睇打目標球幾厚幾簿，搵出中心線路", "Read the contact first — thick or thin — and find the centre line."], ["2", flat, onFlat, "平放支cue落中心線路", "平放 = no grip force at all. Four fingers only, just cancelling the cue's weight."], ["3", body, onBody, "全身迎合遷就呢條中心線路", "Eyes, waist, bridge hand — every part gives way to the line."]];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.cl,
+      ...(all ? st.clArmed : {})
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clHead
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clTitle
+  }, "中心線路平放大法"), all && /*#__PURE__*/React.createElement("span", {
+    style: st.clTag
+  }, "ALL FOUR")), /*#__PURE__*/React.createElement("div", {
+    style: st.clCreed
+  }, "The only way you play acceptable, enjoyable snooker. Everything else is secondary."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement("button", {
+    key: n,
+    onClick: onClick,
+    style: {
+      ...st.rule,
+      ...(on ? st.ruleOn : {})
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.ruleCheck(on)
+  }, on ? "✓" : n), /*#__PURE__*/React.createElement("span", {
+    style: st.ruleText
+  }, /*#__PURE__*/React.createElement("strong", null, zh), /*#__PURE__*/React.createElement("span", {
+    style: st.clEn
+  }, en)))), /*#__PURE__*/React.createElement("div", {
+    style: st.clBasics
+  }, basics ? "基本功 done — now play." : "1–3 是基本功 · complete before you strike."), /*#__PURE__*/React.createElement("button", {
+    onClick: onFree,
+    style: {
+      ...st.rule,
+      ...st.clFreeRule,
+      ...(free ? st.clFreeOn : {}),
+      marginBottom: 0
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.clFreeCheck(free)
+  }, free ? "✓" : "4"), /*#__PURE__*/React.createElement("span", {
+    style: st.ruleText
+  }, /*#__PURE__*/React.createElement("strong", null, "之後放鬆打，自由發揮"), /*#__PURE__*/React.createElement("span", {
+    style: st.clEn
+  }, "Then let go — free play, feel the white."))));
+}
+
 // ─────────────────────────────────────────── PRE-SHOT NON-NEGOTIABLES
 // The rules that hold every session, solo or match. Checked before play:
 // a cue-straightness check when you pick it up, then two per-shot rules.
@@ -1034,7 +1123,52 @@ function KeystoneCreed({
   }, l))));
 }
 
-// ─────────────────────────────────────────── FEATHER RATING (the critical one)
+// ─────────────────────────────────────────── 中心線路 RATING (the primary one)
+function CentreLineRating({
+  value,
+  onChange
+}) {
+  const words = ["",
+  // 0 unused
+  "Never found the line", "Guessed at it", "Saw it, ignored it", "Found it, gripped the cue", "Line there, body fighting it", "平放 sometimes, forced elsewhere", "Line and 平放 mostly holding", "Body giving way to the line", "All three, nearly every shot", "基本功 complete — then free"];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.feather,
+      ...st.clRatingCard
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.featherTop
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.featherNum,
+      ...st.clNum
+    }
+  }, value, /*#__PURE__*/React.createElement("span", {
+    style: st.featherDen
+  }, "/10")), /*#__PURE__*/React.createElement("div", {
+    style: st.featherWord
+  }, words[value] || "")), /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    min: 1,
+    max: 10,
+    step: 1,
+    value: value,
+    onChange: e => onChange(Number(e.target.value)),
+    style: st.featherRange
+  }), /*#__PURE__*/React.createElement("div", {
+    style: st.featherScale
+  }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => /*#__PURE__*/React.createElement("span", {
+    key: n,
+    style: {
+      ...st.featherTick,
+      ...(n === value ? st.featherTickOn : {})
+    }
+  }, n))), /*#__PURE__*/React.createElement("div", {
+    style: st.featherCreed
+  }, "睇線 → 平放 → 全身遷就. 10 = all three held, then you let go and played."));
+}
+
+// ─────────────────────────────────────────── FEATHER RATING (secondary)
 function FeatherRating({
   value,
   onChange
@@ -1254,7 +1388,9 @@ function History({
     style: st.rowMode(s.mode)
   }, s.mode === "match" ? "MATCH" : "SOLO"), s.venue && /*#__PURE__*/React.createElement("span", {
     style: st.rowVenue
-  }, s.venue), s.lastDelivery === "every" && /*#__PURE__*/React.createElement("span", {
+  }, s.venue), s.clLine && s.clFlat && s.clBody && s.clFree && /*#__PURE__*/React.createElement("span", {
+    style: st.rowCl
+  }, "平放大法 ✓"), s.lastDelivery === "every" && /*#__PURE__*/React.createElement("span", {
     style: st.rowKeyOn
   }, "last delivery ✓"), s.lastDelivery === "partial" && /*#__PURE__*/React.createElement("span", {
     style: st.rowKeyMid
@@ -1271,6 +1407,10 @@ function History({
   }, "no enjoyment mode")), /*#__PURE__*/React.createElement("div", {
     style: st.rowStats
   }, /*#__PURE__*/React.createElement(Stat, {
+    label: "中心線路",
+    v: `${s.centreLine ?? "—"}/10`,
+    hot: Number(s.centreLine || 0) >= 8
+  }), /*#__PURE__*/React.createElement(Stat, {
     label: "Feather",
     v: `${s.feather ?? "—"}/10`,
     hot: Number(s.feather || 0) >= 8
@@ -1336,6 +1476,12 @@ function Trends({
 
   // sparkline data — oldest→newest
   const chrono = [...sessions].reverse();
+  // 中心線路 is THE metric, and only exists from the session it was introduced.
+  // Skip older sessions rather than charting them as false zeros.
+  const clSessions = chrono.filter(s => s.centreLine !== undefined && s.centreLine !== null);
+  const clData = clSessions.map(s => Number(s.centreLine));
+  const clRecent = [...clSessions].reverse().slice(0, 12);
+  const clAvg = clRecent.length ? clRecent.reduce((a, s) => a + Number(s.centreLine), 0) / clRecent.length : 0;
   // Feathering only exists from the session it was introduced — skip older
   // sessions entirely rather than charting/averaging them as false zeros.
   const featherSessions = chrono.filter(s => s.feather !== undefined && s.feather !== null);
@@ -1361,13 +1507,17 @@ function Trends({
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: st.featherKpiWrap
   }, /*#__PURE__*/React.createElement(Kpi, {
-    label: `Feathering awareness · avg last ${featherRecent.length || 0}`,
-    value: featherRecent.length ? featherAvg.toFixed(1) : "—",
-    suffix: featherRecent.length ? "/10" : "",
+    label: `中心線路平放大法 · avg last ${clRecent.length || 0}`,
+    value: clRecent.length ? clAvg.toFixed(1) : "—",
+    suffix: clRecent.length ? "/10" : "",
     accent: true
   })), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
+    label: `Avg feathering · last ${featherRecent.length || 0}`,
+    value: featherRecent.length ? featherAvg.toFixed(1) : "—",
+    suffix: featherRecent.length ? "/10" : ""
+  }), /*#__PURE__*/React.createElement(Kpi, {
     label: `Avg natural · last ${recentN}`,
     value: avg("natural").toFixed(1),
     suffix: "/10"
@@ -1406,12 +1556,18 @@ function Trends({
   }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Sessions logged",
     value: sessions.length
-  })), feather.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
+  })), clData.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
+    title: "中心線路 held · over time",
+    data: clData,
+    suffix: "/10",
+    max: 10,
+    color: C.chalkSoft
+  }), feather.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
     title: "Feathering awareness over time",
     data: feather,
     suffix: "/10",
     max: 10,
-    color: C.chalkSoft
+    color: C.cueDim
   }), drill.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
     title: "Mark Allen drill · success rate (solo)",
     data: drill,
@@ -1448,7 +1604,7 @@ function Insights({
   // ── 1. Enjoyment-mode split ──
   const on = sessions.filter(s => s.enjoymentMode);
   const off = sessions.filter(s => !s.enjoymentMode);
-  const splitMetrics = [["feather", "Feathering", "/10"], ["natural", "Natural flow", "/10"], ["longpot", "Long pot", "%"], ["safety", "Cue ball", "/10"]];
+  const splitMetrics = [["centreLine", "中心線路", "/10"], ["feather", "Feathering", "/10"], ["natural", "Natural flow", "/10"], ["longpot", "Long pot", "%"], ["safety", "Cue ball", "/10"]];
 
   // ── 2. Table-quality split (rated sessions only) ──
   const goodT = sessions.filter(s => Number(s.tableQ || 0) >= 4);
@@ -1468,6 +1624,11 @@ function Insights({
   const held = sessions.filter(s => s.lastDelivery === "every");
   const notHeld = sessions.filter(s => s.lastDelivery === "forgot" || s.lastDelivery === "partial");
   const heldPct = answered.length ? Math.round(held.length / answered.length * 100) : 0;
+
+  // ── 3a′. 中心線路平放大法 — the primary split: 基本功 complete vs not ──
+  const clDone = sessions.filter(s => s.clLine && s.clFlat && s.clBody);
+  const clNot = sessions.filter(s => has(s, "clLine") && !(s.clLine && s.clFlat && s.clBody));
+  const clSteps = [["clLine", "1 · 睇線"], ["clFlat", "2 · 平放"], ["clBody", "3 · 全身遷就"], ["clFree", "4 · 放鬆自由"]];
 
   // ── 3c. Pre-shot two-rules adherence ──
   const bothRules = sessions.filter(s => s.ruleChinChest && s.ruleTipFeedback);
@@ -1501,6 +1662,7 @@ function Insights({
   const experiments = [...expMap.values()];
 
   // ── 5. Records + cadence ──
+  const bestCl = sessions.filter(s => has(s, "centreLine")).reduce((m, s) => Math.max(m, Number(s.centreLine)), 0);
   const bestFeather = fSessions.reduce((m, s) => Math.max(m, Number(s.feather)), 0);
   const bestCtrl = sessions.reduce((m, s) => Math.max(m, Number(s.safety || 0)), 0);
   const solo = sessions.filter(s => s.mode !== "match");
@@ -1545,6 +1707,35 @@ function Insights({
     }, d === null ? "—" : `${d > 0 ? "+" : ""}${d.toFixed(1)}`));
   }));
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insBlock,
+      ...st.insCl
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "中心線路平放大法 · the method"), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereRow
+  }, clSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.rulesAdhereNum,
+      fontSize: 26,
+      color: k === "clFree" ? C.cue : C.chalkSoft
+    }
+  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, label)))), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "1–3 是基本功. Below 100% is a session you played without the line."), clDone.length >= 1 && clNot.length >= 1 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(SplitTable, {
+    a: clDone,
+    b: clNot,
+    aLabel: "基本功 done",
+    bLabel: "Skipped"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "This gap is the whole argument for the method."))), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insKeystone
@@ -1626,6 +1817,11 @@ function Insights({
   }, "Records"), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
+    label: "Best 中心線路",
+    value: bestCl || "—",
+    suffix: bestCl ? "/10" : "",
+    accent: bestCl >= 9
+  }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Best feathering",
     value: bestFeather || "—",
     suffix: bestFeather ? "/10" : "",
@@ -2284,6 +2480,15 @@ const st = {
     fontWeight: 700,
     letterSpacing: "0.03em"
   },
+  rowCl: {
+    fontSize: 10,
+    color: C.baizeDeep,
+    background: C.chalkSoft,
+    fontWeight: 700,
+    letterSpacing: "0.03em",
+    padding: "2px 6px",
+    borderRadius: 5
+  },
   rowBookend: {
     fontSize: 10,
     color: C.chalkSoft,
@@ -2315,6 +2520,11 @@ const st = {
   insKeystone: {
     borderColor: "rgba(217,178,106,0.4)",
     background: "linear-gradient(180deg, rgba(217,178,106,0.1) 0%, rgba(217,178,106,0.03) 100%)"
+  },
+  insCl: {
+    borderColor: "rgba(94,226,160,0.5)",
+    borderWidth: 1.5,
+    background: "linear-gradient(180deg, rgba(94,226,160,0.12) 0%, rgba(94,226,160,0.03) 100%)"
   },
   keystoneStreakRow: {
     display: "flex",
@@ -2429,6 +2639,90 @@ const st = {
   featherKpiWrap: {
     marginBottom: 10
   },
+  // 中心線路平放大法 — the hero card. Heavier than every other block on purpose.
+  cl: {
+    background: "linear-gradient(180deg, rgba(94,226,160,0.11) 0%, rgba(94,226,160,0.03) 100%)",
+    border: "1.5px solid rgba(94,226,160,0.4)",
+    borderRadius: 16,
+    padding: "17px 16px 16px",
+    marginBottom: 18
+  },
+  clArmed: {
+    borderColor: "rgba(94,226,160,0.75)",
+    background: "linear-gradient(180deg, rgba(94,226,160,0.18) 0%, rgba(94,226,160,0.05) 100%)"
+  },
+  clHead: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    flexWrap: "wrap",
+    marginBottom: 5
+  },
+  clTitle: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 21,
+    fontWeight: 700,
+    color: C.chalkSoft,
+    letterSpacing: "0.02em",
+    lineHeight: 1.2
+  },
+  clTag: {
+    fontSize: 9.5,
+    letterSpacing: "0.1em",
+    color: C.baizeDeep,
+    background: C.chalkSoft,
+    padding: "2px 7px",
+    borderRadius: 5,
+    fontWeight: 700
+  },
+  clCreed: {
+    fontSize: 12,
+    color: C.boneDim,
+    lineHeight: 1.45,
+    marginBottom: 14
+  },
+  clEn: {
+    display: "block",
+    fontSize: 11.5,
+    color: C.boneDim,
+    marginTop: 3,
+    lineHeight: 1.35
+  },
+  clBasics: {
+    fontSize: 11,
+    letterSpacing: "0.05em",
+    color: C.boneDim,
+    fontStyle: "italic",
+    margin: "2px 0 10px",
+    paddingLeft: 2
+  },
+  clFreeRule: {
+    borderColor: "rgba(217,178,106,0.35)",
+    background: "rgba(217,178,106,0.07)"
+  },
+  clFreeOn: {
+    borderColor: "rgba(217,178,106,0.7)",
+    background: "rgba(217,178,106,0.15)"
+  },
+  clRatingCard: {
+    background: "linear-gradient(180deg, rgba(94,226,160,0.13) 0%, rgba(94,226,160,0.04) 100%)",
+    border: "1.5px solid rgba(94,226,160,0.5)"
+  },
+  clFreeCheck: on => ({
+    width: 26,
+    height: 26,
+    borderRadius: "50%",
+    flexShrink: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: on ? 15 : 13,
+    fontWeight: 700,
+    color: on ? C.baizeDeep : C.cue,
+    background: on ? C.cue : "transparent",
+    border: on ? "none" : `1.5px solid ${C.cue}`,
+    fontFamily: "'Georgia', serif"
+  }),
   rules: {
     background: "rgba(255,255,255,0.03)",
     border: `1px solid ${C.line}`,
@@ -2551,9 +2845,10 @@ const st = {
     background: C.red,
     color: "#fff"
   },
+  // Secondary rating card. 中心線路 overrides this with clRatingCard to lead.
   feather: {
-    background: "linear-gradient(180deg, rgba(94,226,160,0.1) 0%, rgba(94,226,160,0.04) 100%)",
-    border: "1px solid rgba(94,226,160,0.32)",
+    background: "rgba(255,255,255,0.03)",
+    border: `1px solid ${C.line}`,
     borderRadius: 14,
     padding: "18px 18px 16px"
   },
@@ -2566,10 +2861,14 @@ const st = {
   },
   featherNum: {
     fontFamily: "'Georgia', serif",
-    fontSize: 46,
+    fontSize: 40,
     fontWeight: 600,
-    color: C.chalkSoft,
+    color: C.cueDim,
     lineHeight: 1
+  },
+  clNum: {
+    fontSize: 52,
+    color: C.chalkSoft
   },
   featherDen: {
     fontSize: 20,
