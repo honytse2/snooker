@@ -367,18 +367,18 @@ const uid = () => `s_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 const FOCUS_FIELDS = [{
   key: "natural",
   label: "Natural flow",
-  hint: "Effortless rhythm vs. forced/soulless",
+  hint: "Effortless vs. forced",
   type: "scale"
 }, {
   key: "longpot",
   label: "Long pot %",
-  hint: "Roughly, of attempted long pots",
+  hint: "Of attempted long pots",
   type: "pct",
   optional: true
 }, {
   key: "safety",
   label: "Cue ball control",
-  hint: "Cue ball ending where you wanted",
+  hint: "Ending where you wanted",
   type: "scale"
 }];
 const BREAK_FIELDS = [{
@@ -421,6 +421,8 @@ const blankSession = () => ({
   // 4 · 之後放鬆打，自由發揮，感受白波
   centreLine: 7,
   // THE rating (1–10): how well the centre line held this session
+  clAccuracy: 7,
+  // 落線準確度 (1–10): cue down ON the line first time, no micro-adjusting
   // Secondary rating — cue-arm awareness mapped to straight delivery.
   // 9 = complete through the feathers. 10 = carried through the final stroke.
   feather: 7,
@@ -533,7 +535,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "centreLine", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "centreLine", "clAccuracy", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -591,7 +593,7 @@ function App() {
     } catch (err) {
       setImportMsg({
         ok: false,
-        text: "Couldn't read that. Paste a full JSON export from this tracker."
+        text: "Couldn't read that. Paste a JSON export from this tracker."
       });
     }
     setTimeout(() => setImportMsg(null), 6000);
@@ -713,7 +715,7 @@ function LogForm({
     style: st.metaRow
   }, /*#__PURE__*/React.createElement(Field, {
     label: "Venue",
-    hint: "Where you played — carries over"
+    hint: "Carries over"
   }, /*#__PURE__*/React.createElement("input", {
     type: "text",
     placeholder: "e.g. Home / TST / Wiley",
@@ -722,7 +724,7 @@ function LogForm({
     style: st.input
   })), /*#__PURE__*/React.createElement(Field, {
     label: "Table quality",
-    hint: "Conditions, not your form"
+    hint: "Conditions, not form"
   }, /*#__PURE__*/React.createElement("div", {
     style: st.tqDots
   }, [1, 2, 3, 4, 5].map(n => /*#__PURE__*/React.createElement("button", {
@@ -767,13 +769,16 @@ function LogForm({
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: st.toggleDot(draft.enjoymentMode)
-  }), "Entered enjoyment-snooker mode before play"), /*#__PURE__*/React.createElement(SectionLabel, {
+  }), "Entered enjoyment mode before play"), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "01",
     title: "中心線路 held",
     note: "THE rating — how well the line held all session"
   }), /*#__PURE__*/React.createElement(CentreLineRating, {
     value: draft.centreLine,
     onChange: v => set("centreLine", v)
+  }), /*#__PURE__*/React.createElement(LineAccuracy, {
+    value: draft.clAccuracy,
+    onChange: v => set("clAccuracy", v)
   }), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "02",
     title: "Feathering awareness",
@@ -795,7 +800,7 @@ function LogForm({
   }))), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "04",
     title: "One line",
-    note: "Optional — what the cue ball taught you"
+    note: "Optional"
   }), /*#__PURE__*/React.createElement("textarea", {
     placeholder: "e.g. slow smooth acceleration held on the black…",
     value: draft.note,
@@ -958,7 +963,7 @@ function CentreLineMethod({
     style: st.clTag
   }, "ALL FOUR")), /*#__PURE__*/React.createElement("div", {
     style: st.clCreed
-  }, "The only way you play acceptable, enjoyable snooker. Everything else is secondary."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement("button", {
+  }, "The only way you play acceptable, enjoyable snooker. Everything else is secondary — 唔好再放棄呢個練習."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement("button", {
     key: n,
     onClick: onClick,
     style: {
@@ -1021,7 +1026,7 @@ function PreShotRules({
     style: st.ruleCheck(cue)
   }, cue ? "✓" : "0"), /*#__PURE__*/React.createElement("span", {
     style: st.ruleText
-  }, /*#__PURE__*/React.createElement("strong", null, "Check the cue is straight"), " — sight down it one-eyed, butt → tip. Straight = 等邊 symmetrical taper. Rotate 90°, sight again. Bent cue = half-ball off.")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("strong", null, "Check the cue is straight"), " — sight one-eyed, butt → tip. 等邊 taper. Rotate 90°, again. Bent = half-ball off.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.rulesTitle,
       ...st.rulesSubTitle
@@ -1079,9 +1084,9 @@ function MustDoDrills({
     style: st.ruleText
   }, /*#__PURE__*/React.createElement("span", {
     style: st.drillWhen
-  }, "START · 開波"), /*#__PURE__*/React.createElement("strong", null, "Open table, all balls"), " — 培養入波信心. Feel how thick or thin each pot needs · 幾厚幾簿.")), /*#__PURE__*/React.createElement("div", {
+  }, "START · 開波"), /*#__PURE__*/React.createElement("strong", null, "Open table, all balls"), " — 培養入波信心 · 幾厚幾簿.")), /*#__PURE__*/React.createElement("div", {
     style: st.drillGap
-  }, "In between — play whatever you want."), /*#__PURE__*/React.createElement("button", {
+  }, "In between — free play."), /*#__PURE__*/React.createElement("button", {
     onClick: onDtod,
     style: {
       ...st.rule,
@@ -1109,7 +1114,7 @@ function KeystoneCreed({
     style: st.keystoneTitle
   }, "THE LAST LAST · 最後一擊"), /*#__PURE__*/React.createElement("div", {
     style: st.keystoneBody
-  }, "Pause at the end of the backswing — then one slow, smooth acceleration through the white. 停一停，最後一下慢而順. Not the final feather — the final ", /*#__PURE__*/React.createElement("em", null, "delivery"), "."), /*#__PURE__*/React.createElement("div", {
+  }, "停一停，最後一下慢而順 — pause at the top of the backswing, then one smooth acceleration through the white. The final ", /*#__PURE__*/React.createElement("em", null, "delivery"), ", not the final feather."), /*#__PURE__*/React.createElement("div", {
     style: st.keystoneAsk
   }, "Did I hold it this session?"), /*#__PURE__*/React.createElement("div", {
     style: st.seg
@@ -1168,6 +1173,39 @@ function CentreLineRating({
   }, "睇線 → 平放 → 全身遷就. 10 = all three held, then you let go and played."));
 }
 
+// ── 落線準確度 — did the cue land ON the line first time, or need correcting? ──
+// Sits under the main rating: 中心線路 measures whether the line held all
+// session; this measures how clean the very first placement was.
+function LineAccuracy({
+  value,
+  onChange
+}) {
+  const words = ["",
+  // 0 unused
+  "Hunting every shot", "Almost always re-set", "Mostly groping for it", "Lands close, needs a nudge", "Half the shots clean", "Often right, still adjusting", "Mostly clean first time", "Clean, rarely corrected", "One motion onto the line", "落線一次到位 — every shot"];
+  return /*#__PURE__*/React.createElement("div", {
+    style: st.acc
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.accTop
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.accLabel
+  }, "落線準確度"), /*#__PURE__*/React.createElement("span", {
+    style: st.accVal
+  }, value, "/10")), /*#__PURE__*/React.createElement("div", {
+    style: st.accWord
+  }, words[value] || ""), /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    min: 1,
+    max: 10,
+    step: 1,
+    value: value,
+    onChange: e => onChange(Number(e.target.value)),
+    style: st.range
+  }), /*#__PURE__*/React.createElement("div", {
+    style: st.metricHint
+  }, "Cue down ON the line at the first placement — no micro-adjusting to correct it."));
+}
+
 // ─────────────────────────────────────────── FEATHER RATING (secondary)
 function FeatherRating({
   value,
@@ -1204,7 +1242,7 @@ function FeatherRating({
     }
   }, n))), /*#__PURE__*/React.createElement("div", {
     style: st.featherCreed
-  }, "Each feather has one job: feel the cue arm, map it to how straight the cue delivers. 9 = full awareness through the feathers. 10 = it carried through the final stroke."));
+  }, "Feel the cue arm, map it to straight delivery. 10 = carried through the final stroke."));
 }
 
 // ─────────────────────────────────────────── METRIC (scale / pct)
@@ -1411,6 +1449,10 @@ function History({
     v: `${s.centreLine ?? "—"}/10`,
     hot: Number(s.centreLine || 0) >= 8
   }), /*#__PURE__*/React.createElement(Stat, {
+    label: "落線準確",
+    v: `${s.clAccuracy ?? "—"}/10`,
+    hot: Number(s.clAccuracy || 0) >= 8
+  }), /*#__PURE__*/React.createElement(Stat, {
     label: "Feather",
     v: `${s.feather ?? "—"}/10`,
     hot: Number(s.feather || 0) >= 8
@@ -1482,6 +1524,10 @@ function Trends({
   const clData = clSessions.map(s => Number(s.centreLine));
   const clRecent = [...clSessions].reverse().slice(0, 12);
   const clAvg = clRecent.length ? clRecent.reduce((a, s) => a + Number(s.centreLine), 0) / clRecent.length : 0;
+  const accSessions = chrono.filter(s => s.clAccuracy !== undefined && s.clAccuracy !== null);
+  const accData = accSessions.map(s => Number(s.clAccuracy));
+  const accRecent = [...accSessions].reverse().slice(0, 12);
+  const accAvg = accRecent.length ? accRecent.reduce((a, s) => a + Number(s.clAccuracy), 0) / accRecent.length : 0;
   // Feathering only exists from the session it was introduced — skip older
   // sessions entirely rather than charting/averaging them as false zeros.
   const featherSessions = chrono.filter(s => s.feather !== undefined && s.feather !== null);
@@ -1514,6 +1560,11 @@ function Trends({
   })), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
+    label: `落線準確度 · last ${accRecent.length || 0}`,
+    value: accRecent.length ? accAvg.toFixed(1) : "—",
+    suffix: accRecent.length ? "/10" : "",
+    accent: true
+  }), /*#__PURE__*/React.createElement(Kpi, {
     label: `Avg feathering · last ${featherRecent.length || 0}`,
     value: featherRecent.length ? featherAvg.toFixed(1) : "—",
     suffix: featherRecent.length ? "/10" : ""
@@ -1562,6 +1613,12 @@ function Trends({
     suffix: "/10",
     max: 10,
     color: C.chalkSoft
+  }), accData.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
+    title: "落線準確度 · first placement",
+    data: accData,
+    suffix: "/10",
+    max: 10,
+    color: C.ok
   }), feather.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
     title: "Feathering awareness over time",
     data: feather,
@@ -1604,7 +1661,7 @@ function Insights({
   // ── 1. Enjoyment-mode split ──
   const on = sessions.filter(s => s.enjoymentMode);
   const off = sessions.filter(s => !s.enjoymentMode);
-  const splitMetrics = [["centreLine", "中心線路", "/10"], ["feather", "Feathering", "/10"], ["natural", "Natural flow", "/10"], ["longpot", "Long pot", "%"], ["safety", "Cue ball", "/10"]];
+  const splitMetrics = [["centreLine", "中心線路", "/10"], ["clAccuracy", "落線準確度", "/10"], ["feather", "Feathering", "/10"], ["natural", "Natural flow", "/10"], ["longpot", "Long pot", "%"], ["safety", "Cue ball", "/10"]];
 
   // ── 2. Table-quality split (rated sessions only) ──
   const goodT = sessions.filter(s => Number(s.tableQ || 0) >= 4);
@@ -1663,6 +1720,7 @@ function Insights({
 
   // ── 5. Records + cadence ──
   const bestCl = sessions.filter(s => has(s, "centreLine")).reduce((m, s) => Math.max(m, Number(s.centreLine)), 0);
+  const bestAcc = sessions.filter(s => has(s, "clAccuracy")).reduce((m, s) => Math.max(m, Number(s.clAccuracy)), 0);
   const bestFeather = fSessions.reduce((m, s) => Math.max(m, Number(s.feather)), 0);
   const bestCtrl = sessions.reduce((m, s) => Math.max(m, Number(s.safety || 0)), 0);
   const solo = sessions.filter(s => s.mode !== "match");
@@ -1784,7 +1842,7 @@ function Insights({
     style: st.rulesAdhereLabel
   }, "closed · D 打返 D (", closedWith.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "Open with potting confidence, close with cue-ball control. Free play in between.")), /*#__PURE__*/React.createElement("div", {
+  }, "Open with confidence, close with control.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insKeystone
@@ -1810,7 +1868,7 @@ function Insights({
     bLabel: "Didn't"
   }), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "The gap between these columns is the argument for the habit. Keep logging."))), /*#__PURE__*/React.createElement("div", {
+  }, "The gap is the argument. Keep logging."))), /*#__PURE__*/React.createElement("div", {
     style: st.insBlock
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
@@ -1821,6 +1879,11 @@ function Insights({
     value: bestCl || "—",
     suffix: bestCl ? "/10" : "",
     accent: bestCl >= 9
+  }), /*#__PURE__*/React.createElement(Kpi, {
+    label: "Best 落線準確度",
+    value: bestAcc || "—",
+    suffix: bestAcc ? "/10" : "",
+    accent: bestAcc >= 9
   }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Best feathering",
     value: bestFeather || "—",
@@ -1847,7 +1910,7 @@ function Insights({
     style: st.insTitle
   }, "The divergence signal"), /*#__PURE__*/React.createElement("div", {
     style: st.insBody
-  }, "Sessions where awareness held through poor potting (feathering ≥8 while long pot ≤30%):", " ", /*#__PURE__*/React.createElement("strong", {
+  }, "Awareness held through poor potting (feathering ≥8, long pot ≤30%):", " ", /*#__PURE__*/React.createElement("strong", {
     style: {
       color: C.chalkSoft
     }
@@ -2703,6 +2766,35 @@ const st = {
   clFreeOn: {
     borderColor: "rgba(217,178,106,0.7)",
     background: "rgba(217,178,106,0.15)"
+  },
+  acc: {
+    background: "rgba(94,226,160,0.05)",
+    border: "1px solid rgba(94,226,160,0.28)",
+    borderRadius: 12,
+    padding: "13px 15px 14px",
+    marginTop: 10
+  },
+  accTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "baseline"
+  },
+  accLabel: {
+    fontSize: 13.5,
+    fontWeight: 700,
+    color: C.bone
+  },
+  accVal: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 22,
+    fontWeight: 600,
+    color: C.chalkSoft
+  },
+  accWord: {
+    fontSize: 12.5,
+    color: C.chalkSoft,
+    fontStyle: "italic",
+    margin: "2px 0 9px"
   },
   clRatingCard: {
     background: "linear-gradient(180deg, rgba(94,226,160,0.13) 0%, rgba(94,226,160,0.04) 100%)",
