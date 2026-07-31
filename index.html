@@ -433,14 +433,11 @@ const blankSession = () => ({
   highBreak: 0,
   fifties: 0,
   centuries: 0,
-  // Mark Allen drill — required every session.
-  // Black off the spot, pot black + cannon cue ball into reds under the pink.
-  // Round 1 low black, round 2 high black. 6 reds each, 12 total.
+  // LEGACY — the Mark Allen drill was retired along with its readouts. Kept so
+  // older sessions and CSV exports keep their shape; nothing writes these now.
   drillDone: false,
   drillLow: 0,
-  // reds cleared, low-black round (0–6) → shown as success rate
   drillHigh: 0,
-  // reds cleared, high-black round (0–6) → shown as success rate
   drillMins: 12,
   // The two bookend drills — every table session opens and closes with these.
   // Whatever happens in between is free play.
@@ -448,11 +445,10 @@ const blankSession = () => ({
   // open table, all balls — 培養入波信心 + how thick/thin each pot needs
   drillDToD: false,
   // 白波D區打返D區 — 總結白波力量感覺控制
-  // Rolling experiment — whatever you're currently testing (technique, grip,
-  // routine). Carries over between sessions until you change or clear it.
+  // LEGACY — the rolling-experiment block was retired with its readouts. Kept
+  // so older sessions and CSV exports keep their shape; nothing writes these.
   expName: "",
   expVerdict: "",
-  // helped | neutral | hurt | testing | ""
   note: "",
   enjoymentMode: true,
   // did you enter enjoyment-snooker mode first
@@ -497,17 +493,14 @@ function App() {
   };
 
   // Carry stable defaults from the most recent session into a fresh draft —
-  // duration and drill mins rarely change; venue + ongoing experiment persist
-  // until you change or clear them.
+  // duration rarely changes and venue persists until you change it.
   const seedFrom = (list, base) => {
     const last = list && list[0];
     if (!last) return base;
     return {
       ...base,
       duration: last.duration || base.duration,
-      drillMins: last.drillMins || base.drillMins,
-      venue: last.venue || "",
-      expName: last.expName || ""
+      venue: last.venue || ""
     };
   };
   useEffect(() => {
@@ -700,13 +693,7 @@ function LogForm({
     style: st.seg
   }, [["solo", "Solo practice"], ["match", "Match play"]].map(([k, l]) => /*#__PURE__*/React.createElement("button", {
     key: k,
-    onClick: () => k === "match" ? setDraft({
-      ...draft,
-      mode: "match",
-      drillDone: false,
-      drillLow: 0,
-      drillHigh: 0
-    }) : set("mode", k),
+    onClick: () => set("mode", k),
     style: {
       ...st.segBtn,
       ...(draft.mode === k ? st.segOn : {})
@@ -811,125 +798,6 @@ function LogForm({
     onClick: onSave,
     style: st.save
   }, "Save session →"));
-}
-
-// ─────────────────────────────────────────── EXPERIMENT (rolling test)
-function ExperimentBlock({
-  draft,
-  set
-}) {
-  const verdicts = [["testing", "Still testing"], ["helped", "Helped"], ["neutral", "No difference"], ["hurt", "Hurt"]];
-  const active = draft.expName.trim().length > 0;
-  return /*#__PURE__*/React.createElement("div", {
-    style: st.grip
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    placeholder: "What are you testing? e.g. \"final-stroke attention\", \"thumb out\"",
-    value: draft.expName,
-    onChange: e => set("expName", e.target.value),
-    style: st.input
-  }), active && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.seg,
-      marginTop: 10
-    }
-  }, verdicts.map(([k, l]) => /*#__PURE__*/React.createElement("button", {
-    key: k,
-    onClick: () => set("expVerdict", draft.expVerdict === k ? "" : k),
-    style: {
-      ...st.segBtn,
-      ...(draft.expVerdict === k ? st.segOn : {})
-    }
-  }, l))), /*#__PURE__*/React.createElement("div", {
-    style: st.gripCaption
-  }, "This session's verdict only. Insights tallies them over time.")));
-}
-
-// ─────────────────────────────────────────── MARK ALLEN DRILL
-function DrillBlock({
-  draft,
-  set
-}) {
-  const low = Number(draft.drillLow);
-  const high = Number(draft.drillHigh);
-  // Each round is out of 6. Success rate = combined cleared / 12, shown as %.
-  const rate = Math.round((low + high) / 12 * 100);
-  return /*#__PURE__*/React.createElement("div", {
-    style: st.drill
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => set("drillDone", !draft.drillDone),
-    style: {
-      ...st.toggle,
-      ...(draft.drillDone ? st.toggleOn : {}),
-      margin: "0 0 14px"
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.toggleDot(draft.drillDone)
-  }), "Completed the full set this session"), /*#__PURE__*/React.createElement("div", {
-    style: st.drillRounds
-  }, /*#__PURE__*/React.createElement(DrillRound, {
-    label: "Round 1 · Low black",
-    value: low,
-    onChange: v => set("drillLow", v)
-  }), /*#__PURE__*/React.createElement(DrillRound, {
-    label: "Round 2 · High black",
-    value: high,
-    onChange: v => set("drillHigh", v)
-  })), /*#__PURE__*/React.createElement("div", {
-    style: st.drillTotalRow
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.drillTotalNum
-  }, rate, /*#__PURE__*/React.createElement("span", {
-    style: st.drillTotalDen
-  }, "%")), /*#__PURE__*/React.createElement("div", {
-    style: st.drillBarWrap
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.drillBarTrack
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.drillBarFill,
-      width: `${rate}%`
-    }
-  })), /*#__PURE__*/React.createElement("div", {
-    style: st.drillTotalLabel
-  }, "success rate · ", low + high, "/12 reds cleared")), /*#__PURE__*/React.createElement("div", {
-    style: st.drillMins
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    min: "0",
-    value: draft.drillMins,
-    onChange: e => set("drillMins", Number(e.target.value)),
-    style: st.drillMinsInput
-  }), /*#__PURE__*/React.createElement("span", {
-    style: st.drillMinsLabel
-  }, "min"))));
-}
-function DrillRound({
-  label,
-  value,
-  onChange
-}) {
-  const pct = Math.round(value / 6 * 100);
-  return /*#__PURE__*/React.createElement("div", {
-    style: st.drillRound
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.drillRoundLabel
-  }, label), /*#__PURE__*/React.createElement("div", {
-    style: st.dots
-  }, [0, 1, 2, 3, 4, 5, 6].map(n => /*#__PURE__*/React.createElement("button", {
-    key: n,
-    onClick: () => onChange(n),
-    style: {
-      ...st.dotBtn,
-      ...(n === 0 ? st.dotZero : {}),
-      ...(n !== 0 && n <= value ? st.dotFilled : {})
-    },
-    "aria-label": `${n} of 6 cleared`
-  }, n === 0 ? "0" : ""))), /*#__PURE__*/React.createElement("div", {
-    style: st.drillRoundVal
-  }, pct, "%", /*#__PURE__*/React.createElement("span", {
-    style: st.drillRoundSub
-  }, " · ", value, "/6")));
 }
 
 // ─────────────────────────────────────────── KEYSTONE (final-stroke habit)
@@ -1476,10 +1344,6 @@ function History({
     label: "100+",
     v: s.centuries,
     hot: true
-  }), s.mode !== "match" && /*#__PURE__*/React.createElement(Stat, {
-    label: "M.Allen",
-    v: `${Math.round((Number(s.drillLow || 0) + Number(s.drillHigh || 0)) / 12 * 100)}%`,
-    hot: Number(s.drillLow || 0) + Number(s.drillHigh || 0) === 12
   }), Number(s.tableQ || 0) > 0 && /*#__PURE__*/React.createElement(Stat, {
     label: "Table",
     v: `${s.tableQ}/5`,
@@ -1488,9 +1352,7 @@ function History({
     label: "Min",
     v: s.duration,
     dim: true
-  })), s.expName && /*#__PURE__*/React.createElement("div", {
-    style: st.rowExp
-  }, "Testing: ", s.expName, s.expVerdict ? ` — ${s.expVerdict}` : ""), s.note && /*#__PURE__*/React.createElement("div", {
+  })), s.note && /*#__PURE__*/React.createElement("div", {
     style: st.rowNote
   }, "“", s.note, "”")), /*#__PURE__*/React.createElement("button", {
     onClick: () => onRemove(s.id),
@@ -1536,16 +1398,6 @@ function Trends({
   const featherAvg = featherRecent.length ? featherRecent.reduce((a, s) => a + Number(s.feather), 0) / featherRecent.length : 0;
   const breaks = chrono.map(s => Number(s.highBreak));
 
-  // Drill is solo-only — match sessions would inject phantom zeros and
-  // make cue-ball control look worse than it is. Average over solo only.
-  const soloChrono = chrono.filter(s => s.mode !== "match");
-  const soloRecent = sessions.filter(s => s.mode !== "match").slice(0, 12);
-  const soloAvg = k => soloRecent.length ? soloRecent.reduce((a, s) => a + Number(s[k] || 0), 0) / soloRecent.length : 0;
-  const drill = soloChrono.map(s => Math.round((Number(s.drillLow || 0) + Number(s.drillHigh || 0)) / 12 * 100));
-  const hasDrillData = soloRecent.length > 0;
-  const drillRate = Math.round((soloAvg("drillLow") + soloAvg("drillHigh")) / 12 * 100);
-  const lowRate = Math.round(soloAvg("drillLow") / 6 * 100);
-  const highRate = Math.round(soloAvg("drillHigh") / 6 * 100);
   // Long pot is optional — average only over sessions that actually rated it,
   // so untouched sessions don't drag the number toward zero.
   const lpRated = sessions.slice(0, recentN).filter(s => s.longpot !== undefined && s.longpot !== null);
@@ -1580,21 +1432,6 @@ function Trends({
     label: "Career high break",
     value: bestBreak,
     accent: true
-  })), hasDrillData && /*#__PURE__*/React.createElement("div", {
-    style: st.kpiRow
-  }, /*#__PURE__*/React.createElement(Kpi, {
-    label: `Mark Allen rate · last ${soloRecent.length} solo`,
-    value: drillRate,
-    suffix: "%",
-    accent: true
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Low-black success",
-    value: lowRate,
-    suffix: "%"
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "High-black success",
-    value: highRate,
-    suffix: "%"
   })), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
@@ -1625,12 +1462,6 @@ function Trends({
     suffix: "/10",
     max: 10,
     color: C.cueDim
-  }), drill.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "Mark Allen drill · success rate (solo)",
-    data: drill,
-    suffix: "%",
-    max: 100,
-    color: C.ok
   }), /*#__PURE__*/React.createElement(Spark, {
     title: "Highest break over time",
     data: breaks,
@@ -1698,33 +1529,11 @@ function Insights({
   const closedWith = sessions.filter(s => s.drillDToD);
   const pctOf = list => sessions.length ? Math.round(list.length / sessions.length * 100) : 0;
 
-  // ── 4. Experiment tallies ──
-  const expMap = new Map();
-  sessions.forEach(s => {
-    const name = (s.expName || "").trim();
-    if (!name) return;
-    const key = name.toLowerCase();
-    if (!expMap.has(key)) expMap.set(key, {
-      name,
-      helped: 0,
-      neutral: 0,
-      hurt: 0,
-      testing: 0,
-      n: 0
-    });
-    const e = expMap.get(key);
-    e.n += 1;
-    if (e[s.expVerdict] !== undefined) e[s.expVerdict] += 1;
-  });
-  const experiments = [...expMap.values()];
-
   // ── 5. Records + cadence ──
   const bestCl = sessions.filter(s => has(s, "centreLine")).reduce((m, s) => Math.max(m, Number(s.centreLine)), 0);
   const bestAcc = sessions.filter(s => has(s, "clAccuracy")).reduce((m, s) => Math.max(m, Number(s.clAccuracy)), 0);
   const bestFeather = fSessions.reduce((m, s) => Math.max(m, Number(s.feather)), 0);
   const bestCtrl = sessions.reduce((m, s) => Math.max(m, Number(s.safety || 0)), 0);
-  const solo = sessions.filter(s => s.mode !== "match");
-  const bestDrill = solo.reduce((m, s) => Math.max(m, Number(s.drillLow || 0) + Number(s.drillHigh || 0)), 0);
   const cutoff = Date.now() - 28 * 24 * 3600 * 1000;
   const last28 = sessions.filter(s => new Date(s.date + "T00:00:00").getTime() >= cutoff).length;
   const SplitTable = ({
@@ -1898,10 +1707,6 @@ function Insights({
     label: "Career high break",
     value: bestBreak
   }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Best Mark Allen set",
-    value: `${bestDrill}/12`,
-    accent: bestDrill === 12
-  }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Sessions · last 28 days",
     value: last28
   }))), /*#__PURE__*/React.createElement("div", {
@@ -1936,40 +1741,7 @@ function Insights({
     bLabel: "Poor"
   }), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "A dip on a poor table isn't a dip in you.")), experiments.length > 0 && /*#__PURE__*/React.createElement("div", {
-    style: st.insBlock
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "Experiments"), experiments.map(e => /*#__PURE__*/React.createElement("div", {
-    key: e.name,
-    style: st.insExp
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.insExpName
-  }, e.name), /*#__PURE__*/React.createElement("span", {
-    style: st.insExpTally
-  }, e.helped > 0 && /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.chalkSoft
-    }
-  }, "helped ×", e.helped), e.neutral > 0 && /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.boneDim
-    }
-  }, " · no diff ×", e.neutral), e.hurt > 0 && /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.red
-    }
-  }, " · hurt ×", e.hurt), e.testing > 0 && /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.cue
-    }
-  }, " · testing ×", e.testing), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.boneDim
-    }
-  }, " · ", e.n, " session", e.n > 1 ? "s" : "")))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "3+ \"helped\" — keep it. 2+ \"hurt\" — drop it.")));
+  }, "A dip on a poor table isn't a dip in you.")));
 }
 function Spark({
   title,
@@ -2334,145 +2106,6 @@ const st = {
     gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
     gap: 12
   },
-  drill: {
-    background: "rgba(94,226,160,0.06)",
-    border: "1px solid rgba(94,226,160,0.22)",
-    borderRadius: 12,
-    padding: "16px 16px 18px"
-  },
-  drillRounds: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 12,
-    marginBottom: 16
-  },
-  drillRound: {
-    background: "rgba(0,0,0,0.2)",
-    borderRadius: 10,
-    padding: "12px 12px 13px",
-    border: `1px solid ${C.line}`
-  },
-  drillRoundLabel: {
-    fontSize: 12,
-    fontWeight: 600,
-    color: C.bone,
-    marginBottom: 10
-  },
-  dots: {
-    display: "flex",
-    gap: 5,
-    alignItems: "center"
-  },
-  dotBtn: {
-    flex: 1,
-    aspectRatio: "1",
-    minWidth: 0,
-    borderRadius: "50%",
-    border: `1.5px solid ${C.boneDim}`,
-    background: "transparent",
-    cursor: "pointer",
-    fontSize: 9,
-    color: C.boneDim,
-    fontFamily: "inherit",
-    padding: 0,
-    transition: "all 0.12s"
-  },
-  dotZero: {
-    borderStyle: "dashed",
-    opacity: 0.55,
-    fontSize: 10
-  },
-  dotFilled: {
-    background: C.ok,
-    borderColor: C.ok
-  },
-  drillRoundVal: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 15,
-    color: C.ok,
-    fontWeight: 600,
-    marginTop: 9,
-    textAlign: "right"
-  },
-  drillRoundSub: {
-    fontSize: 11,
-    color: C.boneDim,
-    fontFamily: "'Inter', sans-serif",
-    fontWeight: 400
-  },
-  drillTotalRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: 16
-  },
-  drillTotalNum: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 40,
-    fontWeight: 600,
-    color: C.ok,
-    lineHeight: 1
-  },
-  drillTotalDen: {
-    fontSize: 18,
-    color: C.boneDim,
-    marginLeft: 1
-  },
-  drillBarWrap: {
-    flex: 1
-  },
-  drillBarTrack: {
-    height: 8,
-    background: "rgba(0,0,0,0.3)",
-    borderRadius: 4,
-    overflow: "hidden"
-  },
-  drillBarFill: {
-    height: "100%",
-    background: C.ok,
-    borderRadius: 4,
-    transition: "width 0.2s"
-  },
-  drillTotalLabel: {
-    fontSize: 11.5,
-    color: C.boneDim,
-    marginTop: 7
-  },
-  drillMins: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: 2
-  },
-  drillMinsInput: {
-    width: 52,
-    background: "rgba(0,0,0,0.25)",
-    border: `1px solid ${C.line}`,
-    borderRadius: 8,
-    color: C.bone,
-    padding: "8px 6px",
-    fontSize: 15,
-    fontFamily: "inherit",
-    textAlign: "center",
-    boxSizing: "border-box"
-  },
-  drillMinsLabel: {
-    fontSize: 10,
-    color: C.boneDim,
-    letterSpacing: "0.08em"
-  },
-  grip: {
-    background: "rgba(255,255,255,0.025)",
-    border: `1px solid ${C.line}`,
-    borderRadius: 12,
-    padding: "14px 15px 15px"
-  },
-  gripCaption: {
-    fontSize: 11,
-    color: C.cueDim,
-    marginTop: 10,
-    lineHeight: 1.4,
-    textAlign: "center"
-  },
   tqDots: {
     display: "flex",
     alignItems: "center",
@@ -2558,12 +2191,6 @@ const st = {
     fontWeight: 700,
     letterSpacing: "0.03em",
     opacity: 0.85
-  },
-  rowExp: {
-    fontSize: 12,
-    color: C.cue,
-    marginTop: 11,
-    fontStyle: "italic"
   },
   insBlock: {
     background: C.panel,
@@ -2682,22 +2309,6 @@ const st = {
     fontFamily: "'Georgia', serif",
     fontSize: 15,
     color: C.bone
-  },
-  insExp: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: 12,
-    padding: "8px 0",
-    borderBottom: `1px solid ${C.line}`,
-    flexWrap: "wrap"
-  },
-  insExpName: {
-    fontSize: 13.5,
-    color: C.bone,
-    fontWeight: 600
-  },
-  insExpTally: {
-    fontSize: 12.5
   },
   featherKpiWrap: {
     marginBottom: 10
