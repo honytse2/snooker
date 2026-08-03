@@ -407,10 +407,18 @@ const blankSession = () => ({
   // where — lets trends separate table conditions from form
   tableQ: 0,
   // table quality 1–5, 0 = unrated
-  // ── 中心線路平放大法 — THE method. Everything below is secondary to it. ──
-  // The only route to snooker that is both acceptable and enjoyable. Steps 1–3
-  // are 基本功: they must be complete before a ball is struck. Step 4 is what
-  // finishing them earns — relaxed, free play with the white.
+  // ── 手腕發力法 — the engine. Tops everything, including 中心線路平放大法. ──
+  // All power and all cue-ball feel come from flicking the wrist into the white.
+  // Calibrate the benchmark at 開枱, then every shot is a chosen % of it.
+  wristBenchmark: false,
+  // 開枱: max force each hand, up and down the table, trajectory straight = 100%
+  wristPerShot: false,
+  // every shot: recall the benchmark, pick the % (40%? 60%?), flick to exactly that
+  wristForce: 7,
+  // 發力控制 (1–10): how consistently each shot was a chosen % delivered by wrist
+  // ── 中心線路平放大法 — the method every shot is aimed along. ──
+  // Steps 1–3 are 基本功: they must be complete before a ball is struck. Step 4
+  // is what finishing them earns — relaxed, free play with the white.
   clLine: false,
   // 1 · 睇幾厚幾簿，搵出中心線路
   clFlat: false,
@@ -528,7 +536,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "centreLine", "clAccuracy", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "wristForce", "wristBenchmark", "wristPerShot", "centreLine", "clAccuracy", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -724,7 +732,14 @@ function LogForm({
     "aria-label": `table quality ${n} of 5`
   })), /*#__PURE__*/React.createElement("span", {
     style: st.tqVal
-  }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), /*#__PURE__*/React.createElement(CentreLineMethod, {
+  }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), /*#__PURE__*/React.createElement(WristForce, {
+    bench: draft.wristBenchmark,
+    perShot: draft.wristPerShot,
+    force: draft.wristForce,
+    onBench: () => set("wristBenchmark", !draft.wristBenchmark),
+    onPerShot: () => set("wristPerShot", !draft.wristPerShot),
+    onForce: v => set("wristForce", v)
+  }), /*#__PURE__*/React.createElement(CentreLineMethod, {
     line: draft.clLine,
     flat: draft.clFlat,
     body: draft.clBody,
@@ -759,12 +774,15 @@ function LogForm({
   }), "Entered enjoyment mode before play"), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "01",
     title: "中心線路 held",
-    note: "THE rating — how well the line held all session"
+    note: "How well the line held all session"
   }), /*#__PURE__*/React.createElement(CentreLineRating, {
     value: draft.centreLine,
     onChange: v => set("centreLine", v)
-  }), /*#__PURE__*/React.createElement(LineAccuracy, {
+  }), /*#__PURE__*/React.createElement(MiniRating, {
+    label: "落線準確度",
     value: draft.clAccuracy,
+    words: ACC_WORDS,
+    hint: "Cue down ON the line at the first placement — no micro-adjusting.",
     onChange: v => set("clAccuracy", v)
   }), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "02",
@@ -802,6 +820,55 @@ function LogForm({
 
 // ─────────────────────────────────────────── KEYSTONE (final-stroke habit)
 // The one habit everything else serves. It got buried within 10 days of its
+// ─────────────────────────────────────────── 手腕發力法 — THE ENGINE
+// Tops everything, including 中心線路平放大法. All power and all cue-ball feel
+// come from the wrist flick. Calibrate the benchmark at 開枱, then every single
+// shot is a deliberately chosen percentage of it — never a guess.
+function WristForce({
+  bench,
+  perShot,
+  force,
+  onBench,
+  onPerShot,
+  onForce
+}) {
+  const both = bench && perShot;
+  const steps = [["1", bench, onBench, "開枱先定 benchmark", "Max force each hand, up and down the table, trajectory as straight as you can. That is your 100%."], ["2", perShot, onPerShot, "每一球揀好用幾多 %", "Recall the benchmark → 40%? 60%? → flick the wrist to exactly that."]];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.cl,
+      ...(both ? st.clArmed : {})
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clHead
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clTitle
+  }, "手腕發力法"), both && /*#__PURE__*/React.createElement("span", {
+    style: st.clTag
+  }, "BOTH")), /*#__PURE__*/React.createElement("div", {
+    style: st.clCreed
+  }, "Power and cue-ball feel both come from flicking the wrist into the white. This sits above everything — 一切由手腕帶起，唔好用手臂推."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement("button", {
+    key: n,
+    onClick: onClick,
+    style: {
+      ...st.rule,
+      ...(on ? st.ruleOn : {})
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.ruleCheck(on)
+  }, on ? "✓" : n), /*#__PURE__*/React.createElement("span", {
+    style: st.ruleText
+  }, /*#__PURE__*/React.createElement("strong", null, zh), /*#__PURE__*/React.createElement("span", {
+    style: st.clEn
+  }, en)))), /*#__PURE__*/React.createElement(MiniRating, {
+    label: "發力控制",
+    value: force,
+    words: FORCE_WORDS,
+    hint: "Every shot a chosen % of the benchmark, delivered by the wrist — not a guess, not the arm.",
+    onChange: onForce
+  }));
+}
+
 // ─────────────────────────────────────────── 中心線路平放大法 — THE METHOD
 // The one that makes snooker both playable and enjoyable. Steps 1–3 are 基本功
 // and must be complete before a ball is struck; step 4 is what they earn.
@@ -831,7 +898,7 @@ function CentreLineMethod({
     style: st.clTag
   }, "ALL FOUR")), /*#__PURE__*/React.createElement("div", {
     style: st.clCreed
-  }, "The only way you play acceptable, enjoyable snooker. Everything else is secondary — 唔好再放棄呢個練習."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement("button", {
+  }, "The line every shot is aimed along. With 手腕發力法, these two come before everything else — 唔好再放棄呢個練習."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement("button", {
     key: n,
     onClick: onClick,
     style: {
@@ -1041,23 +1108,21 @@ function CentreLineRating({
   }, "睇線 → 平放 → 全身遷就. 10 = all three held, then you let go and played."));
 }
 
-// ── 落線準確度 — did the cue land ON the line first time, or need correcting? ──
-// Sits under the main rating: 中心線路 measures whether the line held all
-// session; this measures how clean the very first placement was.
-function LineAccuracy({
+// ── Compact 1–10 rating with word feedback. Used by the two fundamentals. ──
+function MiniRating({
+  label,
   value,
+  words,
+  hint,
   onChange
 }) {
-  const words = ["",
-  // 0 unused
-  "Hunting every shot", "Almost always re-set", "Mostly groping for it", "Lands close, needs a nudge", "Half the shots clean", "Often right, still adjusting", "Mostly clean first time", "Clean, rarely corrected", "One motion onto the line", "落線一次到位 — every shot"];
   return /*#__PURE__*/React.createElement("div", {
     style: st.acc
   }, /*#__PURE__*/React.createElement("div", {
     style: st.accTop
   }, /*#__PURE__*/React.createElement("span", {
     style: st.accLabel
-  }, "落線準確度"), /*#__PURE__*/React.createElement("span", {
+  }, label), /*#__PURE__*/React.createElement("span", {
     style: st.accVal
   }, value, "/10")), /*#__PURE__*/React.createElement("div", {
     style: st.accWord
@@ -1071,8 +1136,10 @@ function LineAccuracy({
     style: st.range
   }), /*#__PURE__*/React.createElement("div", {
     style: st.metricHint
-  }, "Cue down ON the line at the first placement — no micro-adjusting to correct it."));
+  }, hint));
 }
+const ACC_WORDS = ["", "Hunting every shot", "Almost always re-set", "Mostly groping for it", "Lands close, needs a nudge", "Half the shots clean", "Often right, still adjusting", "Mostly clean first time", "Clean, rarely corrected", "One motion onto the line", "落線一次到位 — every shot"];
+const FORCE_WORDS = ["", "Arm-pushed, no benchmark", "Random force every shot", "Benchmark set, then forgotten", "Guessing the power", "Half the shots chosen", "Often chosen, wrist patchy", "Mostly wrist, % roughly right", "Wrist every shot, % close", "Chosen % nearly every shot", "每一球都揀好個% — wrist only"];
 
 // ─────────────────────────────────────────── FEATHER RATING (secondary)
 function FeatherRating({
@@ -1294,7 +1361,9 @@ function History({
     style: st.rowMode(s.mode)
   }, s.mode === "match" ? "MATCH" : "SOLO"), s.venue && /*#__PURE__*/React.createElement("span", {
     style: st.rowVenue
-  }, s.venue), s.clLine && s.clFlat && s.clBody && s.clFree && /*#__PURE__*/React.createElement("span", {
+  }, s.venue), s.wristBenchmark && s.wristPerShot && /*#__PURE__*/React.createElement("span", {
+    style: st.rowCl
+  }, "手腕發力 ✓"), s.clLine && s.clFlat && s.clBody && s.clFree && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
   }, "平放大法 ✓"), s.lastDelivery === "every" && /*#__PURE__*/React.createElement("span", {
     style: st.rowKeyOn
@@ -1313,6 +1382,10 @@ function History({
   }, "no enjoyment mode")), /*#__PURE__*/React.createElement("div", {
     style: st.rowStats
   }, /*#__PURE__*/React.createElement(Stat, {
+    label: "發力控制",
+    v: `${s.wristForce ?? "—"}/10`,
+    hot: Number(s.wristForce || 0) >= 8
+  }), /*#__PURE__*/React.createElement(Stat, {
     label: "中心線路",
     v: `${s.centreLine ?? "—"}/10`,
     hot: Number(s.centreLine || 0) >= 8
@@ -1380,22 +1453,21 @@ function Trends({
 
   // sparkline data — oldest→newest
   const chrono = [...sessions].reverse();
-  // 中心線路 is THE metric, and only exists from the session it was introduced.
-  // Skip older sessions rather than charting them as false zeros.
-  const clSessions = chrono.filter(s => s.centreLine !== undefined && s.centreLine !== null);
-  const clData = clSessions.map(s => Number(s.centreLine));
-  const clRecent = [...clSessions].reverse().slice(0, 12);
-  const clAvg = clRecent.length ? clRecent.reduce((a, s) => a + Number(s.centreLine), 0) / clRecent.length : 0;
-  const accSessions = chrono.filter(s => s.clAccuracy !== undefined && s.clAccuracy !== null);
-  const accData = accSessions.map(s => Number(s.clAccuracy));
-  const accRecent = [...accSessions].reverse().slice(0, 12);
-  const accAvg = accRecent.length ? accRecent.reduce((a, s) => a + Number(s.clAccuracy), 0) / accRecent.length : 0;
-  // Feathering only exists from the session it was introduced — skip older
-  // sessions entirely rather than charting/averaging them as false zeros.
-  const featherSessions = chrono.filter(s => s.feather !== undefined && s.feather !== null);
-  const feather = featherSessions.map(s => Number(s.feather));
-  const featherRecent = [...featherSessions].reverse().slice(0, 12);
-  const featherAvg = featherRecent.length ? featherRecent.reduce((a, s) => a + Number(s.feather), 0) / featherRecent.length : 0;
+  // Each rating only exists from the session it was introduced, so skip older
+  // sessions rather than charting or averaging them as false zeros.
+  const series = k => {
+    const list = chrono.filter(s => s[k] !== undefined && s[k] !== null);
+    const recent = [...list].reverse().slice(0, 12);
+    return {
+      data: list.map(s => Number(s[k])),
+      n: recent.length,
+      avg: recent.length ? recent.reduce((a, s) => a + Number(s[k]), 0) / recent.length : 0
+    };
+  };
+  const wf = series("wristForce");
+  const cl = series("centreLine");
+  const acc = series("clAccuracy");
+  const fe = series("feather");
   const breaks = chrono.map(s => Number(s.highBreak));
 
   // Long pot is optional — average only over sessions that actually rated it,
@@ -1405,21 +1477,26 @@ function Trends({
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: st.featherKpiWrap
   }, /*#__PURE__*/React.createElement(Kpi, {
-    label: `中心線路平放大法 · avg last ${clRecent.length || 0}`,
-    value: clRecent.length ? clAvg.toFixed(1) : "—",
-    suffix: clRecent.length ? "/10" : "",
+    label: `手腕發力法 · 發力控制 · avg last ${wf.n || 0}`,
+    value: wf.n ? wf.avg.toFixed(1) : "—",
+    suffix: wf.n ? "/10" : "",
     accent: true
   })), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
-    label: `落線準確度 · last ${accRecent.length || 0}`,
-    value: accRecent.length ? accAvg.toFixed(1) : "—",
-    suffix: accRecent.length ? "/10" : "",
+    label: `中心線路 · last ${cl.n || 0}`,
+    value: cl.n ? cl.avg.toFixed(1) : "—",
+    suffix: cl.n ? "/10" : "",
     accent: true
   }), /*#__PURE__*/React.createElement(Kpi, {
-    label: `Avg feathering · last ${featherRecent.length || 0}`,
-    value: featherRecent.length ? featherAvg.toFixed(1) : "—",
-    suffix: featherRecent.length ? "/10" : ""
+    label: `落線準確度 · last ${acc.n || 0}`,
+    value: acc.n ? acc.avg.toFixed(1) : "—",
+    suffix: acc.n ? "/10" : "",
+    accent: true
+  }), /*#__PURE__*/React.createElement(Kpi, {
+    label: `Avg feathering · last ${fe.n || 0}`,
+    value: fe.n ? fe.avg.toFixed(1) : "—",
+    suffix: fe.n ? "/10" : ""
   }), /*#__PURE__*/React.createElement(Kpi, {
     label: `Avg natural · last ${recentN}`,
     value: avg("natural").toFixed(1),
@@ -1444,21 +1521,21 @@ function Trends({
   }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Sessions logged",
     value: sessions.length
-  })), clData.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "中心線路 held · over time",
-    data: clData,
+  })), wf.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
+    title: "發力控制 · wrist into the white",
+    data: wf.data,
     suffix: "/10",
     max: 10,
     color: C.chalkSoft
-  }), accData.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "落線準確度 · first placement",
-    data: accData,
+  }), cl.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
+    title: "中心線路 held · over time",
+    data: cl.data,
     suffix: "/10",
     max: 10,
     color: C.ok
-  }), feather.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "Feathering awareness over time",
-    data: feather,
+  }), acc.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
+    title: "落線準確度 · first placement",
+    data: acc.data,
     suffix: "/10",
     max: 10,
     color: C.cueDim
@@ -1492,7 +1569,7 @@ function Insights({
   // ── 1. Enjoyment-mode split ──
   const on = sessions.filter(s => s.enjoymentMode);
   const off = sessions.filter(s => !s.enjoymentMode);
-  const splitMetrics = [["centreLine", "中心線路", "/10"], ["clAccuracy", "落線準確度", "/10"], ["feather", "Feathering", "/10"], ["natural", "Natural flow", "/10"], ["longpot", "Long pot", "%"], ["safety", "Cue ball", "/10"]];
+  const splitMetrics = [["wristForce", "發力控制", "/10"], ["centreLine", "中心線路", "/10"], ["clAccuracy", "落線準確度", "/10"], ["feather", "Feathering", "/10"], ["natural", "Natural flow", "/10"], ["longpot", "Long pot", "%"], ["safety", "Cue ball", "/10"]];
 
   // ── 2. Table-quality split (rated sessions only) ──
   const goodT = sessions.filter(s => Number(s.tableQ || 0) >= 4);
@@ -1517,6 +1594,7 @@ function Insights({
   const clDone = sessions.filter(s => s.clLine && s.clFlat && s.clBody);
   const clNot = sessions.filter(s => has(s, "clLine") && !(s.clLine && s.clFlat && s.clBody));
   const clSteps = [["clLine", "1 · 睇線"], ["clFlat", "2 · 平放"], ["clBody", "3 · 全身遷就"], ["clFree", "4 · 放鬆自由"]];
+  const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"]];
 
   // ── 3c. Pre-shot two-rules adherence ──
   const bothRules = sessions.filter(s => s.ruleChinChest && s.ruleTipFeedback);
@@ -1530,6 +1608,7 @@ function Insights({
   const pctOf = list => sessions.length ? Math.round(list.length / sessions.length * 100) : 0;
 
   // ── 5. Records + cadence ──
+  const bestWf = sessions.filter(s => has(s, "wristForce")).reduce((m, s) => Math.max(m, Number(s.wristForce)), 0);
   const bestCl = sessions.filter(s => has(s, "centreLine")).reduce((m, s) => Math.max(m, Number(s.centreLine)), 0);
   const bestAcc = sessions.filter(s => has(s, "clAccuracy")).reduce((m, s) => Math.max(m, Number(s.clAccuracy)), 0);
   const bestFeather = fSessions.reduce((m, s) => Math.max(m, Number(s.feather)), 0);
@@ -1574,6 +1653,27 @@ function Insights({
     }, d === null ? "—" : `${d > 0 ? "+" : ""}${d.toFixed(1)}`));
   }));
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insBlock,
+      ...st.insCl
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "手腕發力法 · the engine"), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereRow
+  }, wristSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.rulesAdhereNum,
+      fontSize: 26
+    }
+  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, label)))), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "Benchmark at 開枱, then every shot a chosen % of it. Below 100% is a session you guessed the power.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insCl
@@ -1684,6 +1784,11 @@ function Insights({
   }, "Records"), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
+    label: "Best 發力控制",
+    value: bestWf || "—",
+    suffix: bestWf ? "/10" : "",
+    accent: bestWf >= 9
+  }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Best 中心線路",
     value: bestCl || "—",
     suffix: bestCl ? "/10" : "",
