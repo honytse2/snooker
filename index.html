@@ -431,6 +431,15 @@ const blankSession = () => ({
   // THE rating (1–10): how well the centre line held this session
   clAccuracy: 7,
   // 落線準確度 (1–10): cue down ON the line first time, no micro-adjusting
+  // ── 假想球 → 冇可能唔入 — the third fundamental, after wrist and line. ──
+  // Picture the ghost ball and the object ball's path into the pocket, and hold
+  // it until there is no doubt left. Only then deliver.
+  ghostSee: false,
+  // see the ghost ball + the object ball's line into the pocket
+  ghostNoDoubt: false,
+  // hold the picture until 冇可能唔入 — any doubt means stand up and restart
+  ghostConfidence: 7,
+  // 出杆信心 (1–10): how consistently you reached no-doubt before delivering
   // Secondary rating — cue-arm awareness mapped to straight delivery.
   // 9 = complete through the feathers. 10 = carried through the final stroke.
   feather: 7,
@@ -536,7 +545,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "wristForce", "wristBenchmark", "wristPerShot", "centreLine", "clAccuracy", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "wristForce", "wristBenchmark", "wristPerShot", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -744,10 +753,21 @@ function LogForm({
     flat: draft.clFlat,
     body: draft.clBody,
     free: draft.clFree,
+    centreLine: draft.centreLine,
+    accuracy: draft.clAccuracy,
     onLine: () => set("clLine", !draft.clLine),
     onFlat: () => set("clFlat", !draft.clFlat),
     onBody: () => set("clBody", !draft.clBody),
-    onFree: () => set("clFree", !draft.clFree)
+    onFree: () => set("clFree", !draft.clFree),
+    onCentreLine: v => set("centreLine", v),
+    onAccuracy: v => set("clAccuracy", v)
+  }), /*#__PURE__*/React.createElement(GhostBall, {
+    see: draft.ghostSee,
+    noDoubt: draft.ghostNoDoubt,
+    confidence: draft.ghostConfidence,
+    onSee: () => set("ghostSee", !draft.ghostSee),
+    onNoDoubt: () => set("ghostNoDoubt", !draft.ghostNoDoubt),
+    onConfidence: v => set("ghostConfidence", v)
   }), /*#__PURE__*/React.createElement(PreShotRules, {
     cue: draft.ruleCueStraight,
     chin: draft.ruleChinChest,
@@ -773,26 +793,13 @@ function LogForm({
     style: st.toggleDot(draft.enjoymentMode)
   }), "Entered enjoyment mode before play"), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "01",
-    title: "中心線路 held",
-    note: "How well the line held all session"
-  }), /*#__PURE__*/React.createElement(CentreLineRating, {
-    value: draft.centreLine,
-    onChange: v => set("centreLine", v)
-  }), /*#__PURE__*/React.createElement(MiniRating, {
-    label: "落線準確度",
-    value: draft.clAccuracy,
-    words: ACC_WORDS,
-    hint: "Cue down ON the line at the first placement — no micro-adjusting.",
-    onChange: v => set("clAccuracy", v)
-  }), /*#__PURE__*/React.createElement(SectionLabel, {
-    n: "02",
     title: "Feathering awareness",
     note: "Secondary — feel vs. straight delivery"
   }), /*#__PURE__*/React.createElement(FeatherRating, {
     value: draft.feather,
     onChange: v => set("feather", v)
   }), /*#__PURE__*/React.createElement(SectionLabel, {
-    n: "03",
+    n: "02",
     title: "Feel & control",
     note: "Rate from memory of the session"
   }), /*#__PURE__*/React.createElement("div", {
@@ -803,7 +810,7 @@ function LogForm({
     value: draft[f.key],
     onChange: v => set(f.key, v)
   }))), /*#__PURE__*/React.createElement(SectionLabel, {
-    n: "04",
+    n: "03",
     title: "One line",
     note: "Optional"
   }), /*#__PURE__*/React.createElement("textarea", {
@@ -818,12 +825,34 @@ function LogForm({
   }, "Save session →"));
 }
 
-// ─────────────────────────────────────────── KEYSTONE (final-stroke habit)
-// The one habit everything else serves. It got buried within 10 days of its
-// ─────────────────────────────────────────── 手腕發力法 — THE ENGINE
-// Tops everything, including 中心線路平放大法. All power and all cue-ball feel
-// come from the wrist flick. Calibrate the benchmark at 開枱, then every single
-// shot is a deliberately chosen percentage of it — never a guess.
+// ── One tickable step row. Shared by all three fundamentals. The keyword is
+// always visible; the full description only appears when (i) is expanded. ──
+const StepRow = ({
+  n,
+  on,
+  onClick,
+  zh,
+  en,
+  info,
+  gold
+}) => /*#__PURE__*/React.createElement("button", {
+  onClick: onClick,
+  style: {
+    ...st.rule,
+    ...(gold ? st.clFreeRule : {}),
+    ...(on ? gold ? st.clFreeOn : st.ruleOn : {})
+  }
+}, /*#__PURE__*/React.createElement("span", {
+  style: gold ? st.clFreeCheck(on) : st.ruleCheck(on)
+}, on ? "\u2713" : n), /*#__PURE__*/React.createElement("span", {
+  style: st.ruleText
+}, /*#__PURE__*/React.createElement("strong", null, zh), info && /*#__PURE__*/React.createElement("span", {
+  style: st.clEn
+}, en)));
+
+// ─────────────────────────────────────────── 1 · 手腕發力法 — THE ENGINE
+// Tops everything. All power and all cue-ball feel come from the wrist flick.
+// Calibrate the benchmark at 開枱, then every shot is a chosen percentage of it.
 function WristForce({
   bench,
   perShot,
@@ -832,8 +861,9 @@ function WristForce({
   onPerShot,
   onForce
 }) {
+  const [info, setInfo] = useState(false);
   const both = bench && perShot;
-  const steps = [["1", bench, onBench, "開枱先定 benchmark", "Max force each hand, up and down the table, trajectory as straight as you can. That is your 100%."], ["2", perShot, onPerShot, "每一球揀好用幾多 %", "Recall the benchmark → 40%? 60%? → flick the wrist to exactly that."]];
+  const steps = [["1", bench, onBench, "開枱定 benchmark", "Max force each hand, up and down the table, trajectory as straight as you can. That is your 100%."], ["2", perShot, onPerShot, "每一球揀 %", "Recall the benchmark → 40%? 60%? → flick the wrist to exactly that."]];
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.cl,
@@ -845,46 +875,52 @@ function WristForce({
     style: st.clTitle
   }, "手腕發力法"), both && /*#__PURE__*/React.createElement("span", {
     style: st.clTag
-  }, "BOTH")), /*#__PURE__*/React.createElement("div", {
+  }, "BOTH"), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), info && /*#__PURE__*/React.createElement("div", {
     style: st.clCreed
-  }, "Power and cue-ball feel both come from flicking the wrist into the white. This sits above everything — 一切由手腕帶起，唔好用手臂推."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement("button", {
+  }, "Power and cue-ball feel both come from flicking the wrist into the white. This sits above everything — 一切由手腕帶起，唔好用手臂推."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
     key: n,
+    n: n,
+    on: on,
     onClick: onClick,
-    style: {
-      ...st.rule,
-      ...(on ? st.ruleOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.ruleCheck(on)
-  }, on ? "✓" : n), /*#__PURE__*/React.createElement("span", {
-    style: st.ruleText
-  }, /*#__PURE__*/React.createElement("strong", null, zh), /*#__PURE__*/React.createElement("span", {
-    style: st.clEn
-  }, en)))), /*#__PURE__*/React.createElement(MiniRating, {
+    zh: zh,
+    en: en,
+    info: info
+  })), /*#__PURE__*/React.createElement(MiniRating, {
     label: "發力控制",
     value: force,
     words: FORCE_WORDS,
     hint: "Every shot a chosen % of the benchmark, delivered by the wrist — not a guess, not the arm.",
+    info: info,
     onChange: onForce
   }));
 }
 
-// ─────────────────────────────────────────── 中心線路平放大法 — THE METHOD
-// The one that makes snooker both playable and enjoyable. Steps 1–3 are 基本功
-// and must be complete before a ball is struck; step 4 is what they earn.
+// ─────────────────────────────────────────── 2 · 中心線路平放大法 — THE LINE
+// Steps 1–3 are 基本功 and must be complete before a ball is struck; step 4 is
+// what finishing them earns. Both ratings live in the card.
 function CentreLineMethod({
   line,
   flat,
   body,
   free,
+  centreLine,
+  accuracy,
   onLine,
   onFlat,
   onBody,
-  onFree
+  onFree,
+  onCentreLine,
+  onAccuracy
 }) {
+  const [info, setInfo] = useState(false);
   const basics = line && flat && body;
   const all = basics && free;
-  const steps = [["1", line, onLine, "睇打目標球幾厚幾簿，搵出中心線路", "Read the contact first — thick or thin — and find the centre line."], ["2", flat, onFlat, "平放支cue落中心線路", "平放 = no grip force at all. Four fingers only, just cancelling the cue's weight."], ["3", body, onBody, "全身迎合遷就呢條中心線路", "Eyes, waist, bridge hand — every part gives way to the line."]];
+  const steps = [["1", line, onLine, "睇厚簿．搵中心線路", "Read the contact first — thick or thin — and find the centre line."], ["2", flat, onFlat, "平放支cue", "平放 = no grip force at all. Four fingers only, just cancelling the cue's weight."], ["3", body, onBody, "全身遷就條線", "Eyes, waist, bridge hand — every part gives way to the line."]];
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.cl,
@@ -896,38 +932,96 @@ function CentreLineMethod({
     style: st.clTitle
   }, "中心線路平放大法"), all && /*#__PURE__*/React.createElement("span", {
     style: st.clTag
-  }, "ALL FOUR")), /*#__PURE__*/React.createElement("div", {
+  }, "ALL FOUR"), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), info && /*#__PURE__*/React.createElement("div", {
     style: st.clCreed
-  }, "The line every shot is aimed along. With 手腕發力法, these two come before everything else — 唔好再放棄呢個練習."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement("button", {
+  }, "The line every shot is aimed along. With 手腕發力法, these two come before everything else — 唔好再放棄呢個練習."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
     key: n,
+    n: n,
+    on: on,
     onClick: onClick,
-    style: {
-      ...st.rule,
-      ...(on ? st.ruleOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.ruleCheck(on)
-  }, on ? "✓" : n), /*#__PURE__*/React.createElement("span", {
-    style: st.ruleText
-  }, /*#__PURE__*/React.createElement("strong", null, zh), /*#__PURE__*/React.createElement("span", {
-    style: st.clEn
-  }, en)))), /*#__PURE__*/React.createElement("div", {
+    zh: zh,
+    en: en,
+    info: info
+  })), /*#__PURE__*/React.createElement("div", {
     style: st.clBasics
-  }, basics ? "基本功 done — now play." : "1–3 是基本功 · complete before you strike."), /*#__PURE__*/React.createElement("button", {
+  }, basics ? "基本功 done — now play." : "1–3 基本功"), /*#__PURE__*/React.createElement(StepRow, {
+    n: "4",
+    on: free,
     onClick: onFree,
+    zh: "放鬆自由發揮",
+    en: "Then let go — free play, feel the white.",
+    info: info,
+    gold: true
+  }), /*#__PURE__*/React.createElement(MiniRating, {
+    label: "中心線路",
+    value: centreLine,
+    words: CL_WORDS,
+    hint: "睇線 → 平放 → 全身遷就. 10 = all three held, then you let go and played.",
+    info: info,
+    onChange: onCentreLine
+  }), /*#__PURE__*/React.createElement(MiniRating, {
+    label: "落線準確度",
+    value: accuracy,
+    words: ACC_WORDS,
+    hint: "Cue down ON the line at the first placement — no micro-adjusting.",
+    info: info,
+    onChange: onAccuracy
+  }));
+}
+
+// ─────────────────────────────────────────── 3 · 假想球 — NO DOUBT
+// Sits right after the wrist and the line. Picture the ghost ball and the
+// object ball's path into the pocket, and hold it until there is no doubt.
+function GhostBall({
+  see,
+  noDoubt,
+  confidence,
+  onSee,
+  onNoDoubt,
+  onConfidence
+}) {
+  const [info, setInfo] = useState(false);
+  const both = see && noDoubt;
+  const steps = [["1", see, onSee, "睇假想球．目標球路線", "See the ghost ball at the contact point, and the object ball's line all the way into the pocket."], ["2", noDoubt, onNoDoubt, "冇可能唔入先出杆", "Hold the picture until there is no doubt left. Any doubt = stand up and start the shot again."]];
+  return /*#__PURE__*/React.createElement("div", {
     style: {
-      ...st.rule,
-      ...st.clFreeRule,
-      ...(free ? st.clFreeOn : {}),
-      marginBottom: 0
+      ...st.cl,
+      ...(both ? st.clArmed : {})
     }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.clFreeCheck(free)
-  }, free ? "✓" : "4"), /*#__PURE__*/React.createElement("span", {
-    style: st.ruleText
-  }, /*#__PURE__*/React.createElement("strong", null, "之後放鬆打，自由發揮"), /*#__PURE__*/React.createElement("span", {
-    style: st.clEn
-  }, "Then let go — free play, feel the white."))));
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clHead
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clTitle
+  }, "假想球 → 冇可能唔入"), both && /*#__PURE__*/React.createElement("span", {
+    style: st.clTag
+  }, "BOTH"), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), info && /*#__PURE__*/React.createElement("div", {
+    style: st.clCreed
+  }, "Imagine the ghost ball and the object ball's trajectory into the pocket, and keep looking until it reads no way this is gonna miss. No doubt before you deliver — this is what makes the potting accurate."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
+    key: n,
+    n: n,
+    on: on,
+    onClick: onClick,
+    zh: zh,
+    en: en,
+    info: info
+  })), /*#__PURE__*/React.createElement(MiniRating, {
+    label: "出杆信心",
+    value: confidence,
+    words: GHOST_WORDS,
+    hint: "How consistently you reached 冇可能唔入 before delivering, rather than firing with doubt.",
+    info: info,
+    onChange: onConfidence
+  }));
 }
 
 // ─────────────────────────────────────────── PRE-SHOT NON-NEGOTIABLES
@@ -941,6 +1035,7 @@ function PreShotRules({
   onChin,
   onTip
 }) {
+  const [info, setInfo] = useState(false);
   const all = cue && chin && tip;
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -949,44 +1044,40 @@ function PreShotRules({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.rulesTitle
-  }, "WHEN YOU PICK UP THE CUE · 攞起支cue", all && /*#__PURE__*/React.createElement("span", {
+  }, "攞起支cue", all && /*#__PURE__*/React.createElement("span", {
     style: st.rulesArmedTag
-  }, "LOCKED IN")), /*#__PURE__*/React.createElement("button", {
+  }, "LOCKED IN"), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), /*#__PURE__*/React.createElement(StepRow, {
+    n: "0",
+    on: cue,
     onClick: onCue,
-    style: {
-      ...st.rule,
-      ...(cue ? st.ruleOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.ruleCheck(cue)
-  }, cue ? "✓" : "0"), /*#__PURE__*/React.createElement("span", {
-    style: st.ruleText
-  }, /*#__PURE__*/React.createElement("strong", null, "Check the cue is straight"), " — sight one-eyed, butt → tip. 等邊 taper. Rotate 90°, again. Bent = half-ball off.")), /*#__PURE__*/React.createElement("div", {
+    zh: "睇支cue直唔直",
+    en: "Sight one-eyed, butt → tip. 等邊 taper. Rotate 90°, sight again. Bent = half-ball off.",
+    info: info
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.rulesTitle,
       ...st.rulesSubTitle
     }
-  }, "BEFORE EVERY SHOT · 每一球之前"), /*#__PURE__*/React.createElement("button", {
+  }, "每一球之前"), /*#__PURE__*/React.createElement(StepRow, {
+    n: "1",
+    on: chin,
     onClick: onChin,
-    style: {
-      ...st.rule,
-      ...(chin ? st.ruleOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.ruleCheck(chin)
-  }, chin ? "✓" : "1"), /*#__PURE__*/React.createElement("span", {
-    style: st.ruleText
-  }, /*#__PURE__*/React.createElement("strong", null, "Never touch chin or chest"), " — and imagine the shot first")), /*#__PURE__*/React.createElement("button", {
+    zh: "唔掂下巴同心口",
+    en: "Never touch chin or chest — and imagine the shot first.",
+    info: info
+  }), /*#__PURE__*/React.createElement(StepRow, {
+    n: "2",
+    on: tip,
     onClick: onTip,
-    style: {
-      ...st.rule,
-      ...(tip ? st.ruleOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.ruleCheck(tip)
-  }, tip ? "✓" : "2"), /*#__PURE__*/React.createElement("span", {
-    style: st.ruleText
-  }, /*#__PURE__*/React.createElement("strong", null, "Always 預先想像 the cue-tip feedback"), " — see the contact before you strike")));
+    zh: "預先想像杆頭feedback",
+    en: "See the cue-tip contact before you strike.",
+    info: info
+  }));
 }
 
 // ─────────────────────────────────────────── MUST-DO BOOKEND DRILLS
@@ -997,6 +1088,7 @@ function MustDoDrills({
   onOpen,
   onDtod
 }) {
+  const [info, setInfo] = useState(false);
   const both = open && dtod;
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1005,53 +1097,55 @@ function MustDoDrills({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.rulesTitle
-  }, "EVERY TIME AT THE TABLE · 每次上枱", both && /*#__PURE__*/React.createElement("span", {
+  }, "每次上枱", both && /*#__PURE__*/React.createElement("span", {
     style: st.rulesArmedTag
-  }, "BOOKENDED")), /*#__PURE__*/React.createElement("button", {
+  }, "BOOKENDED"), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), /*#__PURE__*/React.createElement(StepRow, {
+    n: "\u25b6",
+    on: open,
     onClick: onOpen,
-    style: {
-      ...st.rule,
-      ...(open ? st.ruleOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.ruleCheck(open)
-  }, open ? "✓" : "▶"), /*#__PURE__*/React.createElement("span", {
-    style: st.ruleText
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.drillWhen
-  }, "START · 開波"), /*#__PURE__*/React.createElement("strong", null, "Open table, all balls"), " — 培養入波信心 · 幾厚幾簿.")), /*#__PURE__*/React.createElement("div", {
+    zh: "開波 · 開枱打晒啲波",
+    en: "Open table, all balls — 培養入波信心, and feel how thick or thin each pot needs.",
+    info: info
+  }), /*#__PURE__*/React.createElement("div", {
     style: st.drillGap
-  }, "In between — free play."), /*#__PURE__*/React.createElement("button", {
+  }, "中間自由發揮"), /*#__PURE__*/React.createElement(StepRow, {
+    n: "\u25a0",
+    on: dtod,
     onClick: onDtod,
-    style: {
-      ...st.rule,
-      ...(dtod ? st.ruleOn : {}),
-      marginBottom: 0
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.ruleCheck(dtod)
-  }, dtod ? "✓" : "■"), /*#__PURE__*/React.createElement("span", {
-    style: st.ruleText
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.drillWhen
-  }, "END · 收波"), /*#__PURE__*/React.createElement("strong", null, "白波D區打返D區"), " — 總結白波力量感覺控制.")));
+    zh: "收波 · 白波D區打返D區",
+    en: "Finish by summing up cue-ball power and feel — 總結白波力量感覺控制.",
+    info: info
+  }));
 }
 
-// last rediscovery (30 Jun → 10 Jul) — this card exists so it can't again.
+// ─────────────────────────────────────────── KEYSTONE (final-stroke habit)
+// The habit everything else serves. Buried within 10 days of its last
+// rediscovery (30 Jun → 10 Jul) — this card exists so it can't happen again.
 function KeystoneCreed({
   value,
   onChange
 }) {
+  const [info, setInfo] = useState(false);
   const opts = [["every", "Every strike"], ["partial", "Some strikes"], ["forgot", "Forgot"]];
   return /*#__PURE__*/React.createElement("div", {
     style: st.keystone
   }, /*#__PURE__*/React.createElement("div", {
     style: st.keystoneTitle
-  }, "THE LAST LAST · 最後一擊"), /*#__PURE__*/React.createElement("div", {
+  }, "最後一擊", /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), info && /*#__PURE__*/React.createElement("div", {
     style: st.keystoneBody
   }, "停一停，最後一下慢而順 — pause at the top of the backswing, then one smooth acceleration through the white. The final ", /*#__PURE__*/React.createElement("em", null, "delivery"), ", not the final feather."), /*#__PURE__*/React.createElement("div", {
     style: st.keystoneAsk
-  }, "Did I hold it this session?"), /*#__PURE__*/React.createElement("div", {
+  }, "停一停，慢而順 — held it?"), /*#__PURE__*/React.createElement("div", {
     style: st.seg
   }, opts.map(([k, l]) => /*#__PURE__*/React.createElement("button", {
     key: k,
@@ -1063,57 +1157,13 @@ function KeystoneCreed({
   }, l))));
 }
 
-// ─────────────────────────────────────────── 中心線路 RATING (the primary one)
-function CentreLineRating({
-  value,
-  onChange
-}) {
-  const words = ["",
-  // 0 unused
-  "Never found the line", "Guessed at it", "Saw it, ignored it", "Found it, gripped the cue", "Line there, body fighting it", "平放 sometimes, forced elsewhere", "Line and 平放 mostly holding", "Body giving way to the line", "All three, nearly every shot", "基本功 complete — then free"];
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.feather,
-      ...st.clRatingCard
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.featherTop
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.featherNum,
-      ...st.clNum
-    }
-  }, value, /*#__PURE__*/React.createElement("span", {
-    style: st.featherDen
-  }, "/10")), /*#__PURE__*/React.createElement("div", {
-    style: st.featherWord
-  }, words[value] || "")), /*#__PURE__*/React.createElement("input", {
-    type: "range",
-    min: 1,
-    max: 10,
-    step: 1,
-    value: value,
-    onChange: e => onChange(Number(e.target.value)),
-    style: st.featherRange
-  }), /*#__PURE__*/React.createElement("div", {
-    style: st.featherScale
-  }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => /*#__PURE__*/React.createElement("span", {
-    key: n,
-    style: {
-      ...st.featherTick,
-      ...(n === value ? st.featherTickOn : {})
-    }
-  }, n))), /*#__PURE__*/React.createElement("div", {
-    style: st.featherCreed
-  }, "睇線 → 平放 → 全身遷就. 10 = all three held, then you let go and played."));
-}
-
-// ── Compact 1–10 rating with word feedback. Used by the two fundamentals. ──
+// ── Compact 1–10 rating with word feedback. Used by all three fundamentals. ──
 function MiniRating({
   label,
   value,
   words,
   hint,
+  info,
   onChange
 }) {
   return /*#__PURE__*/React.createElement("div", {
@@ -1134,11 +1184,13 @@ function MiniRating({
     value: value,
     onChange: e => onChange(Number(e.target.value)),
     style: st.range
-  }), /*#__PURE__*/React.createElement("div", {
+  }), info && /*#__PURE__*/React.createElement("div", {
     style: st.metricHint
   }, hint));
 }
 const ACC_WORDS = ["", "Hunting every shot", "Almost always re-set", "Mostly groping for it", "Lands close, needs a nudge", "Half the shots clean", "Often right, still adjusting", "Mostly clean first time", "Clean, rarely corrected", "One motion onto the line", "落線一次到位 — every shot"];
+const CL_WORDS = ["", "Never found the line", "Guessed at it", "Saw it, ignored it", "Found it, gripped the cue", "Line there, body fighting it", "平放 sometimes, forced elsewhere", "Line and 平放 mostly holding", "Body giving way to the line", "All three, nearly every shot", "基本功 complete — then free"];
+const GHOST_WORDS = ["", "Fired with doubt", "Rarely saw the ghost ball", "Vague picture, hoped", "Saw it, let go too soon", "Half the shots certain", "Often clear, sometimes rushed", "Mostly certain before delivery", "Clear picture nearly every shot", "Held it until no doubt", "冇可能唔入 — every shot"];
 const FORCE_WORDS = ["", "Arm-pushed, no benchmark", "Random force every shot", "Benchmark set, then forgotten", "Guessing the power", "Half the shots chosen", "Often chosen, wrist patchy", "Mostly wrist, % roughly right", "Wrist every shot, % close", "Chosen % nearly every shot", "每一球都揀好個% — wrist only"];
 
 // ─────────────────────────────────────────── FEATHER RATING (secondary)
@@ -1365,7 +1417,9 @@ function History({
     style: st.rowCl
   }, "手腕發力 ✓"), s.clLine && s.clFlat && s.clBody && s.clFree && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
-  }, "平放大法 ✓"), s.lastDelivery === "every" && /*#__PURE__*/React.createElement("span", {
+  }, "平放大法 ✓"), s.ghostSee && s.ghostNoDoubt && /*#__PURE__*/React.createElement("span", {
+    style: st.rowCl
+  }, "假想球 ✓"), s.lastDelivery === "every" && /*#__PURE__*/React.createElement("span", {
     style: st.rowKeyOn
   }, "last delivery ✓"), s.lastDelivery === "partial" && /*#__PURE__*/React.createElement("span", {
     style: st.rowKeyMid
@@ -1389,6 +1443,10 @@ function History({
     label: "中心線路",
     v: `${s.centreLine ?? "—"}/10`,
     hot: Number(s.centreLine || 0) >= 8
+  }), /*#__PURE__*/React.createElement(Stat, {
+    label: "出杆信心",
+    v: `${s.ghostConfidence ?? "—"}/10`,
+    hot: Number(s.ghostConfidence || 0) >= 8
   }), /*#__PURE__*/React.createElement(Stat, {
     label: "落線準確",
     v: `${s.clAccuracy ?? "—"}/10`,
@@ -1466,6 +1524,7 @@ function Trends({
   };
   const wf = series("wristForce");
   const cl = series("centreLine");
+  const gb = series("ghostConfidence");
   const acc = series("clAccuracy");
   const fe = series("feather");
   const breaks = chrono.map(s => Number(s.highBreak));
@@ -1487,6 +1546,11 @@ function Trends({
     label: `中心線路 · last ${cl.n || 0}`,
     value: cl.n ? cl.avg.toFixed(1) : "—",
     suffix: cl.n ? "/10" : "",
+    accent: true
+  }), /*#__PURE__*/React.createElement(Kpi, {
+    label: `出杆信心 · last ${gb.n || 0}`,
+    value: gb.n ? gb.avg.toFixed(1) : "—",
+    suffix: gb.n ? "/10" : "",
     accent: true
   }), /*#__PURE__*/React.createElement(Kpi, {
     label: `落線準確度 · last ${acc.n || 0}`,
@@ -1533,9 +1597,9 @@ function Trends({
     suffix: "/10",
     max: 10,
     color: C.ok
-  }), acc.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "落線準確度 · first placement",
-    data: acc.data,
+  }), gb.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
+    title: "出杆信心 · 冇可能唔入",
+    data: gb.data,
     suffix: "/10",
     max: 10,
     color: C.cueDim
@@ -1569,7 +1633,7 @@ function Insights({
   // ── 1. Enjoyment-mode split ──
   const on = sessions.filter(s => s.enjoymentMode);
   const off = sessions.filter(s => !s.enjoymentMode);
-  const splitMetrics = [["wristForce", "發力控制", "/10"], ["centreLine", "中心線路", "/10"], ["clAccuracy", "落線準確度", "/10"], ["feather", "Feathering", "/10"], ["natural", "Natural flow", "/10"], ["longpot", "Long pot", "%"], ["safety", "Cue ball", "/10"]];
+  const splitMetrics = [["wristForce", "發力控制", "/10"], ["centreLine", "中心線路", "/10"], ["ghostConfidence", "出杆信心", "/10"], ["clAccuracy", "落線準確度", "/10"], ["feather", "Feathering", "/10"], ["natural", "Natural flow", "/10"], ["longpot", "Long pot", "%"], ["safety", "Cue ball", "/10"]];
 
   // ── 2. Table-quality split (rated sessions only) ──
   const goodT = sessions.filter(s => Number(s.tableQ || 0) >= 4);
@@ -1595,6 +1659,7 @@ function Insights({
   const clNot = sessions.filter(s => has(s, "clLine") && !(s.clLine && s.clFlat && s.clBody));
   const clSteps = [["clLine", "1 · 睇線"], ["clFlat", "2 · 平放"], ["clBody", "3 · 全身遷就"], ["clFree", "4 · 放鬆自由"]];
   const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"]];
+  const ghostSteps = [["ghostSee", "1 · 睇假想球"], ["ghostNoDoubt", "2 · 冇可能唔入"]];
 
   // ── 3c. Pre-shot two-rules adherence ──
   const bothRules = sessions.filter(s => s.ruleChinChest && s.ruleTipFeedback);
@@ -1608,6 +1673,7 @@ function Insights({
   const pctOf = list => sessions.length ? Math.round(list.length / sessions.length * 100) : 0;
 
   // ── 5. Records + cadence ──
+  const bestGb = sessions.filter(s => has(s, "ghostConfidence")).reduce((m, s) => Math.max(m, Number(s.ghostConfidence)), 0);
   const bestWf = sessions.filter(s => has(s, "wristForce")).reduce((m, s) => Math.max(m, Number(s.wristForce)), 0);
   const bestCl = sessions.filter(s => has(s, "centreLine")).reduce((m, s) => Math.max(m, Number(s.centreLine)), 0);
   const bestAcc = sessions.filter(s => has(s, "clAccuracy")).reduce((m, s) => Math.max(m, Number(s.clAccuracy)), 0);
@@ -1674,6 +1740,27 @@ function Insights({
   }, label)))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
   }, "Benchmark at 開枱, then every shot a chosen % of it. Below 100% is a session you guessed the power.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insBlock,
+      ...st.insCl
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "假想球 · no doubt"), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereRow
+  }, ghostSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.rulesAdhereNum,
+      fontSize: 26
+    }
+  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, label)))), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "Hold the picture until 冇可能唔入. Below 100% is a session you fired with doubt.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insCl
@@ -1794,6 +1881,11 @@ function Insights({
     suffix: bestCl ? "/10" : "",
     accent: bestCl >= 9
   }), /*#__PURE__*/React.createElement(Kpi, {
+    label: "Best 出杆信心",
+    value: bestGb || "—",
+    suffix: bestGb ? "/10" : "",
+    accent: bestGb >= 9
+  }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Best 落線準確度",
     value: bestAcc || "—",
     suffix: bestAcc ? "/10" : "",
@@ -1899,6 +1991,20 @@ function Spark({
 }
 
 // ─────────────────────────────────────────── SMALL PARTS
+// The interface runs on keyword anchors. Every full description lives behind
+// this (i) — tap it on any card to read the whole thing.
+const InfoBtn = ({
+  on,
+  onClick
+}) => /*#__PURE__*/React.createElement("button", {
+  onClick: onClick,
+  style: {
+    ...st.infoBtn,
+    ...(on ? st.infoBtnOn : {})
+  },
+  "aria-expanded": on,
+  "aria-label": on ? "Hide details" : "Show details"
+}, "i");
 const Field = ({
   label,
   hint,
@@ -2454,6 +2560,9 @@ const st = {
     borderRadius: 5,
     fontWeight: 700
   },
+  clSpacer: {
+    marginLeft: "auto"
+  },
   clCreed: {
     fontSize: 12,
     color: C.boneDim,
@@ -2483,6 +2592,27 @@ const st = {
     borderColor: "rgba(217,178,106,0.7)",
     background: "rgba(217,178,106,0.15)"
   },
+  infoBtn: {
+    width: 20,
+    height: 20,
+    flexShrink: 0,
+    borderRadius: "50%",
+    border: `1px solid ${C.boneDim}`,
+    background: "transparent",
+    color: C.boneDim,
+    fontFamily: "'Georgia', serif",
+    fontSize: 12,
+    fontStyle: "italic",
+    fontWeight: 700,
+    lineHeight: 1,
+    cursor: "pointer",
+    padding: 0
+  },
+  infoBtnOn: {
+    borderColor: C.chalkSoft,
+    color: C.baizeDeep,
+    background: C.chalkSoft
+  },
   acc: {
     background: "rgba(94,226,160,0.05)",
     border: "1px solid rgba(94,226,160,0.28)",
@@ -2511,10 +2641,6 @@ const st = {
     color: C.chalkSoft,
     fontStyle: "italic",
     margin: "2px 0 9px"
-  },
-  clRatingCard: {
-    background: "linear-gradient(180deg, rgba(94,226,160,0.13) 0%, rgba(94,226,160,0.04) 100%)",
-    border: "1.5px solid rgba(94,226,160,0.5)"
   },
   clFreeCheck: on => ({
     width: 26,
@@ -2604,14 +2730,6 @@ const st = {
     color: C.bone,
     lineHeight: 1.4
   },
-  drillWhen: {
-    display: "block",
-    fontSize: 9.5,
-    letterSpacing: "0.14em",
-    color: C.boneDim,
-    fontWeight: 700,
-    marginBottom: 3
-  },
   drillGap: {
     fontSize: 11.5,
     color: C.boneDim,
@@ -2631,7 +2749,10 @@ const st = {
     letterSpacing: "0.18em",
     color: C.cue,
     fontWeight: 700,
-    marginBottom: 9
+    marginBottom: 9,
+    display: "flex",
+    alignItems: "center",
+    gap: 10
   },
   keystoneBody: {
     fontSize: 13,
@@ -2673,10 +2794,6 @@ const st = {
     fontWeight: 600,
     color: C.cueDim,
     lineHeight: 1
-  },
-  clNum: {
-    fontSize: 52,
-    color: C.chalkSoft
   },
   featherDen: {
     fontSize: 20,
