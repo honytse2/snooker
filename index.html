@@ -459,10 +459,10 @@ const blankSession = () => ({
   drillLow: 0,
   drillHigh: 0,
   drillMins: 12,
-  // The two bookend drills — every table session opens and closes with these.
-  // Whatever happens in between is free play.
+  // LEGACY — the 開波 open-table drill was folded into 綠啡黃連環, which covers
+  // the same potting work. Kept so older sessions and CSV exports keep shape.
   drillOpenTable: false,
-  // open table, all balls — 培養入波信心 + how thick/thin each pot needs
+  // The closer — every session ends here.
   drillDToD: false,
   // 白波D區打返D區 — 總結白波力量感覺控制
   // ── THE key drill: green → brown → yellow, potted in a row, for a record. ──
@@ -791,10 +791,8 @@ function LogForm({
     value: draft.gbyBest,
     pb: bestGby,
     onChange: v => set("gbyBest", v)
-  }), /*#__PURE__*/React.createElement(MustDoDrills, {
-    open: draft.drillOpenTable,
+  }), /*#__PURE__*/React.createElement(ClosingDrill, {
     dtod: draft.drillDToD,
-    onOpen: () => set("drillOpenTable", !draft.drillOpenTable),
     onDtod: () => set("drillDToD", !draft.drillDToD)
   }), /*#__PURE__*/React.createElement(KeystoneCreed, {
     value: draft.lastDelivery,
@@ -1148,40 +1146,29 @@ function GbyChallenge({
   }, "personal best"))));
 }
 
-// ─────────────────────────────────────────── MUST-DO BOOKEND DRILLS
-// Every table session opens and closes with these two. The middle is free play.
-function MustDoDrills({
-  open,
+// ─────────────────────────────────────────── THE CLOSER — 收波
+// Every session ends on this. The opening potting work it used to sit beside
+// is now covered by the 綠啡黃連環 record challenge above.
+function ClosingDrill({
   dtod,
-  onOpen,
   onDtod
 }) {
   const [info, setInfo] = useState(false);
-  const both = open && dtod;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.rules,
-      ...(both ? st.rulesArmed : {})
+      ...(dtod ? st.rulesArmed : {})
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.rulesTitle
-  }, "每次上枱", both && /*#__PURE__*/React.createElement("span", {
+  }, "每次收枱", dtod && /*#__PURE__*/React.createElement("span", {
     style: st.rulesArmedTag
-  }, "BOOKENDED"), /*#__PURE__*/React.createElement("span", {
+  }, "CLOSED"), /*#__PURE__*/React.createElement("span", {
     style: st.clSpacer
   }), /*#__PURE__*/React.createElement(InfoBtn, {
     on: info,
     onClick: () => setInfo(!info)
   })), /*#__PURE__*/React.createElement(StepRow, {
-    n: "\u25b6",
-    on: open,
-    onClick: onOpen,
-    zh: "開波 · 開枱打晒啲波",
-    en: "Open table, all balls — 培養入波信心, and feel how thick or thin each pot needs.",
-    info: info
-  }), /*#__PURE__*/React.createElement("div", {
-    style: st.drillGap
-  }, "中間自由發揮"), /*#__PURE__*/React.createElement(StepRow, {
     n: "\u25a0",
     on: dtod,
     onClick: onDtod,
@@ -1495,9 +1482,9 @@ function History({
     style: st.rowKeyOff
   }, "forgot last delivery"), s.ruleCueStraight && /*#__PURE__*/React.createElement("span", {
     style: st.rowCue
-  }, "cue checked ✓"), s.drillOpenTable && s.drillDToD && /*#__PURE__*/React.createElement("span", {
+  }, "cue checked ✓"), s.drillDToD && /*#__PURE__*/React.createElement("span", {
     style: st.rowBookend
-  }, "bookends ✓"), s.ruleChinChest && s.ruleTipFeedback && /*#__PURE__*/React.createElement("span", {
+  }, "收波 ✓"), s.ruleChinChest && s.ruleTipFeedback && /*#__PURE__*/React.createElement("span", {
     style: st.rowRules
   }, "2 rules ✓"), !s.enjoymentMode && /*#__PURE__*/React.createElement("span", {
     style: st.rowFlag
@@ -1758,8 +1745,7 @@ function Insights({
   const cueChecked = sessions.filter(s => s.ruleCueStraight);
   const cuePct = sessions.length ? Math.round(cueChecked.length / sessions.length * 100) : 0;
 
-  // ── 3d. Must-do bookend drills — opened and closed the session properly ──
-  const openedWith = sessions.filter(s => s.drillOpenTable);
+  // ── 3d. The closer — did the session finish on 白波D區打返D區 ──
   const closedWith = sessions.filter(s => s.drillDToD);
   const pctOf = list => sessions.length ? Math.round(list.length / sessions.length * 100) : 0;
 
@@ -1914,23 +1900,17 @@ function Insights({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
-  }, "Must-do drills · adherence"), /*#__PURE__*/React.createElement("div", {
+  }, "收波 · adherence"), /*#__PURE__*/React.createElement("div", {
     style: st.rulesAdhereRow
   }, /*#__PURE__*/React.createElement("div", {
     style: st.rulesAdhereItem
   }, /*#__PURE__*/React.createElement("span", {
     style: st.rulesAdhereNum
-  }, pctOf(openedWith), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, "opened · open table (", openedWith.length, "/", sessions.length, ")")), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereNum
   }, pctOf(closedWith), "%"), /*#__PURE__*/React.createElement("span", {
     style: st.rulesAdhereLabel
-  }, "closed · D 打返 D (", closedWith.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
+  }, "收波 · D 打返 D (", closedWith.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "Open with confidence, close with control.")), /*#__PURE__*/React.createElement("div", {
+  }, "每次都要收波 — finish by summing up the cue-ball feel.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insKeystone
@@ -2879,13 +2859,6 @@ const st = {
     fontSize: 13.5,
     color: C.bone,
     lineHeight: 1.4
-  },
-  drillGap: {
-    fontSize: 11.5,
-    color: C.boneDim,
-    fontStyle: "italic",
-    margin: "0 0 9px",
-    paddingLeft: 2
   },
   keystone: {
     background: "linear-gradient(180deg, rgba(217,178,106,0.14) 0%, rgba(217,178,106,0.05) 100%)",
