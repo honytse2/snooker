@@ -407,7 +407,12 @@ const blankSession = () => ({
   // where — lets trends separate table conditions from form
   tableQ: 0,
   // table quality 1–5, 0 = unrated
-  // ── 優皮士 rhythm — the wrist grip on the final delivery. Tops everything. ──
+  // ── 起手離遠啲 — the shoulder guard. Above everything, because this one is
+  // about not getting hurt. Addressing the white with the tip already on its
+  // edge is what strains the left shoulder; start with a gap and close it
+  // gradually over the first few featherings. ──
+  addressGap: false,
+  // ── 優皮士 rhythm — the wrist grip on the final delivery. Tops the scores. ──
   // The feeling in the gripping hand as the cue goes through the white: 慢,
   // 有感知, in rhythm. Deploying this is what first produced 10+ in 綠啡黃連環.
   yuppieRhythm: 7,
@@ -556,7 +561,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "addressGap", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -755,7 +760,10 @@ function LogForm({
     "aria-label": `table quality ${n} of 5`
   })), /*#__PURE__*/React.createElement("span", {
     style: st.tqVal
-  }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), /*#__PURE__*/React.createElement(YuppieRhythm, {
+  }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), /*#__PURE__*/React.createElement(ShoulderGuard, {
+    on: draft.addressGap,
+    onToggle: () => set("addressGap", !draft.addressGap)
+  }), /*#__PURE__*/React.createElement(YuppieRhythm, {
     value: draft.yuppieRhythm,
     onChange: v => set("yuppieRhythm", v)
   }), /*#__PURE__*/React.createElement(WristForce, {
@@ -871,6 +879,47 @@ const StepRow = ({
   style: st.clEn
 }, en)));
 
+// ─────────────────────────────────────────── ⚠ · 起手離遠啲 — THE SHOULDER
+// Above everything else, because this one is about not getting hurt. Pointing
+// the tip at the edge of the white from the very first feather is what loads
+// the left shoulder. Start with a gap, close it gradually over the first few
+// featherings — the strain drops and the whole action turns natural.
+function ShoulderGuard({
+  on,
+  onToggle
+}) {
+  const [info, setInfo] = useState(false);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.cl,
+      ...st.guard,
+      ...(on ? st.guardOn : {})
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clHead
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.clTitle,
+      ...st.guardTitle
+    }
+  }, "起手離遠啲 · 護左膊"), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), info && /*#__PURE__*/React.createElement("div", {
+    style: st.clCreed
+  }, "Do not address the white with the tip already at its edge. Start the first few featherings with a gap and only move closer gradually. This is what dropped the left-shoulder strain — the one that used to show up after every session — and it makes the whole feathering action far more natural. The consistency gain is a bonus; the shoulder is the point."), /*#__PURE__*/React.createElement(StepRow, {
+    n: "\u26a0",
+    on: on,
+    onClick: onToggle,
+    zh: "頭幾下唔好指住白波邊",
+    en: "Address with a gap, then close in gradually over the first few featherings.",
+    info: info,
+    gold: true
+  }));
+}
+
 // ─────────────────────────────────────────── 0 · 優皮士 rhythm — THE GRIP
 // The wrist grip on the final delivery: 慢, 有感知, in rhythm. It sits above
 // everything else because it is what changed the consistency — the first 10+
@@ -924,7 +973,7 @@ function WristForce({
 }) {
   const [info, setInfo] = useState(false);
   const both = bench && perShot && doReMi;
-  const steps = [["1", bench, onBench, "開枱定 benchmark", "Max force each hand, up and down the table, trajectory as straight as you can. That is your 100%."], ["2", perShot, onPerShot, "每一球揀 %", "Recall the benchmark → 40%? 60%? → flick the wrist to exactly that."], ["3", doReMi, onDoReMi, "Do Re Mi 淨係最後出杆", "The three-finger squeeze — Do, Re, Mi — held back until the final delivery, squeezing the cue through the white. Do it any earlier and the miscues come back."]];
+  const steps = [["1", bench, onBench, "開枱定 benchmark", "Max force each hand, up and down the table, trajectory as straight as you can. That is your 100%."], ["2", perShot, onPerShot, "每一球揀 %", "Recall the benchmark → 40%? 60%? → flick the wrist to exactly that."], ["3", doReMi, onDoReMi, "Do Re Mi 淨係最後出杆，唔好喺feathering", "The three-finger squeeze — Do, Re, Mi — belongs to the final delivery through the white and nothing before it. Never during the first few featherings. Proven again: holding it back is what lifted the consistency, and applying it early is what brings the miscues back."]];
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.cl,
@@ -1514,7 +1563,9 @@ function History({
     style: st.rowMode(s.mode)
   }, s.mode === "match" ? "MATCH" : "SOLO"), s.venue && /*#__PURE__*/React.createElement("span", {
     style: st.rowVenue
-  }, s.venue), s.wristBenchmark && s.wristPerShot && /*#__PURE__*/React.createElement("span", {
+  }, s.venue), s.addressGap && /*#__PURE__*/React.createElement("span", {
+    style: st.rowGuard
+  }, "起手離遠 ✓"), s.wristBenchmark && s.wristPerShot && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
   }, "手腕發力 ✓"), s.clLine && s.clFlat && s.clBody && s.clFree && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
@@ -1798,6 +1849,7 @@ function Insights({
   const clDone = sessions.filter(s => s.clLine && s.clFlat && s.clBody);
   const clNot = sessions.filter(s => has(s, "clLine") && !(s.clLine && s.clFlat && s.clBody));
   const clSteps = [["clLine", "1 · 睇線"], ["clFlat", "2 · 平放"], ["clBody", "3 · 全身遷就"], ["clFree", "4 · 放鬆自由"]];
+  const gapKept = sessions.filter(s => s.addressGap);
   const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"], ["wristDoReMi", "3 · Do Re Mi 最後出杆"]];
   const ghostSteps = [["ghostSee", "1 · 睇假想球"], ["ghostNoDoubt", "2 · 冇可能唔入"]];
 
@@ -1860,6 +1912,26 @@ function Insights({
     }, d === null ? "—" : `${d > 0 ? "+" : ""}${d.toFixed(1)}`));
   }));
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insBlock,
+      ...st.insKeystone
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "起手離遠啲 · 護左膊"), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereRow
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.rulesAdhereNum,
+      color: C.cue
+    }
+  }, pctOf(gapKept), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, "起手離遠啲 (", gapKept.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "The shoulder one. Anything under 100% is a session you risked the strain.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insCl
@@ -2531,6 +2603,15 @@ const st = {
     fontWeight: 700,
     letterSpacing: "0.03em"
   },
+  rowGuard: {
+    fontSize: 10,
+    color: C.baizeDeep,
+    background: C.cue,
+    fontWeight: 700,
+    letterSpacing: "0.03em",
+    padding: "2px 6px",
+    borderRadius: 5
+  },
   rowCl: {
     fontSize: 10,
     color: C.baizeDeep,
@@ -2757,6 +2838,20 @@ const st = {
     fontSize: 10,
     color: C.boneDim,
     marginTop: 4
+  },
+  // The shoulder guard reads amber, not mint — it is a health warning, not a
+  // performance metric, and should not blend into the scores below it.
+  guard: {
+    background: "linear-gradient(180deg, rgba(217,178,106,0.13) 0%, rgba(217,178,106,0.04) 100%)",
+    borderColor: "rgba(217,178,106,0.5)"
+  },
+  guardOn: {
+    borderColor: "rgba(217,178,106,0.8)",
+    background: "linear-gradient(180deg, rgba(217,178,106,0.2) 0%, rgba(217,178,106,0.06) 100%)"
+  },
+  guardTitle: {
+    color: C.cue,
+    fontSize: 19
   },
   clSpacer: {
     marginLeft: "auto"
