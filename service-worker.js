@@ -1,6 +1,6 @@
 // The Cue-Ball Ledger — offline service worker.
 // Bump CACHE version whenever you update index.html to force a refresh.
-const CACHE = "cueball-v12";
+const CACHE = "cueball-v14";
 const ASSETS = [
   "./",
   "./index.html",
