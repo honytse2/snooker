@@ -435,6 +435,8 @@ const blankSession = () => ({
   natural: 7,
   longpot: null,
   safety: 7,
+  // LEGACY — break figures had no input anywhere in the form and their
+  // readouts are retired. Kept so older sessions and CSV exports keep shape.
   highBreak: 0,
   fifties: 0,
   centuries: 0,
@@ -609,10 +611,7 @@ function App() {
   // ── derived stats ──
   const recent = sessions.slice(0, 12);
   const avg = k => recent.length ? recent.reduce((a, s) => a + Number(s[k] || 0), 0) / recent.length : 0;
-  const bestBreak = sessions.reduce((m, s) => Math.max(m, Number(s.highBreak || 0)), 0);
   const bestGby = sessions.reduce((m, s) => Math.max(m, Number(s.gbyBest || 0)), 0);
-  const totalFifties = sessions.reduce((a, s) => a + Number(s.fifties || 0), 0);
-  const totalCenturies = sessions.reduce((a, s) => a + Number(s.centuries || 0), 0);
   return /*#__PURE__*/React.createElement("div", {
     style: st.page
   }, /*#__PURE__*/React.createElement("style", null, globalCss), /*#__PURE__*/React.createElement("header", {
@@ -658,12 +657,8 @@ function App() {
     sessions: sessions,
     avg: avg,
     recentN: recent.length,
-    bestBreak: bestBreak,
-    totalFifties: totalFifties,
-    totalCenturies: totalCenturies
   }) : /*#__PURE__*/React.createElement(Insights, {
-    sessions: sessions,
-    bestBreak: bestBreak
+    sessions: sessions
   }), /*#__PURE__*/React.createElement("footer", {
     style: st.footer
   }, "Enjoyment first. Measure second."));
@@ -1489,9 +1484,6 @@ function Trends({
   sessions,
   avg,
   recentN,
-  bestBreak,
-  totalFifties,
-  totalCenturies
 }) {
   if (sessions.length < 2) return /*#__PURE__*/React.createElement("div", {
     style: st.empty
@@ -1522,7 +1514,6 @@ function Trends({
   const gbyRecent = [...gbyTried].reverse().slice(0, 12);
   const gbyAvg = gbyRecent.length ? gbyRecent.reduce((a, s) => a + Number(s.gbyBest), 0) / gbyRecent.length : 0;
   const gbyPb = gbyTried.reduce((m, s) => Math.max(m, Number(s.gbyBest)), 0);
-  const breaks = chrono.map(s => Number(s.highBreak));
 
   // Long pot is optional — average only over sessions that actually rated it,
   // so untouched sessions don't drag the number toward zero.
@@ -1545,19 +1536,6 @@ function Trends({
     label: `綠啡黃 · avg last ${gbyRecent.length || 0}`,
     value: gbyRecent.length ? gbyAvg.toFixed(1) : "—"
   }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Career high break",
-    value: bestBreak,
-    accent: true
-  })), /*#__PURE__*/React.createElement("div", {
-    style: st.kpiRow
-  }, /*#__PURE__*/React.createElement(Kpi, {
-    label: "Total 50+ breaks",
-    value: totalFifties
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Total centuries",
-    value: totalCenturies,
-    accent: totalCenturies > 0
-  }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Sessions logged",
     value: sessions.length
   })), cd.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
@@ -1571,18 +1549,12 @@ function Trends({
     data: gbyData,
     max: Math.max(10, gbyPb),
     color: C.ok
-  }), /*#__PURE__*/React.createElement(Spark, {
-    title: "Highest break over time",
-    data: breaks,
-    max: Math.max(50, bestBreak),
-    color: C.boneDim
   }));
 }
 
 // ─────────────────────────────────────────── INSIGHTS (automated first-pass analysis)
 function Insights({
-  sessions,
-  bestBreak
+  sessions
 }) {
   if (sessions.length < 2) return /*#__PURE__*/React.createElement("div", {
     style: st.empty
@@ -1873,9 +1845,6 @@ function Insights({
     label: "Best 綠啡黃連環",
     value: bestGbyAll || "—",
     accent: bestGbyAll > 0
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Career high break",
-    value: bestBreak
   }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Sessions · last 28 days",
     value: last28
