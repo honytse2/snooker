@@ -364,39 +364,6 @@ const uid = () => `s_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 
 // What you measure — chosen to NOT pull attention off the cue ball mid-frame.
 // All logged AFTER the session, from feel + a few countable facts.
-const FOCUS_FIELDS = [{
-  key: "natural",
-  label: "Natural flow",
-  hint: "Effortless vs. forced",
-  type: "scale"
-}, {
-  key: "longpot",
-  label: "Long pot %",
-  hint: "Of attempted long pots",
-  type: "pct",
-  optional: true
-}, {
-  key: "safety",
-  label: "Cue ball control",
-  hint: "Ending where you wanted",
-  type: "scale"
-}];
-const BREAK_FIELDS = [{
-  key: "highBreak",
-  label: "Highest break",
-  hint: "Best run this session",
-  type: "num"
-}, {
-  key: "fifties",
-  label: "50+ breaks",
-  hint: "Count of breaks over 50",
-  type: "num"
-}, {
-  key: "centuries",
-  label: "Centuries",
-  hint: "100+ breaks",
-  type: "num"
-}];
 const blankSession = () => ({
   id: uid(),
   date: TODAY(),
@@ -414,6 +381,8 @@ const blankSession = () => ({
   // technique here because the same switch carries off the table too, into
   // connecting with people and with the ones you love. ──
   fierceConnect: false,
+  connectDesire: 7,
+  // THE score, and now the only one: how fiercely you wanted to feel the white
   // ── 起手離遠啲 — the shoulder guard. Above everything, because this one is
   // about not getting hurt. Addressing the white with the tip already on its
   // edge is what strains the left shoulder; start with a gap and close it
@@ -466,6 +435,8 @@ const blankSession = () => ({
   natural: 7,
   longpot: null,
   safety: 7,
+  // LEGACY — break figures had no input anywhere in the form and their
+  // readouts are retired. Kept so older sessions and CSV exports keep shape.
   highBreak: 0,
   fifties: 0,
   centuries: 0,
@@ -568,7 +539,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "addressGap", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "addressGap", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -640,10 +611,7 @@ function App() {
   // ── derived stats ──
   const recent = sessions.slice(0, 12);
   const avg = k => recent.length ? recent.reduce((a, s) => a + Number(s[k] || 0), 0) / recent.length : 0;
-  const bestBreak = sessions.reduce((m, s) => Math.max(m, Number(s.highBreak || 0)), 0);
   const bestGby = sessions.reduce((m, s) => Math.max(m, Number(s.gbyBest || 0)), 0);
-  const totalFifties = sessions.reduce((a, s) => a + Number(s.fifties || 0), 0);
-  const totalCenturies = sessions.reduce((a, s) => a + Number(s.centuries || 0), 0);
   return /*#__PURE__*/React.createElement("div", {
     style: st.page
   }, /*#__PURE__*/React.createElement("style", null, globalCss), /*#__PURE__*/React.createElement("header", {
@@ -689,12 +657,8 @@ function App() {
     sessions: sessions,
     avg: avg,
     recentN: recent.length,
-    bestBreak: bestBreak,
-    totalFifties: totalFifties,
-    totalCenturies: totalCenturies
   }) : /*#__PURE__*/React.createElement(Insights, {
-    sessions: sessions,
-    bestBreak: bestBreak
+    sessions: sessions
   }), /*#__PURE__*/React.createElement("footer", {
     style: st.footer
   }, "Enjoyment first. Measure second."));
@@ -769,42 +733,34 @@ function LogForm({
     style: st.tqVal
   }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), /*#__PURE__*/React.createElement(FierceConnect, {
     on: draft.fierceConnect,
-    onToggle: () => set("fierceConnect", !draft.fierceConnect)
+    desire: draft.connectDesire,
+    onToggle: () => set("fierceConnect", !draft.fierceConnect),
+    onDesire: v => set("connectDesire", v)
   }), /*#__PURE__*/React.createElement(ShoulderGuard, {
     on: draft.addressGap,
     onToggle: () => set("addressGap", !draft.addressGap)
-  }), /*#__PURE__*/React.createElement(YuppieRhythm, {
-    value: draft.yuppieRhythm,
-    onChange: v => set("yuppieRhythm", v)
-  }), /*#__PURE__*/React.createElement(WristForce, {
+  }), /*#__PURE__*/React.createElement(YuppieRhythm, null), /*#__PURE__*/React.createElement(WristForce, {
     bench: draft.wristBenchmark,
     perShot: draft.wristPerShot,
     force: draft.wristForce,
     doReMi: draft.wristDoReMi,
     onBench: () => set("wristBenchmark", !draft.wristBenchmark),
     onPerShot: () => set("wristPerShot", !draft.wristPerShot),
-    onDoReMi: () => set("wristDoReMi", !draft.wristDoReMi),
-    onForce: v => set("wristForce", v)
+    onDoReMi: () => set("wristDoReMi", !draft.wristDoReMi)
   }), /*#__PURE__*/React.createElement(CentreLineMethod, {
     line: draft.clLine,
     flat: draft.clFlat,
     body: draft.clBody,
     free: draft.clFree,
-    centreLine: draft.centreLine,
-    accuracy: draft.clAccuracy,
     onLine: () => set("clLine", !draft.clLine),
     onFlat: () => set("clFlat", !draft.clFlat),
     onBody: () => set("clBody", !draft.clBody),
-    onFree: () => set("clFree", !draft.clFree),
-    onCentreLine: v => set("centreLine", v),
-    onAccuracy: v => set("clAccuracy", v)
+    onFree: () => set("clFree", !draft.clFree)
   }), /*#__PURE__*/React.createElement(GhostBall, {
     see: draft.ghostSee,
     noDoubt: draft.ghostNoDoubt,
-    confidence: draft.ghostConfidence,
     onSee: () => set("ghostSee", !draft.ghostSee),
-    onNoDoubt: () => set("ghostNoDoubt", !draft.ghostNoDoubt),
-    onConfidence: v => set("ghostConfidence", v)
+    onNoDoubt: () => set("ghostNoDoubt", !draft.ghostNoDoubt)
   }), /*#__PURE__*/React.createElement(PreShotRules, {
     cue: draft.ruleCueStraight,
     chin: draft.ruleChinChest,
@@ -832,24 +788,6 @@ function LogForm({
     style: st.toggleDot(draft.enjoymentMode)
   }), "Entered enjoyment mode before play"), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "01",
-    title: "Feathering awareness",
-    note: "Secondary — feel vs. straight delivery"
-  }), /*#__PURE__*/React.createElement(FeatherRating, {
-    value: draft.feather,
-    onChange: v => set("feather", v)
-  }), /*#__PURE__*/React.createElement(SectionLabel, {
-    n: "02",
-    title: "Feel & control",
-    note: "Rate from memory of the session"
-  }), /*#__PURE__*/React.createElement("div", {
-    style: st.grid
-  }, FOCUS_FIELDS.map(f => /*#__PURE__*/React.createElement(Metric, {
-    key: f.key,
-    f: f,
-    value: draft[f.key],
-    onChange: v => set(f.key, v)
-  }))), /*#__PURE__*/React.createElement(SectionLabel, {
-    n: "03",
     title: "One line",
     note: "Optional"
   }), /*#__PURE__*/React.createElement("textarea", {
@@ -894,7 +832,9 @@ const StepRow = ({
 // words stay on screen every session; the story of why lives behind the (i).
 function FierceConnect({
   on,
-  onToggle
+  desire,
+  onToggle,
+  onDesire
 }) {
   const [info, setInfo] = useState(false);
   return /*#__PURE__*/React.createElement("div", {
@@ -931,7 +871,14 @@ function FierceConnect({
     style: st.ruleCheck(on)
   }, on ? "\u2713" : "\u25cf"), /*#__PURE__*/React.createElement("span", {
     style: st.ruleText
-  }, /*#__PURE__*/React.createElement("strong", null, "帶住呢個心態入場"))));
+  }, /*#__PURE__*/React.createElement("strong", null, "帶住呢個心態入場"))), /*#__PURE__*/React.createElement(MiniRating, {
+    label: "連接白波 · desire",
+    value: desire,
+    words: CONNECT_WORDS,
+    hint: "The only score kept. Everything else in here is a practice, not a number.",
+    info: info,
+    onChange: onDesire
+  }));
 }
 
 // ─────────────────────────────────────────── ⚠ · 起手離遠啲 — THE SHOULDER
@@ -979,38 +926,24 @@ function ShoulderGuard({
 // The wrist grip on the final delivery: 慢, 有感知, in rhythm. It sits above
 // everything else because it is what changed the consistency — the first 10+
 // runs in 綠啡黃連環 came after deploying it.
-function YuppieRhythm({
-  value,
-  onChange
-}) {
+function YuppieRhythm() {
   const [info, setInfo] = useState(false);
-  const inRhythm = Number(value || 0) >= 8;
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      ...st.cl,
-      ...(inRhythm ? st.clArmed : {})
+      ...st.cl
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.clHead
   }, /*#__PURE__*/React.createElement("div", {
     style: st.clTitle
-  }, "優皮士 rhythm"), inRhythm && /*#__PURE__*/React.createElement("span", {
-    style: st.clTag
-  }, "IN RHYTHM"), /*#__PURE__*/React.createElement("span", {
+  }, "優皮士 rhythm"), /*#__PURE__*/React.createElement("span", {
     style: st.clSpacer
   }), /*#__PURE__*/React.createElement(InfoBtn, {
     on: info,
     onClick: () => setInfo(!info)
   })), info && /*#__PURE__*/React.createElement("div", {
     style: st.clCreed
-  }, "The feeling in the gripping hand as the cue goes through the white — 慢, 有感知, in rhythm. This is what fundamentally changed the consistency: the first 10+ runs in 綠啡黃連環 came only after deploying it. Score the delivery grip, not the result."), /*#__PURE__*/React.createElement(MiniRating, {
-    label: "手腕 grip",
-    value: value,
-    words: RHYTHM_WORDS,
-    hint: "The final-delivery grip only — slow, felt, and in rhythm rather than snatched.",
-    info: info,
-    onChange: onChange
-  }));
+  }, "The feeling in the gripping hand as the cue goes through the white — 慢, 有感知, in rhythm. This is what fundamentally changed the consistency: the first 10+ runs in 綠啡黃連環 came only after deploying it."));
 }
 
 // ─────────────────────────────────────────── 1 · 手腕發力法 — THE ENGINE
@@ -1020,11 +953,9 @@ function WristForce({
   bench,
   perShot,
   doReMi,
-  force,
   onBench,
   onPerShot,
-  onDoReMi,
-  onForce
+  onDoReMi
 }) {
   const [info, setInfo] = useState(false);
   const both = bench && perShot && doReMi;
@@ -1055,14 +986,7 @@ function WristForce({
     zh: zh,
     en: en,
     info: info
-  })), /*#__PURE__*/React.createElement(MiniRating, {
-    label: "發力控制",
-    value: force,
-    words: FORCE_WORDS,
-    hint: "Every shot a chosen % of the benchmark, delivered by the wrist — not a guess, not the arm.",
-    info: info,
-    onChange: onForce
-  }));
+  })));
 }
 
 // ─────────────────────────────────────────── 2 · 中心線路平放大法 — THE LINE
@@ -1073,14 +997,10 @@ function CentreLineMethod({
   flat,
   body,
   free,
-  centreLine,
-  accuracy,
   onLine,
   onFlat,
   onBody,
-  onFree,
-  onCentreLine,
-  onAccuracy
+  onFree
 }) {
   const [info, setInfo] = useState(false);
   const basics = line && flat && body;
@@ -1122,20 +1042,6 @@ function CentreLineMethod({
     en: "Then let go — free play, feel the white.",
     info: info,
     gold: true
-  }), /*#__PURE__*/React.createElement(MiniRating, {
-    label: "中心線路",
-    value: centreLine,
-    words: CL_WORDS,
-    hint: "睇線 → 平放 → 全身遷就. 10 = all three held, then you let go and played.",
-    info: info,
-    onChange: onCentreLine
-  }), /*#__PURE__*/React.createElement(MiniRating, {
-    label: "落線準確度",
-    value: accuracy,
-    words: ACC_WORDS,
-    hint: "Cue down ON the line at the first placement — no micro-adjusting.",
-    info: info,
-    onChange: onAccuracy
   }));
 }
 
@@ -1145,10 +1051,8 @@ function CentreLineMethod({
 function GhostBall({
   see,
   noDoubt,
-  confidence,
   onSee,
-  onNoDoubt,
-  onConfidence
+  onNoDoubt
 }) {
   const [info, setInfo] = useState(false);
   const both = see && noDoubt;
@@ -1179,14 +1083,7 @@ function GhostBall({
     zh: zh,
     en: en,
     info: info
-  })), /*#__PURE__*/React.createElement(MiniRating, {
-    label: "出杆信心",
-    value: confidence,
-    words: GHOST_WORDS,
-    hint: "How consistently you reached 冇可能唔入 before delivering, rather than firing with doubt.",
-    info: info,
-    onChange: onConfidence
-  }));
+  })));
 }
 
 // ─────────────────────────────────────────── PRE-SHOT NON-NEGOTIABLES
@@ -1392,94 +1289,7 @@ function MiniRating({
     style: st.metricHint
   }, hint));
 }
-const ACC_WORDS = ["", "Hunting every shot", "Almost always re-set", "Mostly groping for it", "Lands close, needs a nudge", "Half the shots clean", "Often right, still adjusting", "Mostly clean first time", "Clean, rarely corrected", "One motion onto the line", "落線一次到位 — every shot"];
-const CL_WORDS = ["", "Never found the line", "Guessed at it", "Saw it, ignored it", "Found it, gripped the cue", "Line there, body fighting it", "平放 sometimes, forced elsewhere", "Line and 平放 mostly holding", "Body giving way to the line", "All three, nearly every shot", "基本功 complete — then free"];
-const GHOST_WORDS = ["", "Fired with doubt", "Rarely saw the ghost ball", "Vague picture, hoped", "Saw it, let go too soon", "Half the shots certain", "Often clear, sometimes rushed", "Mostly certain before delivery", "Clear picture nearly every shot", "Held it until no doubt", "冇可能唔入 — every shot"];
-const RHYTHM_WORDS = ["", "Snatched, no feel", "Tight grip, rushed", "Gripping, no awareness", "Occasionally slow", "Half the deliveries felt", "Slowing down, not settled", "慢, mostly aware", "Slow and felt, good rhythm", "有感知 nearly every delivery", "優皮士 rhythm — every shot"];
-const FORCE_WORDS = ["", "Arm-pushed, no benchmark", "Random force every shot", "Benchmark set, then forgotten", "Guessing the power", "Half the shots chosen", "Often chosen, wrist patchy", "Mostly wrist, % roughly right", "Wrist every shot, % close", "Chosen % nearly every shot", "每一球都揀好個% — wrist only"];
-
-// ─────────────────────────────────────────── FEATHER RATING (secondary)
-function FeatherRating({
-  value,
-  onChange
-}) {
-  const words = ["",
-  // 0 unused
-  "No connection — cueing blind", "Barely there", "Faint awareness", "Comes and goes", "Half-present", "Felt, but not mapped to straightness", "Aware, mostly connected", "Clear feel, cue running true", "Complete through the feathers", "Carried through the final stroke — arm and cue as one"];
-  return /*#__PURE__*/React.createElement("div", {
-    style: st.feather
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.featherTop
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.featherNum
-  }, value, /*#__PURE__*/React.createElement("span", {
-    style: st.featherDen
-  }, "/10")), /*#__PURE__*/React.createElement("div", {
-    style: st.featherWord
-  }, words[value] || "")), /*#__PURE__*/React.createElement("input", {
-    type: "range",
-    min: 1,
-    max: 10,
-    step: 1,
-    value: value,
-    onChange: e => onChange(Number(e.target.value)),
-    style: st.featherRange
-  }), /*#__PURE__*/React.createElement("div", {
-    style: st.featherScale
-  }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => /*#__PURE__*/React.createElement("span", {
-    key: n,
-    style: {
-      ...st.featherTick,
-      ...(n === value ? st.featherTickOn : {})
-    }
-  }, n))), /*#__PURE__*/React.createElement("div", {
-    style: st.featherCreed
-  }, "Feel the cue arm, map it to straight delivery. 10 = carried through the final stroke."));
-}
-
-// ─────────────────────────────────────────── METRIC (scale / pct)
-function Metric({
-  f,
-  value,
-  onChange
-}) {
-  const isPct = f.type === "pct";
-  const max = isPct ? 100 : 10;
-  const step = isPct ? 5 : 1;
-  // Optional metrics can be left unrated (null) when the session didn't
-  // cover them — e.g. no long pots practised. Toggle on to reveal the slider.
-  const dflt = isPct ? 50 : 7;
-  const rated = value !== null && value !== undefined;
-  const active = !f.optional || rated;
-  const display = active ? isPct ? `${value}%` : `${value}/10` : "—";
-  return /*#__PURE__*/React.createElement("div", {
-    style: st.metric
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.metricTop
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.metricLabel
-  }, f.label), /*#__PURE__*/React.createElement("span", {
-    style: st.metricVal
-  }, display)), f.optional && /*#__PURE__*/React.createElement("button", {
-    onClick: () => onChange(rated ? null : dflt),
-    style: {
-      ...st.metricToggle,
-      ...(rated ? st.metricToggleOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.toggleDot(rated)
-  }), rated ? "Practised this session" : "Not practised this session"), active && /*#__PURE__*/React.createElement("input", {
-    type: "range",
-    min: isPct ? 0 : 1,
-    max: max,
-    step: step,
-    value: value,
-    onChange: e => onChange(Number(e.target.value)),
-    style: st.range
-  }), /*#__PURE__*/React.createElement("div", {
-    style: st.metricHint
-  }, f.hint));
-}
+const CONNECT_WORDS = ["", "None — just hitting balls", "Barely wanted it", "Went through the motions", "Wanted it, gave up early", "There for half the session", "Present, but not fierce", "Wanted it most shots", "Fierce most of the session", "死都要感受 — nearly every shot", "激進地感受白波 — 全程"];
 
 // ─────────────────────────────────────────── HISTORY
 function History({
@@ -1645,49 +1455,9 @@ function History({
   }, "no enjoyment mode")), /*#__PURE__*/React.createElement("div", {
     style: st.rowStats
   }, /*#__PURE__*/React.createElement(Stat, {
-    label: "優皮士",
-    v: `${s.yuppieRhythm ?? "—"}/10`,
-    hot: Number(s.yuppieRhythm || 0) >= 8
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "發力控制",
-    v: `${s.wristForce ?? "—"}/10`,
-    hot: Number(s.wristForce || 0) >= 8
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "中心線路",
-    v: `${s.centreLine ?? "—"}/10`,
-    hot: Number(s.centreLine || 0) >= 8
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "出杆信心",
-    v: `${s.ghostConfidence ?? "—"}/10`,
-    hot: Number(s.ghostConfidence || 0) >= 8
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "落線準確",
-    v: `${s.clAccuracy ?? "—"}/10`,
-    hot: Number(s.clAccuracy || 0) >= 8
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "Feather",
-    v: `${s.feather ?? "—"}/10`,
-    hot: Number(s.feather || 0) >= 8
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "Natural",
-    v: `${s.natural}/10`
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "Long pot",
-    v: s.longpot === null || s.longpot === undefined ? "—" : `${s.longpot}%`
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "Cue ball",
-    v: `${s.safety}/10`
-  }), /*#__PURE__*/React.createElement(Stat, {
-    label: "High brk",
-    v: s.highBreak,
-    hot: s.highBreak >= 50
-  }), s.fifties > 0 && /*#__PURE__*/React.createElement(Stat, {
-    label: "50+",
-    v: s.fifties
-  }), s.centuries > 0 && /*#__PURE__*/React.createElement(Stat, {
-    label: "100+",
-    v: s.centuries,
-    hot: true
+    label: "連接白波",
+    v: `${s.connectDesire ?? "—"}/10`,
+    hot: Number(s.connectDesire || 0) >= 8
   }), s.mode !== "match" && Number(s.gbyBest || 0) > 0 && /*#__PURE__*/React.createElement(Stat, {
     label: "綠啡黃",
     v: s.gbyBest,
@@ -1714,9 +1484,6 @@ function Trends({
   sessions,
   avg,
   recentN,
-  bestBreak,
-  totalFifties,
-  totalCenturies
 }) {
   if (sessions.length < 2) return /*#__PURE__*/React.createElement("div", {
     style: st.empty
@@ -1739,12 +1506,7 @@ function Trends({
       avg: recent.length ? recent.reduce((a, s) => a + Number(s[k]), 0) / recent.length : 0
     };
   };
-  const yr = series("yuppieRhythm");
-  const wf = series("wristForce");
-  const cl = series("centreLine");
-  const gb = series("ghostConfidence");
-  const acc = series("clAccuracy");
-  const fe = series("feather");
+  const cd = series("connectDesire");
   // The key drill is solo-only and 0 means "not attempted", so chart and
   // average across attempts rather than letting blanks drag it down.
   const gbyTried = chrono.filter(s => s.mode !== "match" && Number(s.gbyBest || 0) > 0);
@@ -1752,7 +1514,6 @@ function Trends({
   const gbyRecent = [...gbyTried].reverse().slice(0, 12);
   const gbyAvg = gbyRecent.length ? gbyRecent.reduce((a, s) => a + Number(s.gbyBest), 0) / gbyRecent.length : 0;
   const gbyPb = gbyTried.reduce((m, s) => Math.max(m, Number(s.gbyBest)), 0);
-  const breaks = chrono.map(s => Number(s.highBreak));
 
   // Long pot is optional — average only over sessions that actually rated it,
   // so untouched sessions don't drag the number toward zero.
@@ -1761,45 +1522,13 @@ function Trends({
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: st.featherKpiWrap
   }, /*#__PURE__*/React.createElement(Kpi, {
-    label: `優皮士 rhythm · 手腕 grip · avg last ${yr.n || 0}`,
-    value: yr.n ? yr.avg.toFixed(1) : "—",
-    suffix: yr.n ? "/10" : "",
+    label: `連接白波 · desire · avg last ${cd.n || 0}`,
+    value: cd.n ? cd.avg.toFixed(1) : "—",
+    suffix: cd.n ? "/10" : "",
     accent: true
   })), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
-    label: `發力控制 · last ${wf.n || 0}`,
-    value: wf.n ? wf.avg.toFixed(1) : "—",
-    suffix: wf.n ? "/10" : "",
-    accent: true
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: `中心線路 · last ${cl.n || 0}`,
-    value: cl.n ? cl.avg.toFixed(1) : "—",
-    suffix: cl.n ? "/10" : "",
-    accent: true
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: `出杆信心 · last ${gb.n || 0}`,
-    value: gb.n ? gb.avg.toFixed(1) : "—",
-    suffix: gb.n ? "/10" : "",
-    accent: true
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: `落線準確度 · last ${acc.n || 0}`,
-    value: acc.n ? acc.avg.toFixed(1) : "—",
-    suffix: acc.n ? "/10" : "",
-    accent: true
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: `Avg feathering · last ${fe.n || 0}`,
-    value: fe.n ? fe.avg.toFixed(1) : "—",
-    suffix: fe.n ? "/10" : ""
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: `Avg natural · last ${recentN}`,
-    value: avg("natural").toFixed(1),
-    suffix: "/10"
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: `Avg long pot · ${lpRated.length} rated`,
-    value: lpAvg === null ? "—" : lpAvg,
-    suffix: lpAvg === null ? "" : "%"
-  }), /*#__PURE__*/React.createElement(Kpi, {
     label: "綠啡黃 · personal best",
     value: gbyPb || "—",
     accent: true
@@ -1807,62 +1536,25 @@ function Trends({
     label: `綠啡黃 · avg last ${gbyRecent.length || 0}`,
     value: gbyRecent.length ? gbyAvg.toFixed(1) : "—"
   }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Career high break",
-    value: bestBreak,
-    accent: true
-  })), /*#__PURE__*/React.createElement("div", {
-    style: st.kpiRow
-  }, /*#__PURE__*/React.createElement(Kpi, {
-    label: "Total 50+ breaks",
-    value: totalFifties
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Total centuries",
-    value: totalCenturies,
-    accent: totalCenturies > 0
-  }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Sessions logged",
     value: sessions.length
-  })), yr.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "優皮士 rhythm · 手腕 grip",
-    data: yr.data,
+  })), cd.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
+    title: "連接白波 · desire over time",
+    data: cd.data,
     suffix: "/10",
     max: 10,
     color: C.chalkSoft
-  }), wf.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "發力控制 · wrist into the white",
-    data: wf.data,
-    suffix: "/10",
-    max: 10,
-    color: C.chalkSoft
-  }), cl.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "中心線路 held · over time",
-    data: cl.data,
-    suffix: "/10",
-    max: 10,
-    color: C.ok
-  }), gb.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "出杆信心 · 冇可能唔入",
-    data: gb.data,
-    suffix: "/10",
-    max: 10,
-    color: C.cueDim
   }), gbyData.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
     title: "綠啡黃連環 · pots in a row (solo)",
     data: gbyData,
     max: Math.max(10, gbyPb),
     color: C.ok
-  }), /*#__PURE__*/React.createElement(Spark, {
-    title: "Highest break over time",
-    data: breaks,
-    max: Math.max(50, bestBreak),
-    color: C.boneDim
   }));
 }
 
 // ─────────────────────────────────────────── INSIGHTS (automated first-pass analysis)
 function Insights({
-  sessions,
-  bestBreak
+  sessions
 }) {
   if (sessions.length < 2) return /*#__PURE__*/React.createElement("div", {
     style: st.empty
@@ -1881,15 +1573,13 @@ function Insights({
   // ── 1. Enjoyment-mode split ──
   const on = sessions.filter(s => s.enjoymentMode);
   const off = sessions.filter(s => !s.enjoymentMode);
-  const splitMetrics = [["yuppieRhythm", "優皮士 rhythm", "/10"], ["wristForce", "發力控制", "/10"], ["centreLine", "中心線路", "/10"], ["ghostConfidence", "出杆信心", "/10"], ["clAccuracy", "落線準確度", "/10"], ["feather", "Feathering", "/10"], ["natural", "Natural flow", "/10"], ["longpot", "Long pot", "%"], ["safety", "Cue ball", "/10"]];
+  const splitMetrics = [["connectDesire", "連接白波 desire", "/10"], ["gbyBest", "綠啡黃連環", ""]];
 
   // ── 2. Table-quality split (rated sessions only) ──
   const goodT = sessions.filter(s => Number(s.tableQ || 0) >= 4);
   const poorT = sessions.filter(s => Number(s.tableQ || 0) >= 1 && Number(s.tableQ || 0) <= 2);
 
   // ── 3. Divergence signal — awareness held through poor potting ──
-  const fSessions = sessions.filter(s => has(s, "feather"));
-  const diverged = fSessions.filter(s => has(s, "longpot") && Number(s.feather) >= 8 && Number(s.longpot) <= 30);
 
   // ── 3b. Keystone (last delivery) — streak + payoff ──
   // Sessions are stored newest-first; walk from the top for the current streak.
@@ -1923,13 +1613,7 @@ function Insights({
 
   // ── 5. Records + cadence ──
   const bestGbyAll = sessions.reduce((m, s) => Math.max(m, Number(s.gbyBest || 0)), 0);
-  const bestGb = sessions.filter(s => has(s, "ghostConfidence")).reduce((m, s) => Math.max(m, Number(s.ghostConfidence)), 0);
-  const bestYr = sessions.filter(s => has(s, "yuppieRhythm")).reduce((m, s) => Math.max(m, Number(s.yuppieRhythm)), 0);
-  const bestWf = sessions.filter(s => has(s, "wristForce")).reduce((m, s) => Math.max(m, Number(s.wristForce)), 0);
-  const bestCl = sessions.filter(s => has(s, "centreLine")).reduce((m, s) => Math.max(m, Number(s.centreLine)), 0);
-  const bestAcc = sessions.filter(s => has(s, "clAccuracy")).reduce((m, s) => Math.max(m, Number(s.clAccuracy)), 0);
-  const bestFeather = fSessions.reduce((m, s) => Math.max(m, Number(s.feather)), 0);
-  const bestCtrl = sessions.reduce((m, s) => Math.max(m, Number(s.safety || 0)), 0);
+  const bestCd = sessions.filter(s => has(s, "connectDesire")).reduce((m, s) => Math.max(m, Number(s.connectDesire)), 0);
   const cutoff = Date.now() - 28 * 24 * 3600 * 1000;
   const last28 = sessions.filter(s => new Date(s.date + "T00:00:00").getTime() >= cutoff).length;
   const SplitTable = ({
@@ -2153,61 +1837,18 @@ function Insights({
   }, "Records"), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
-    label: "Best 優皮士 rhythm",
-    value: bestYr || "—",
-    suffix: bestYr ? "/10" : "",
-    accent: bestYr >= 9
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Best 發力控制",
-    value: bestWf || "—",
-    suffix: bestWf ? "/10" : "",
-    accent: bestWf >= 9
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Best 中心線路",
-    value: bestCl || "—",
-    suffix: bestCl ? "/10" : "",
-    accent: bestCl >= 9
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Best 出杆信心",
-    value: bestGb || "—",
-    suffix: bestGb ? "/10" : "",
-    accent: bestGb >= 9
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Best 落線準確度",
-    value: bestAcc || "—",
-    suffix: bestAcc ? "/10" : "",
-    accent: bestAcc >= 9
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Best feathering",
-    value: bestFeather || "—",
-    suffix: bestFeather ? "/10" : "",
-    accent: bestFeather >= 9
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Best cue ball control",
-    value: bestCtrl || "—",
-    suffix: bestCtrl ? "/10" : "",
-    accent: bestCtrl === 10
+    label: "Best 連接白波 desire",
+    value: bestCd || "—",
+    suffix: bestCd ? "/10" : "",
+    accent: bestCd >= 9
   }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Best 綠啡黃連環",
     value: bestGbyAll || "—",
     accent: bestGbyAll > 0
   }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Career high break",
-    value: bestBreak
-  }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Sessions · last 28 days",
     value: last28
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: st.insBlock
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "The divergence signal"), /*#__PURE__*/React.createElement("div", {
-    style: st.insBody
-  }, "Awareness held through poor potting (feathering ≥8, long pot ≤30%):", " ", /*#__PURE__*/React.createElement("strong", {
-    style: {
-      color: C.chalkSoft
-    }
-  }, diverged.length, " of ", fSessions.length), ". Proof the rating measures awareness, not results.")), on.length >= 1 && off.length >= 1 && /*#__PURE__*/React.createElement("div", {
+  }))), on.length >= 1 && off.length >= 1 && /*#__PURE__*/React.createElement("div", {
     style: st.insBlock
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
@@ -2598,11 +2239,6 @@ const st = {
     color: C.boneDim,
     marginTop: 2
   },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
-    gap: 14
-  },
   gridThree: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
@@ -2778,11 +2414,6 @@ const st = {
     fontSize: 12,
     color: C.boneDim,
     marginTop: 6
-  },
-  insBody: {
-    fontSize: 13.5,
-    color: C.bone,
-    lineHeight: 1.55
   },
   insCaveat: {
     fontSize: 11.5,
@@ -3184,115 +2815,11 @@ const st = {
     color: "#fff"
   },
   // Secondary rating card. 中心線路 overrides this with clRatingCard to lead.
-  feather: {
-    background: "rgba(255,255,255,0.03)",
-    border: `1px solid ${C.line}`,
-    borderRadius: 14,
-    padding: "18px 18px 16px"
-  },
-  featherTop: {
-    display: "flex",
-    alignItems: "baseline",
-    gap: 14,
-    marginBottom: 14,
-    flexWrap: "wrap"
-  },
-  featherNum: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 40,
-    fontWeight: 600,
-    color: C.cueDim,
-    lineHeight: 1
-  },
-  featherDen: {
-    fontSize: 20,
-    color: C.boneDim,
-    marginLeft: 2
-  },
-  featherWord: {
-    fontSize: 14,
-    color: C.bone,
-    fontStyle: "italic",
-    flex: 1,
-    minWidth: 140,
-    lineHeight: 1.3
-  },
-  featherRange: {
-    width: "100%",
-    accentColor: C.chalkSoft,
-    cursor: "pointer",
-    height: 26
-  },
-  featherScale: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "0 2px",
-    marginTop: 2
-  },
-  featherTick: {
-    fontSize: 11,
-    color: C.boneDim,
-    fontFamily: "'Georgia', serif",
-    width: 18,
-    textAlign: "center"
-  },
-  featherTickOn: {
-    color: C.chalkSoft,
-    fontWeight: 700,
-    transform: "scale(1.25)"
-  },
-  featherCreed: {
-    fontSize: 12,
-    color: C.boneDim,
-    lineHeight: 1.5,
-    marginTop: 14,
-    paddingTop: 13,
-    borderTop: `1px solid ${C.line}`
-  },
-  metric: {
-    background: "rgba(0,0,0,0.18)",
-    borderRadius: 11,
-    padding: "13px 14px",
-    border: `1px solid ${C.line}`
-  },
-  metricTop: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "baseline",
-    marginBottom: 8
-  },
-  metricLabel: {
-    fontSize: 13.5,
-    fontWeight: 600
-  },
-  metricVal: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 18,
-    color: C.chalkSoft,
-    fontWeight: 600
-  },
   metricHint: {
     fontSize: 11,
     color: C.boneDim,
     marginTop: 8,
     lineHeight: 1.3
-  },
-  metricToggle: {
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    width: "100%",
-    background: "transparent",
-    border: "none",
-    padding: "2px 0 8px",
-    color: C.boneDim,
-    fontSize: 12.5,
-    cursor: "pointer",
-    fontFamily: "inherit",
-    textAlign: "left"
-  },
-  metricToggleOn: {
-    color: C.bone
   },
   range: {
     width: "100%",
