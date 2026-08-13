@@ -388,8 +388,10 @@ const blankSession = () => ({
   // edge is what strains the left shoulder; start with a gap and close it
   // gradually over the first few featherings. ──
   addressGap: false,
-  // ── 回杆 — two Shaun Murphy techniques, on trial. Both are about the return
-  // motion: pulling the tip away from the white in the final backswing. ──
+  // ── Murphy 三式 — three Shaun Murphy techniques, on trial. Listed in shot
+  // order rather than the order they were picked up. ──
+  murphyFeatherStart: false,
+  // 落身途中就開始feather — by the time you settle, the cue is already half back
   murphyStraight: false,
   // 回杆要直 — a straight pull-back is what lets the delivery come through straight
   murphySlow: false,
@@ -545,7 +547,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "addressGap", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "addressGap", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -746,8 +748,10 @@ function LogForm({
     on: draft.addressGap,
     onToggle: () => set("addressGap", !draft.addressGap)
   }), /*#__PURE__*/React.createElement(MurphyReturn, {
+    featherStart: draft.murphyFeatherStart,
     straight: draft.murphyStraight,
     slow: draft.murphySlow,
+    onFeatherStart: () => set("murphyFeatherStart", !draft.murphyFeatherStart),
     onStraight: () => set("murphyStraight", !draft.murphyStraight),
     onSlow: () => set("murphySlow", !draft.murphySlow)
   }), /*#__PURE__*/React.createElement(YuppieRhythm, null), /*#__PURE__*/React.createElement(WristForce, {
@@ -938,14 +942,16 @@ function ShoulderGuard({
 // tip away from the white in the final backswing. Marked as a trial on
 // purpose — they have not earned a place beside the settled practices yet.
 function MurphyReturn({
+  featherStart,
   straight,
   slow,
+  onFeatherStart,
   onStraight,
   onSlow
 }) {
   const [info, setInfo] = useState(false);
-  const both = straight && slow;
-  const steps = [["1", straight, onStraight, "回杆要盡量直", "The return motion — pulling the tip away from the white in the final backswing — as straight as you can. A straight pull-back is what lets the final delivery come through straight."], ["2", slow, onSlow, "回杆要盡量慢", "The same motion, as slow as you can. The slower the pull-back, the better the timing — how cleanly you actually strike the white."]];
+  const both = featherStart && straight && slow;
+  const steps = [["1", featherStart, onFeatherStart, "落身途中就開始feather", "Do not settle onto the shot with the cue pointing at the white and only then begin. Start the feathering as you come down, so that by the time you are down the cue is already half way back."], ["2", straight, onStraight, "回杆要盡量直", "The return motion — pulling the tip away from the white in the final backswing — as straight as you can. A straight pull-back is what lets the final delivery come through straight."], ["3", slow, onSlow, "回杆要盡量慢", "The same motion, as slow as you can. The slower the pull-back, the better the timing — how cleanly you actually strike the white."]];
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.cl,
@@ -959,7 +965,7 @@ function MurphyReturn({
       ...st.clTitle,
       ...st.trialTitle
     }
-  }, "回杆：又直又慢"), /*#__PURE__*/React.createElement("span", {
+  }, "Murphy 三式"), /*#__PURE__*/React.createElement("span", {
     style: st.trialTag
   }, both ? "TRIED" : "ON TRIAL"), /*#__PURE__*/React.createElement("span", {
     style: st.clSpacer
@@ -968,7 +974,7 @@ function MurphyReturn({
     onClick: () => setInfo(!info)
   })), info && /*#__PURE__*/React.createElement("div", {
     style: st.clCreed
-  }, "Two things from Shaun Murphy, both about the return motion — the pull of the tip away from the white in the final backswing. Straight pull-back feeds a straight delivery; slow pull-back feeds the timing. On trial until they prove themselves."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
+  }, "Three things from Shaun Murphy, in shot order. The feathering is already under way as you come down, so the cue is half way back by the time you settle. Then the return motion — the pull of the tip away from the white in the final backswing — as straight as you can, which feeds a straight delivery, and as slow as you can, which feeds the timing. A pool session on all three played well; on trial until snooker confirms it."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
     key: n,
     n: n,
     on: on,
@@ -1489,7 +1495,7 @@ function History({
     style: st.rowCl
   }, "激進感受 ✓"), s.addressGap && /*#__PURE__*/React.createElement("span", {
     style: st.rowGuard
-  }, "起手離遠 ✓"), s.murphyStraight && s.murphySlow && /*#__PURE__*/React.createElement("span", {
+  }, "起手離遠 ✓"), s.murphyFeatherStart && s.murphyStraight && s.murphySlow && /*#__PURE__*/React.createElement("span", {
     style: st.rowTrial
   }, "回杆 ✓"), s.wristBenchmark && s.wristPerShot && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
@@ -1656,7 +1662,7 @@ function Insights({
   const clNot = sessions.filter(s => has(s, "clLine") && !(s.clLine && s.clFlat && s.clBody));
   const clSteps = [["clLine", "1 · 睇線"], ["clFlat", "2 · 平放"], ["clBody", "3 · 全身遷就"], ["clFree", "4 · 放鬆自由"]];
   const fierce = sessions.filter(s => s.fierceConnect);
-  const murphySteps = [["murphyStraight", "1 · 回杆要直"], ["murphySlow", "2 · 回杆要慢"]];
+  const murphySteps = [["murphyFeatherStart", "1 · 落身就feather"], ["murphyStraight", "2 · 回杆要直"], ["murphySlow", "3 · 回杆要慢"]];
   const gapKept = sessions.filter(s => s.addressGap);
   const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"], ["wristDoReMi", "3 · Do Re Mi 最後出杆"]];
   const ghostSteps = [["ghostSee", "1 · 睇假想球"], ["ghostNoDoubt", "2 · 冇可能唔入"]];
@@ -1737,7 +1743,7 @@ function Insights({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
-  }, "回杆 · on trial (Shaun Murphy)"), /*#__PURE__*/React.createElement("div", {
+  }, "Murphy 三式 · on trial"), /*#__PURE__*/React.createElement("div", {
     style: st.rulesAdhereRow
   }, murphySteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
     key: k,
@@ -1752,7 +1758,7 @@ function Insights({
     style: st.rulesAdhereLabel
   }, label)))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "Straight pull-back for a straight delivery, slow pull-back for the timing. Still on trial.")), /*#__PURE__*/React.createElement("div", {
+  }, "Feather on the way down, then pull back straight and slow. Still on trial.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insKeystone
