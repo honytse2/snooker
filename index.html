@@ -388,6 +388,12 @@ const blankSession = () => ({
   // edge is what strains the left shoulder; start with a gap and close it
   // gradually over the first few featherings. ──
   addressGap: false,
+  // ── 回杆 — two Shaun Murphy techniques, on trial. Both are about the return
+  // motion: pulling the tip away from the white in the final backswing. ──
+  murphyStraight: false,
+  // 回杆要直 — a straight pull-back is what lets the delivery come through straight
+  murphySlow: false,
+  // 回杆要慢 — the slower the pull-back, the better the timing on the strike
   // ── 優皮士 rhythm — the wrist grip on the final delivery. Tops the scores. ──
   // The feeling in the gripping hand as the cue goes through the white: 慢,
   // 有感知, in rhythm. Deploying this is what first produced 10+ in 綠啡黃連環.
@@ -539,7 +545,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "addressGap", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "addressGap", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -739,6 +745,11 @@ function LogForm({
   }), /*#__PURE__*/React.createElement(ShoulderGuard, {
     on: draft.addressGap,
     onToggle: () => set("addressGap", !draft.addressGap)
+  }), /*#__PURE__*/React.createElement(MurphyReturn, {
+    straight: draft.murphyStraight,
+    slow: draft.murphySlow,
+    onStraight: () => set("murphyStraight", !draft.murphyStraight),
+    onSlow: () => set("murphySlow", !draft.murphySlow)
   }), /*#__PURE__*/React.createElement(YuppieRhythm, null), /*#__PURE__*/React.createElement(WristForce, {
     bench: draft.wristBenchmark,
     perShot: draft.wristPerShot,
@@ -920,6 +931,52 @@ function ShoulderGuard({
     info: info,
     gold: true
   }));
+}
+
+// ─────────────────────────────────────────── ON TRIAL — 回杆 (Shaun Murphy)
+// Two techniques being tested, both about the return motion: pulling the cue
+// tip away from the white in the final backswing. Marked as a trial on
+// purpose — they have not earned a place beside the settled practices yet.
+function MurphyReturn({
+  straight,
+  slow,
+  onStraight,
+  onSlow
+}) {
+  const [info, setInfo] = useState(false);
+  const both = straight && slow;
+  const steps = [["1", straight, onStraight, "回杆要盡量直", "The return motion — pulling the tip away from the white in the final backswing — as straight as you can. A straight pull-back is what lets the final delivery come through straight."], ["2", slow, onSlow, "回杆要盡量慢", "The same motion, as slow as you can. The slower the pull-back, the better the timing — how cleanly you actually strike the white."]];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.cl,
+      ...st.trial,
+      ...(both ? st.trialOn : {})
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clHead
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.clTitle,
+      ...st.trialTitle
+    }
+  }, "回杆：又直又慢"), /*#__PURE__*/React.createElement("span", {
+    style: st.trialTag
+  }, both ? "TRIED" : "ON TRIAL"), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), info && /*#__PURE__*/React.createElement("div", {
+    style: st.clCreed
+  }, "Two things from Shaun Murphy, both about the return motion — the pull of the tip away from the white in the final backswing. Straight pull-back feeds a straight delivery; slow pull-back feeds the timing. On trial until they prove themselves."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
+    key: n,
+    n: n,
+    on: on,
+    onClick: onClick,
+    zh: zh,
+    en: en,
+    info: info
+  })));
 }
 
 // ─────────────────────────────────────────── 0 · 優皮士 rhythm — THE GRIP
@@ -1432,7 +1489,9 @@ function History({
     style: st.rowCl
   }, "激進感受 ✓"), s.addressGap && /*#__PURE__*/React.createElement("span", {
     style: st.rowGuard
-  }, "起手離遠 ✓"), s.wristBenchmark && s.wristPerShot && /*#__PURE__*/React.createElement("span", {
+  }, "起手離遠 ✓"), s.murphyStraight && s.murphySlow && /*#__PURE__*/React.createElement("span", {
+    style: st.rowTrial
+  }, "回杆 ✓"), s.wristBenchmark && s.wristPerShot && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
   }, "手腕發力 ✓"), s.clLine && s.clFlat && s.clBody && s.clFree && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
@@ -1597,6 +1656,7 @@ function Insights({
   const clNot = sessions.filter(s => has(s, "clLine") && !(s.clLine && s.clFlat && s.clBody));
   const clSteps = [["clLine", "1 · 睇線"], ["clFlat", "2 · 平放"], ["clBody", "3 · 全身遷就"], ["clFree", "4 · 放鬆自由"]];
   const fierce = sessions.filter(s => s.fierceConnect);
+  const murphySteps = [["murphyStraight", "1 · 回杆要直"], ["murphySlow", "2 · 回杆要慢"]];
   const gapKept = sessions.filter(s => s.addressGap);
   const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"], ["wristDoReMi", "3 · Do Re Mi 最後出杆"]];
   const ghostSteps = [["ghostSee", "1 · 睇假想球"], ["ghostNoDoubt", "2 · 冇可能唔入"]];
@@ -1671,6 +1731,28 @@ function Insights({
   }, "帶住心態入場 (", fierce.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
   }, "死都要感受連接白波. When the game turns rubbish, this is the switch — not more technique.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insBlock,
+      ...st.insKeystone
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "回杆 · on trial (Shaun Murphy)"), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereRow
+  }, murphySteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.rulesAdhereNum,
+      fontSize: 26,
+      color: C.bone
+    }
+  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, label)))), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "Straight pull-back for a straight delivery, slow pull-back for the timing. Still on trial.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insKeystone
@@ -2314,6 +2396,15 @@ const st = {
     fontWeight: 700,
     letterSpacing: "0.03em"
   },
+  rowTrial: {
+    fontSize: 10,
+    color: C.boneDim,
+    fontWeight: 700,
+    letterSpacing: "0.03em",
+    border: `1px dashed ${C.boneDim}`,
+    padding: "1px 5px",
+    borderRadius: 5
+  },
   rowGuard: {
     fontSize: 10,
     color: C.baizeDeep,
@@ -2592,6 +2683,29 @@ const st = {
   spiritRuleOn: {
     borderColor: "rgba(94,226,160,0.6)",
     background: "rgba(94,226,160,0.14)"
+  },
+  // On trial: dashed and desaturated, so it never looks like settled practice.
+  trial: {
+    background: "rgba(255,255,255,0.04)",
+    border: `1.5px dashed rgba(233,231,226,0.3)`,
+    boxShadow: "none"
+  },
+  trialOn: {
+    borderColor: "rgba(94,226,160,0.55)",
+    background: "rgba(94,226,160,0.08)"
+  },
+  trialTitle: {
+    color: C.bone,
+    fontSize: 19
+  },
+  trialTag: {
+    fontSize: 9,
+    letterSpacing: "0.12em",
+    color: C.boneDim,
+    border: `1px solid ${C.boneDim}`,
+    padding: "2px 6px",
+    borderRadius: 5,
+    fontWeight: 700
   },
   // The shoulder guard reads amber, not mint — it is a health warning, not a
   // performance metric, and should not blend into the scores below it.
