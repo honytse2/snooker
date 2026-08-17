@@ -385,10 +385,11 @@ const blankSession = () => ({
   // THE score, and now the only one: how fiercely you wanted to feel the white
   // ── 趙公子打法 — the first thing in the app. Proven: conquered the North
   // Point pool table, then the Snookery match-play snooker table.
-  // 右腳企直 is the precondition for all of it — it is what keeps the waist
-  // and lower back out of the shot, and that matters off the table too. ──
+  // 右腳企直 is the precondition for all of it, and outranks every other body
+  // cue here: it anchors the body onto the line of aim, and because it locks
+  // before anything else moves it spares both the waist and the shoulder. ──
   zhaoRightLeg: false,
-  // ⚠ · 右腳企直 on every single shot, so the waist never takes the load
+  // ⚠ · 右腳企直 on every single shot — locks the aim line, spares waist + 膊
   zhaoLine: false,
   // 1 · most of the time and effort goes into the line and settling onto it
   zhaoShort: false,
@@ -951,12 +952,12 @@ function ZhaoMethod({
     onClick: () => setInfo(!info)
   })), info && /*#__PURE__*/React.createElement("div", {
     style: st.clCreed
-  }, "The first thing in the app, and no longer on trial: it conquered the North Point pool table, then the Snookery match-play snooker table. 右腳企直 comes before the three 特點 because the method only works with the right leg locked straight — that is what keeps the waist and lower back out of the shot. A hurt back does not stay at the table, so this one outranks anything about playing well."), /*#__PURE__*/React.createElement(StepRow, {
+  }, "The first thing in the app, and no longer on trial: it conquered the North Point pool table, then the Snookery match-play snooker table. 右腳企直 comes before the three 特點, and above every other body cue in this app, because it locks first: it anchors the whole body onto the line of aim, and locking before anything else moves is what keeps the load off both the waist and the left shoulder. A hurt back does not stay at the table, so this outranks anything about playing well."), /*#__PURE__*/React.createElement(StepRow, {
     n: "\u26a0",
     on: rightLeg,
     onClick: onRightLeg,
-    zh: "右腳企直，護條腰",
-    en: "Right leg locked straight on every single shot. This is what stops the waist and lower back taking the load — the injury that follows you off the table.",
+    zh: "右腳企直 · 鎖線護腰護膊",
+    en: "Right leg locked straight on every single shot. It does two jobs. It anchors the body onto the line of aim, so stance, shoulder and wrist all lock onto that line around it. And because it locks before any other part of the body moves, the load never reaches the waist or the shoulder.",
     info: info,
     gold: true
   }), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
@@ -1000,7 +1001,7 @@ function ShoulderGuard({
     onClick: () => setInfo(!info)
   })), info && /*#__PURE__*/React.createElement("div", {
     style: st.clCreed
-  }, "Do not address the white with the tip already at its edge. Start the first few featherings with a gap and only move closer gradually. This is what dropped the left-shoulder strain — the one that used to show up after every session — and it makes the whole feathering action far more natural. The consistency gain is a bonus; the shoulder is the point."), /*#__PURE__*/React.createElement(StepRow, {
+  }, "Do not address the white with the tip already at its edge. Start the first few featherings with a gap and only move closer gradually. This is what dropped the left-shoulder strain — the one that used to show up after every session — and it makes the whole feathering action far more natural. 右腳企直 above already takes part of this load by locking before the shoulder moves at all; this is the rest of it. The consistency gain is a bonus; the shoulder is the point."), /*#__PURE__*/React.createElement(StepRow, {
     n: "\u26a0",
     on: on,
     onClick: onToggle,
@@ -1738,7 +1739,7 @@ function Insights({
   const clNot = sessions.filter(s => has(s, "clLine") && !(s.clLine && s.clFlat && s.clBody));
   const clSteps = [["clLine", "1 · 睇線"], ["clFlat", "2 · 平放"], ["clBody", "3 · 全身遷就"], ["clFree", "4 · 放鬆自由"]];
   const fierce = sessions.filter(s => s.fierceConnect);
-  const zhaoSteps = [["zhaoRightLeg", "⚠ · 右腳企直"], ["zhaoLine", "1 · 搵線落身"], ["zhaoShort", "2 · 短feather短回杆"], ["zhaoMinEffort", "3 · 最少力"]];
+  const zhaoSteps = [["zhaoRightLeg", "⚠ · 右腳企直鎖線"], ["zhaoLine", "1 · 搵線落身"], ["zhaoShort", "2 · 短feather短回杆"], ["zhaoMinEffort", "3 · 最少力"]];
   const murphySteps = [["murphyFeatherStart", "1 · 落身就feather"], ["murphyStraight", "2 · 回杆要直"], ["murphySlow", "3 · 回杆要慢"]];
   const gapKept = sessions.filter(s => s.addressGap);
   const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"], ["wristDoReMi", "3 · Do Re Mi 最後出杆"]];
@@ -1818,7 +1819,7 @@ function Insights({
     style: st.rulesAdhereLabel
   }, label)))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "右腳企直 first — anything under 100% there is a session you risked the waist. Then line, short stroke, least effort.")), /*#__PURE__*/React.createElement("div", {
+  }, "右腳企直 first — it locks the aim line and spares the waist and shoulder, so anything under 100% is a session you risked both. Then line, short stroke, least effort.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insCl
