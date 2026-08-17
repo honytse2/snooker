@@ -383,6 +383,14 @@ const blankSession = () => ({
   fierceConnect: false,
   connectDesire: 7,
   // THE score, and now the only one: how fiercely you wanted to feel the white
+  // ── 趙公子打法 — the first method to run at the table, on trial. Conquered
+  // the North Point pool table; clubhouse table next, then snooker. ──
+  zhaoLine: false,
+  // 1 · most of the time and effort goes into the line and settling onto it
+  zhaoShort: false,
+  // 2 · short feathering, short backswing
+  zhaoMinEffort: false,
+  // 3 · minimum effort on every shot
   // ── 起手離遠啲 — the shoulder guard. Above everything, because this one is
   // about not getting hurt. Addressing the white with the tip already on its
   // edge is what strains the left shoulder; start with a gap and close it
@@ -547,7 +555,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "addressGap", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoLine", "zhaoShort", "zhaoMinEffort", "addressGap", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -744,6 +752,13 @@ function LogForm({
     desire: draft.connectDesire,
     onToggle: () => set("fierceConnect", !draft.fierceConnect),
     onDesire: v => set("connectDesire", v)
+  }), /*#__PURE__*/React.createElement(ZhaoMethod, {
+    line: draft.zhaoLine,
+    short: draft.zhaoShort,
+    minEffort: draft.zhaoMinEffort,
+    onLine: () => set("zhaoLine", !draft.zhaoLine),
+    onShort: () => set("zhaoShort", !draft.zhaoShort),
+    onMinEffort: () => set("zhaoMinEffort", !draft.zhaoMinEffort)
   }), /*#__PURE__*/React.createElement(ShoulderGuard, {
     on: draft.addressGap,
     onToggle: () => set("addressGap", !draft.addressGap)
@@ -894,6 +909,53 @@ function FierceConnect({
     info: info,
     onChange: onDesire
   }));
+}
+
+// ─────────────────────────────────────────── FIRST AT THE TABLE — 趙公子打法
+// The method to run before anything else, still on trial. It conquered the
+// North Point pool table; the clubhouse table is next, then snooker.
+function ZhaoMethod({
+  line,
+  short,
+  minEffort,
+  onLine,
+  onShort,
+  onMinEffort
+}) {
+  const [info, setInfo] = useState(false);
+  const all = line && short && minEffort;
+  const steps = [["1", line, onLine, "搵線落身，調stance膊頭手腕", "Most of the time and effort goes here: find the line of aim, get down onto it, and adjust stance, shoulder and wrist to that line."], ["2", short, onShort, "短feather短回杆", "Short feathering and a short backswing."], ["3", minEffort, onMinEffort, "每球用最少力", "Minimum effort on every shot — no more than the shot actually needs."]];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.cl,
+      ...st.trial,
+      ...(all ? st.trialOn : {})
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clHead
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.clTitle,
+      ...st.trialTitle
+    }
+  }, "趙公子打法"), /*#__PURE__*/React.createElement("span", {
+    style: st.trialTag
+  }, all ? "RAN IT" : "FIRST AT THE TABLE"), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), info && /*#__PURE__*/React.createElement("div", {
+    style: st.clCreed
+  }, "The first thing to run at the table. It produced the best level yet on the North Point pool table — conquered. Next it gets tested on the clubhouse table, then on snooker. Until those confirm it, treat it as a method on trial rather than settled practice."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
+    key: n,
+    n: n,
+    on: on,
+    onClick: onClick,
+    zh: zh,
+    en: en,
+    info: info
+  })));
 }
 
 // ─────────────────────────────────────────── ⚠ · 起手離遠啲 — THE SHOULDER
@@ -1491,7 +1553,9 @@ function History({
     style: st.rowMode(s.mode)
   }, s.mode === "match" ? "MATCH" : "SOLO"), s.venue && /*#__PURE__*/React.createElement("span", {
     style: st.rowVenue
-  }, s.venue), s.fierceConnect && /*#__PURE__*/React.createElement("span", {
+  }, s.venue), s.zhaoLine && s.zhaoShort && s.zhaoMinEffort && /*#__PURE__*/React.createElement("span", {
+    style: st.rowTrial
+  }, "趙公子 ✓"), s.fierceConnect && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
   }, "激進感受 ✓"), s.addressGap && /*#__PURE__*/React.createElement("span", {
     style: st.rowGuard
@@ -1662,6 +1726,7 @@ function Insights({
   const clNot = sessions.filter(s => has(s, "clLine") && !(s.clLine && s.clFlat && s.clBody));
   const clSteps = [["clLine", "1 · 睇線"], ["clFlat", "2 · 平放"], ["clBody", "3 · 全身遷就"], ["clFree", "4 · 放鬆自由"]];
   const fierce = sessions.filter(s => s.fierceConnect);
+  const zhaoSteps = [["zhaoLine", "1 · 搵線落身"], ["zhaoShort", "2 · 短feather短回杆"], ["zhaoMinEffort", "3 · 最少力"]];
   const murphySteps = [["murphyFeatherStart", "1 · 落身就feather"], ["murphyStraight", "2 · 回杆要直"], ["murphySlow", "3 · 回杆要慢"]];
   const gapKept = sessions.filter(s => s.addressGap);
   const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"], ["wristDoReMi", "3 · Do Re Mi 最後出杆"]];
@@ -1740,6 +1805,28 @@ function Insights({
     style: {
       ...st.insBlock,
       ...st.insKeystone
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "趙公子打法 · first at the table"), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereRow
+  }, zhaoSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.rulesAdhereNum,
+      fontSize: 26,
+      color: C.bone
+    }
+  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, label)))), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "Line first, short stroke, least effort. Conquered NP pool — clubhouse table next, then snooker.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insBlock,
+      ...st.insCl
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
