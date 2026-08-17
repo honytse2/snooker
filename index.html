@@ -383,8 +383,8 @@ const blankSession = () => ({
   fierceConnect: false,
   connectDesire: 7,
   // THE score, and now the only one: how fiercely you wanted to feel the white
-  // ── 趙公子打法 — the first method to run at the table, on trial. Conquered
-  // the North Point pool table; clubhouse table next, then snooker. ──
+  // ── 趙公子打法 — the first thing in the app, on trial. Conquered the North
+  // Point pool table; clubhouse table next, then snooker. ──
   zhaoLine: false,
   // 1 · most of the time and effort goes into the line and settling onto it
   zhaoShort: false,
@@ -747,18 +747,18 @@ function LogForm({
     "aria-label": `table quality ${n} of 5`
   })), /*#__PURE__*/React.createElement("span", {
     style: st.tqVal
-  }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), /*#__PURE__*/React.createElement(FierceConnect, {
-    on: draft.fierceConnect,
-    desire: draft.connectDesire,
-    onToggle: () => set("fierceConnect", !draft.fierceConnect),
-    onDesire: v => set("connectDesire", v)
-  }), /*#__PURE__*/React.createElement(ZhaoMethod, {
+  }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), /*#__PURE__*/React.createElement(ZhaoMethod, {
     line: draft.zhaoLine,
     short: draft.zhaoShort,
     minEffort: draft.zhaoMinEffort,
     onLine: () => set("zhaoLine", !draft.zhaoLine),
     onShort: () => set("zhaoShort", !draft.zhaoShort),
     onMinEffort: () => set("zhaoMinEffort", !draft.zhaoMinEffort)
+  }), /*#__PURE__*/React.createElement(FierceConnect, {
+    on: draft.fierceConnect,
+    desire: draft.connectDesire,
+    onToggle: () => set("fierceConnect", !draft.fierceConnect),
+    onDesire: v => set("connectDesire", v)
   }), /*#__PURE__*/React.createElement(ShoulderGuard, {
     on: draft.addressGap,
     onToggle: () => set("addressGap", !draft.addressGap)
@@ -911,9 +911,9 @@ function FierceConnect({
   }));
 }
 
-// ─────────────────────────────────────────── FIRST AT THE TABLE — 趙公子打法
-// The method to run before anything else, still on trial. It conquered the
-// North Point pool table; the clubhouse table is next, then snooker.
+// ─────────────────────────────────────────── FIRST OF ALL — 趙公子打法
+// The first thing in the app, ahead of even the spirit band, still on trial.
+// It conquered the North Point pool table; clubhouse table next, then snooker.
 function ZhaoMethod({
   line,
   short,
@@ -947,7 +947,7 @@ function ZhaoMethod({
     onClick: () => setInfo(!info)
   })), info && /*#__PURE__*/React.createElement("div", {
     style: st.clCreed
-  }, "The first thing to run at the table. It produced the best level yet on the North Point pool table — conquered. Next it gets tested on the clubhouse table, then on snooker. Until those confirm it, treat it as a method on trial rather than settled practice."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
+  }, "The first thing in the app. It produced the best level yet on the North Point pool table — conquered. Next it gets tested on the clubhouse table, then on snooker. Until those confirm it, treat it as a method on trial rather than settled practice."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
     key: n,
     n: n,
     on: on,
@@ -1787,23 +1787,6 @@ function Insights({
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
-      ...st.insCl
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "激進地感受白波 · the spirit"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereNum
-  }, pctOf(fierce), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, "帶住心態入場 (", fierce.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "死都要感受連接白波. When the game turns rubbish, this is the switch — not more technique.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
       ...st.insKeystone
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -1824,6 +1807,23 @@ function Insights({
   }, label)))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
   }, "Line first, short stroke, least effort. Conquered NP pool — clubhouse table next, then snooker.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insBlock,
+      ...st.insCl
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "激進地感受白波 · the spirit"), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereRow
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereNum
+  }, pctOf(fierce), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, "帶住心態入場 (", fierce.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "死都要感受連接白波. When the game turns rubbish, this is the switch — not more technique.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insCl
