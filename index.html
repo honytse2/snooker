@@ -400,15 +400,18 @@ const blankSession = () => ({
   // about not getting hurt. Addressing the white with the tip already on its
   // edge is what strains the left shoulder; start with a gap and close it
   // gradually over the first few featherings. ──
+  // LEGACY — the 起手離遠啲 shoulder guard was retired once 右腳企直 proved it
+  // already carries that load by locking before the shoulder moves at all.
   addressGap: false,
-  // ── Murphy 三式 — three Shaun Murphy techniques, on trial. Listed in shot
-  // order rather than the order they were picked up. ──
+  // ── 回杆 — the one Shaun Murphy technique still on trial. The trial started
+  // as three; the other two were folded away once this was the part that kept
+  // earning its place. ──
+  murphyReturn: false,
+  // 回杆盡量直+慢 — straight feeds a straight delivery, slow feeds the timing
+  // LEGACY — the two retired thirds of the original trial.
   murphyFeatherStart: false,
-  // 落身途中就開始feather — by the time you settle, the cue is already half back
   murphyStraight: false,
-  // 回杆要直 — a straight pull-back is what lets the delivery come through straight
   murphySlow: false,
-  // 回杆要慢 — the slower the pull-back, the better the timing on the strike
   // ── 優皮士 rhythm — the wrist grip on the final delivery. Tops the scores. ──
   // The feeling in the gripping hand as the cue goes through the white: 慢,
   // 有感知, in rhythm. Deploying this is what first produced 10+ in 綠啡黃連環.
@@ -488,6 +491,7 @@ const blankSession = () => ({
   // Not scored: either you committed to them before play, or you didn't.
   ruleCueStraight: false,
   // when you pick up the cue: sight down it, confirm it's straight
+  // LEGACY — the chin/chest rule was retired.
   ruleChinChest: false,
   // never touch chin/chest + imagine each shot
   ruleTipFeedback: false,
@@ -560,7 +564,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "addressGap", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -766,16 +770,9 @@ function LogForm({
     desire: draft.connectDesire,
     onToggle: () => set("fierceConnect", !draft.fierceConnect),
     onDesire: v => set("connectDesire", v)
-  }), /*#__PURE__*/React.createElement(ShoulderGuard, {
-    on: draft.addressGap,
-    onToggle: () => set("addressGap", !draft.addressGap)
   }), /*#__PURE__*/React.createElement(MurphyReturn, {
-    featherStart: draft.murphyFeatherStart,
-    straight: draft.murphyStraight,
-    slow: draft.murphySlow,
-    onFeatherStart: () => set("murphyFeatherStart", !draft.murphyFeatherStart),
-    onStraight: () => set("murphyStraight", !draft.murphyStraight),
-    onSlow: () => set("murphySlow", !draft.murphySlow)
+    ret: draft.murphyReturn,
+    onRet: () => set("murphyReturn", !draft.murphyReturn)
   }), /*#__PURE__*/React.createElement(YuppieRhythm, null), /*#__PURE__*/React.createElement(WristForce, {
     bench: draft.wristBenchmark,
     perShot: draft.wristPerShot,
@@ -800,10 +797,8 @@ function LogForm({
     onNoDoubt: () => set("ghostNoDoubt", !draft.ghostNoDoubt)
   }), /*#__PURE__*/React.createElement(PreShotRules, {
     cue: draft.ruleCueStraight,
-    chin: draft.ruleChinChest,
     tip: draft.ruleTipFeedback,
     onCue: () => set("ruleCueStraight", !draft.ruleCueStraight),
-    onChin: () => set("ruleChinChest", !draft.ruleChinChest),
     onTip: () => set("ruleTipFeedback", !draft.ruleTipFeedback)
   }), draft.mode !== "match" && /*#__PURE__*/React.createElement(GbyChallenge, {
     value: draft.gbyBest,
@@ -971,62 +966,16 @@ function ZhaoMethod({
   })));
 }
 
-// ─────────────────────────────────────────── ⚠ · 起手離遠啲 — THE SHOULDER
-// Above everything else, because this one is about not getting hurt. Pointing
-// the tip at the edge of the white from the very first feather is what loads
-// the left shoulder. Start with a gap, close it gradually over the first few
-// featherings — the strain drops and the whole action turns natural.
-function ShoulderGuard({
-  on,
-  onToggle
-}) {
-  const [info, setInfo] = useState(false);
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.cl,
-      ...st.guard,
-      ...(on ? st.guardOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clHead
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.clTitle,
-      ...st.guardTitle
-    }
-  }, "起手離遠啲 · 護左膊"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), info && /*#__PURE__*/React.createElement("div", {
-    style: st.clCreed
-  }, "Do not address the white with the tip already at its edge. Start the first few featherings with a gap and only move closer gradually. This is what dropped the left-shoulder strain — the one that used to show up after every session — and it makes the whole feathering action far more natural. 右腳企直 above already takes part of this load by locking before the shoulder moves at all; this is the rest of it. The consistency gain is a bonus; the shoulder is the point."), /*#__PURE__*/React.createElement(StepRow, {
-    n: "\u26a0",
-    on: on,
-    onClick: onToggle,
-    zh: "頭幾下唔好指住白波邊",
-    en: "Address with a gap, then close in gradually over the first few featherings.",
-    info: info,
-    gold: true
-  }));
-}
-
 // ─────────────────────────────────────────── ON TRIAL — 回杆 (Shaun Murphy)
 // Two techniques being tested, both about the return motion: pulling the cue
 // tip away from the white in the final backswing. Marked as a trial on
 // purpose — they have not earned a place beside the settled practices yet.
 function MurphyReturn({
-  featherStart,
-  straight,
-  slow,
-  onFeatherStart,
-  onStraight,
-  onSlow
+  ret,
+  onRet
 }) {
   const [info, setInfo] = useState(false);
-  const both = featherStart && straight && slow;
-  const steps = [["1", featherStart, onFeatherStart, "落身途中就開始feather", "Do not settle onto the shot with the cue pointing at the white and only then begin. Start the feathering as you come down, so that by the time you are down the cue is already half way back."], ["2", straight, onStraight, "回杆要盡量直", "The return motion — pulling the tip away from the white in the final backswing — as straight as you can. A straight pull-back is what lets the final delivery come through straight."], ["3", slow, onSlow, "回杆要盡量慢", "The same motion, as slow as you can. The slower the pull-back, the better the timing — how cleanly you actually strike the white."]];
+  const both = ret;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.cl,
@@ -1040,7 +989,7 @@ function MurphyReturn({
       ...st.clTitle,
       ...st.trialTitle
     }
-  }, "Murphy 三式"), /*#__PURE__*/React.createElement("span", {
+  }, "回杆"), /*#__PURE__*/React.createElement("span", {
     style: st.trialTag
   }, both ? "TRIED" : "ON TRIAL"), /*#__PURE__*/React.createElement("span", {
     style: st.clSpacer
@@ -1049,15 +998,14 @@ function MurphyReturn({
     onClick: () => setInfo(!info)
   })), info && /*#__PURE__*/React.createElement("div", {
     style: st.clCreed
-  }, "Three things from Shaun Murphy, in shot order. The feathering is already under way as you come down, so the cue is half way back by the time you settle. Then the return motion — the pull of the tip away from the white in the final backswing — as straight as you can, which feeds a straight delivery, and as slow as you can, which feeds the timing. A pool session on all three played well; on trial until snooker confirms it."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
-    key: n,
-    n: n,
-    on: on,
-    onClick: onClick,
-    zh: zh,
-    en: en,
+  }, "The one Shaun Murphy technique that survived the trial. The return motion — pulling the tip away from the white in the final backswing — as straight as you can, which feeds a straight delivery, and as slow as you can, which feeds the timing. The other two are folded away; this is the part that kept earning its place."), /*#__PURE__*/React.createElement(StepRow, {
+    n: "1",
+    on: ret,
+    onClick: onRet,
+    zh: "回杆盡量直+慢",
+    en: "Pull the tip away from the white as straight and as slow as you can. Straight feeds a straight delivery; slow feeds the timing.",
     info: info
-  })));
+  }));
 }
 
 // ─────────────────────────────────────────── 0 · 優皮士 rhythm — THE GRIP
@@ -1229,14 +1177,12 @@ function GhostBall({
 // a cue-straightness check when you pick it up, then two per-shot rules.
 function PreShotRules({
   cue,
-  chin,
   tip,
   onCue,
-  onChin,
   onTip
 }) {
   const [info, setInfo] = useState(false);
-  const all = cue && chin && tip;
+  const all = cue && tip;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.rules,
@@ -1265,13 +1211,6 @@ function PreShotRules({
     }
   }, "每一球之前"), /*#__PURE__*/React.createElement(StepRow, {
     n: "1",
-    on: chin,
-    onClick: onChin,
-    zh: "唔掂下巴同心口",
-    en: "Never touch chin or chest — and imagine the shot first.",
-    info: info
-  }), /*#__PURE__*/React.createElement(StepRow, {
-    n: "2",
     on: tip,
     onClick: onTip,
     zh: "預先想像杆頭feedback",
@@ -1570,9 +1509,7 @@ function History({
     style: st.rowCl
   }, "趙公子 ✓"), s.fierceConnect && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
-  }, "激進感受 ✓"), s.addressGap && /*#__PURE__*/React.createElement("span", {
-    style: st.rowGuard
-  }, "起手離遠 ✓"), s.murphyFeatherStart && s.murphyStraight && s.murphySlow && /*#__PURE__*/React.createElement("span", {
+  }, "激進感受 ✓"), s.murphyReturn && /*#__PURE__*/React.createElement("span", {
     style: st.rowTrial
   }, "回杆 ✓"), s.wristBenchmark && s.wristPerShot && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
@@ -1590,9 +1527,9 @@ function History({
     style: st.rowCue
   }, "cue checked ✓"), s.drillDToD && /*#__PURE__*/React.createElement("span", {
     style: st.rowBookend
-  }, "收波 ✓"), s.ruleChinChest && s.ruleTipFeedback && /*#__PURE__*/React.createElement("span", {
+  }, "收波 ✓"), s.ruleTipFeedback && /*#__PURE__*/React.createElement("span", {
     style: st.rowRules
-  }, "2 rules ✓"), !s.enjoymentMode && /*#__PURE__*/React.createElement("span", {
+  }, "預先想像 ✓"), !s.enjoymentMode && /*#__PURE__*/React.createElement("span", {
     style: st.rowFlag
   }, "no enjoyment mode")), /*#__PURE__*/React.createElement("div", {
     style: st.rowStats
@@ -1740,13 +1677,12 @@ function Insights({
   const clSteps = [["clLine", "1 · 睇線"], ["clFlat", "2 · 平放"], ["clBody", "3 · 全身遷就"], ["clFree", "4 · 放鬆自由"]];
   const fierce = sessions.filter(s => s.fierceConnect);
   const zhaoSteps = [["zhaoRightLeg", "⚠ · 右腳企直鎖線"], ["zhaoLine", "1 · 搵線落身"], ["zhaoShort", "2 · 短feather短回杆"], ["zhaoMinEffort", "3 · 最少力"]];
-  const murphySteps = [["murphyFeatherStart", "1 · 落身就feather"], ["murphyStraight", "2 · 回杆要直"], ["murphySlow", "3 · 回杆要慢"]];
-  const gapKept = sessions.filter(s => s.addressGap);
+  const murphySteps = [["murphyReturn", "回杆盡量直+慢"]];
   const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"], ["wristDoReMi", "3 · Do Re Mi 最後出杆"]];
   const ghostSteps = [["ghostSee", "1 · 睇假想球"], ["ghostNoDoubt", "2 · 冇可能唔入"]];
 
   // ── 3c. Pre-shot two-rules adherence ──
-  const bothRules = sessions.filter(s => s.ruleChinChest && s.ruleTipFeedback);
+  const bothRules = sessions.filter(s => s.ruleTipFeedback);
   const rulesPct = sessions.length ? Math.round(bothRules.length / sessions.length * 100) : 0;
   const cueChecked = sessions.filter(s => s.ruleCueStraight);
   const cuePct = sessions.length ? Math.round(cueChecked.length / sessions.length * 100) : 0;
@@ -1843,7 +1779,7 @@ function Insights({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
-  }, "Murphy 三式 · on trial"), /*#__PURE__*/React.createElement("div", {
+  }, "回杆 · on trial (Shaun Murphy)"), /*#__PURE__*/React.createElement("div", {
     style: st.rulesAdhereRow
   }, murphySteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
     key: k,
@@ -1858,27 +1794,7 @@ function Insights({
     style: st.rulesAdhereLabel
   }, label)))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "Feather on the way down, then pull back straight and slow. Still on trial.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insKeystone
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "起手離遠啲 · 護左膊"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      ...st.rulesAdhereNum,
-      color: C.cue
-    }
-  }, pctOf(gapKept), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, "起手離遠啲 (", gapKept.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "The shoulder one. Anything under 100% is a session you risked the strain.")), /*#__PURE__*/React.createElement("div", {
+  }, "Pull back straight and slow. Still on trial.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insCl
@@ -1973,7 +1889,7 @@ function Insights({
     style: st.rulesAdhereNum
   }, rulesPct, "%"), /*#__PURE__*/React.createElement("span", {
     style: st.rulesAdhereLabel
-  }, "both pre-shot rules (", bothRules.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
+  }, "預先想像 (", bothRules.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
   }, "Not scored — they're the floor. Below 100% is a session you let slip.")), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2511,15 +2427,6 @@ const st = {
     padding: "1px 5px",
     borderRadius: 5
   },
-  rowGuard: {
-    fontSize: 10,
-    color: C.baizeDeep,
-    background: C.cue,
-    fontWeight: 700,
-    letterSpacing: "0.03em",
-    padding: "2px 6px",
-    borderRadius: 5
-  },
   rowCl: {
     fontSize: 10,
     color: C.baizeDeep,
@@ -2812,20 +2719,6 @@ const st = {
     padding: "2px 6px",
     borderRadius: 5,
     fontWeight: 700
-  },
-  // The shoulder guard reads amber, not mint — it is a health warning, not a
-  // performance metric, and should not blend into the scores below it.
-  guard: {
-    background: "linear-gradient(180deg, rgba(217,178,106,0.13) 0%, rgba(217,178,106,0.04) 100%)",
-    borderColor: "rgba(217,178,106,0.5)"
-  },
-  guardOn: {
-    borderColor: "rgba(217,178,106,0.8)",
-    background: "linear-gradient(180deg, rgba(217,178,106,0.2) 0%, rgba(217,178,106,0.06) 100%)"
-  },
-  guardTitle: {
-    color: C.cue,
-    fontSize: 19
   },
   clSpacer: {
     marginLeft: "auto"
