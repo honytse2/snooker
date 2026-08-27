@@ -476,6 +476,12 @@ const blankSession = () => ({
   // The closer — every session ends here.
   drillDToD: false,
   // 白波D區打返D區 — 總結白波力量感覺控制
+  // ── 模擬一局 — a frame against yourself in every session while a match is
+  // coming up. Judged on whether the method held, not on the balls. ──
+  simFramePlayed: false,
+  // played a simulated frame this session
+  simFrameHeld: false,
+  // held 趙公子打法 the whole way through it
   // ── THE key drill: green → brown → yellow, potted in a row, for a record. ──
   // Correlates best with how well the whole game plays, so every solo session
   // is an attempt on the personal best. 0 = not attempted this session.
@@ -564,7 +570,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -800,6 +806,11 @@ function LogForm({
     tip: draft.ruleTipFeedback,
     onCue: () => set("ruleCueStraight", !draft.ruleCueStraight),
     onTip: () => set("ruleTipFeedback", !draft.ruleTipFeedback)
+  }), draft.mode !== "match" && /*#__PURE__*/React.createElement(SimFrame, {
+    played: draft.simFramePlayed,
+    held: draft.simFrameHeld,
+    onPlayed: () => set("simFramePlayed", !draft.simFramePlayed),
+    onHeld: () => set("simFrameHeld", !draft.simFrameHeld)
   }), draft.mode !== "match" && /*#__PURE__*/React.createElement(GbyChallenge, {
     value: draft.gbyBest,
     pb: bestGby,
@@ -947,7 +958,7 @@ function ZhaoMethod({
     onClick: () => setInfo(!info)
   })), info && /*#__PURE__*/React.createElement("div", {
     style: st.clCreed
-  }, "The first thing in the app, and no longer on trial: it conquered the North Point pool table, then the Snookery match-play snooker table. 右腳企直 comes before the three 特點, and above every other body cue in this app, because it locks first: it anchors the whole body onto the line of aim, and locking before anything else moves is what keeps the load off both the waist and the left shoulder. A hurt back does not stay at the table, so this outranks anything about playing well."), /*#__PURE__*/React.createElement(StepRow, {
+  }, "The first thing in the app, and no longer on trial: it conquered the North Point pool table, then the Snookery match-play snooker table. 右腳企直 comes before the three 特點, and above every other body cue in this app, because it locks first: it anchors the whole body onto the line of aim, and locking before anything else moves is what keeps the load off both the waist and the left shoulder. A hurt back does not stay at the table, so this outranks anything about playing well. 手掌逗住支cue，平放落線，唔揸 is the way in and the way back: start every shot with it, and when a frame knocks you off it, that is the phrase that returns you. The moment you notice you are holding the cue, stand up and address again."), /*#__PURE__*/React.createElement(StepRow, {
     n: "\u26a0",
     on: rightLeg,
     onClick: onRightLeg,
@@ -963,7 +974,13 @@ function ZhaoMethod({
     zh: zh,
     en: en,
     info: info
-  })));
+  })), /*#__PURE__*/React.createElement("div", {
+    style: st.reset
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.resetLabel
+  }, "每一球起手 · 落錯就返呢度"), /*#__PURE__*/React.createElement("div", {
+    style: st.resetLine
+  }, "手掌逗住支cue，平放落線，唔揸")));
 }
 
 // ─────────────────────────────────────────── ON TRIAL — 回杆 (Shaun Murphy)
@@ -1215,6 +1232,50 @@ function PreShotRules({
     onClick: onTip,
     zh: "預先想像杆頭feedback",
     en: "See the cue-tip contact before you strike.",
+    info: info
+  }));
+}
+
+// ─────────────────────────────────────────── MATCH PREP — 模擬一局
+// A frame against yourself, every session while a match is coming up. A frame
+// is where the method actually gets tested: awkward positions, no easy pots,
+// long gaps between shots. Judged on whether the method held, not on the balls.
+function SimFrame({
+  played,
+  held,
+  onPlayed,
+  onHeld
+}) {
+  const [info, setInfo] = useState(false);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.rules,
+      ...(played && held ? st.rulesArmed : {})
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.rulesTitle
+  }, "模擬一局 · 對自己", played && held && /*#__PURE__*/React.createElement("span", {
+    style: st.rulesArmedTag
+  }, "HELD IT"), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), info && /*#__PURE__*/React.createElement("div", {
+    style: st.clCreed
+  }, "A frame is where the method gets tested — awkward positions, no easy pots, long gaps between shots. Run three or four easy balls on the method before breaking off, so the rhythm is loaded rather than hunted for mid-frame. A frame is supposed to be awkward: a missed pot is not evidence against 趙公子打法, and hard shots are exactly when it is worth most. Score the frame on whether the method held, never on the balls."), /*#__PURE__*/React.createElement(StepRow, {
+    n: "\u25a1",
+    on: played,
+    onClick: onPlayed,
+    zh: "打咗一局模擬賽",
+    en: "A full frame against yourself, played as if it counted.",
+    info: info
+  }), /*#__PURE__*/React.createElement(StepRow, {
+    n: "\u25c9",
+    on: held,
+    onClick: onHeld,
+    zh: "全程守住趙公子打法",
+    en: "Held the method the whole way through — not the pots, the method.",
     info: info
   }));
 }
@@ -1507,7 +1568,9 @@ function History({
     style: st.rowVenue
   }, s.venue), s.zhaoRightLeg && s.zhaoLine && s.zhaoShort && s.zhaoMinEffort && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
-  }, "趙公子 ✓"), s.fierceConnect && /*#__PURE__*/React.createElement("span", {
+  }, "趙公子 ✓"), s.simFramePlayed && /*#__PURE__*/React.createElement("span", {
+    style: s.simFrameHeld ? st.rowCl : st.rowTrial
+  }, s.simFrameHeld ? "模擬局 ✓" : "模擬局"), s.fierceConnect && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
   }, "激進感受 ✓"), s.murphyReturn && /*#__PURE__*/React.createElement("span", {
     style: st.rowTrial
@@ -1688,6 +1751,8 @@ function Insights({
   const cuePct = sessions.length ? Math.round(cueChecked.length / sessions.length * 100) : 0;
 
   // ── 3d. The closer — did the session finish on 白波D區打返D區 ──
+  const framePlayed = sessions.filter(s => s.simFramePlayed);
+  const frameHeld = framePlayed.filter(s => s.simFrameHeld);
   const closedWith = sessions.filter(s => s.drillDToD);
   const pctOf = list => sessions.length ? Math.round(list.length / sessions.length * 100) : 0;
 
@@ -1892,6 +1957,29 @@ function Insights({
   }, "預先想像 (", bothRules.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
   }, "Not scored — they're the floor. Below 100% is a session you let slip.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insBlock,
+      ...st.insKeystone
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "模擬一局 · match prep"), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereRow
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereNum
+  }, pctOf(framePlayed), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, "打咗模擬局 (", framePlayed.length, "/", sessions.length, ")")), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereNum
+  }, framePlayed.length ? Math.round(frameHeld.length / framePlayed.length * 100) : 0, "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, "守住打法 (", frameHeld.length, "/", framePlayed.length, ")"))), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "The second figure is the one that matters — it is the method surviving a frame, which is what a match is.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insKeystone
@@ -2719,6 +2807,29 @@ const st = {
     padding: "2px 6px",
     borderRadius: 5,
     fontWeight: 700
+  },
+  // The reset cue stays on the card face — it is what you reach for mid-frame,
+  // so hiding it behind the (i) would defeat the point.
+  reset: {
+    marginTop: 12,
+    padding: "10px 12px",
+    borderRadius: 10,
+    background: "rgba(94,226,160,0.09)",
+    border: `1px dashed rgba(94,226,160,0.45)`
+  },
+  resetLabel: {
+    fontSize: 9.5,
+    letterSpacing: "0.14em",
+    color: C.boneDim,
+    fontWeight: 700,
+    marginBottom: 4
+  },
+  resetLine: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 16,
+    fontWeight: 700,
+    color: C.chalkSoft,
+    lineHeight: 1.35
   },
   clSpacer: {
     marginLeft: "auto"
