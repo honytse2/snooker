@@ -396,6 +396,9 @@ const blankSession = () => ({
   // 2 · short feathering, short backswing
   zhaoMinEffort: false,
   // 3 · minimum effort on every shot
+  zhaoRhythm: 7,
+  // the second score: how well the 趙公子 rhythm held, and how fast it came
+  // back when the table knocked it out
   // ── 起手離遠啲 — the shoulder guard. Above everything, because this one is
   // about not getting hurt. Addressing the white with the tip already on its
   // edge is what strains the left shoulder; start with a gap and close it
@@ -570,7 +573,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -767,10 +770,12 @@ function LogForm({
     line: draft.zhaoLine,
     short: draft.zhaoShort,
     minEffort: draft.zhaoMinEffort,
+    rhythm: draft.zhaoRhythm,
     onRightLeg: () => set("zhaoRightLeg", !draft.zhaoRightLeg),
     onLine: () => set("zhaoLine", !draft.zhaoLine),
     onShort: () => set("zhaoShort", !draft.zhaoShort),
-    onMinEffort: () => set("zhaoMinEffort", !draft.zhaoMinEffort)
+    onMinEffort: () => set("zhaoMinEffort", !draft.zhaoMinEffort),
+    onRhythm: v => set("zhaoRhythm", v)
   }), /*#__PURE__*/React.createElement(FierceConnect, {
     on: draft.fierceConnect,
     desire: draft.connectDesire,
@@ -932,10 +937,12 @@ function ZhaoMethod({
   line,
   short,
   minEffort,
+  rhythm,
   onRightLeg,
   onLine,
   onShort,
-  onMinEffort
+  onMinEffort,
+  onRhythm
 }) {
   const [info, setInfo] = useState(false);
   const all = rightLeg && line && short && minEffort;
@@ -980,7 +987,14 @@ function ZhaoMethod({
     style: st.resetLabel
   }, "每一球起手 · 落錯就返呢度"), /*#__PURE__*/React.createElement("div", {
     style: st.resetLine
-  }, "手掌逗住支cue，平放落線，唔揸")));
+  }, "手掌逗住支cue，平放落線，唔揸")), /*#__PURE__*/React.createElement(MiniRating, {
+    label: "趙公子 rhythm",
+    value: rhythm,
+    words: RHYTHM_WORDS,
+    hint: "How well the rhythm held, and how fast it came back when the table knocked it out. Score the rhythm, never the balls.",
+    info: info,
+    onChange: onRhythm
+  }));
 }
 
 // ─────────────────────────────────────────── ON TRIAL — 回杆 (Shaun Murphy)
@@ -1427,6 +1441,7 @@ function MiniRating({
     style: st.metricHint
   }, hint));
 }
+const RHYTHM_WORDS = ["", "Never found it", "Lost it on the first hard shot", "Flashes, then gone", "On and off, mostly off", "Half the session", "There, but kept slipping", "Mostly held, came back slowly", "Held it, recovered fast when lost", "Held through the awkward shots too", "全程趙公子 — 冇甩過"];
 const CONNECT_WORDS = ["", "None — just hitting balls", "Barely wanted it", "Went through the motions", "Wanted it, gave up early", "There for half the session", "Present, but not fierce", "Wanted it most shots", "Fierce most of the session", "死都要感受 — nearly every shot", "激進地感受白波 — 全程"];
 
 // ─────────────────────────────────────────── HISTORY
@@ -1597,6 +1612,10 @@ function History({
   }, "no enjoyment mode")), /*#__PURE__*/React.createElement("div", {
     style: st.rowStats
   }, /*#__PURE__*/React.createElement(Stat, {
+    label: "趙公子",
+    v: `${s.zhaoRhythm ?? "—"}/10`,
+    hot: Number(s.zhaoRhythm || 0) >= 8
+  }), /*#__PURE__*/React.createElement(Stat, {
     label: "連接白波",
     v: `${s.connectDesire ?? "—"}/10`,
     hot: Number(s.connectDesire || 0) >= 8
@@ -1649,6 +1668,7 @@ function Trends({
     };
   };
   const cd = series("connectDesire");
+  const zr = series("zhaoRhythm");
   // The key drill is solo-only and 0 means "not attempted", so chart and
   // average across attempts rather than letting blanks drag it down.
   const gbyTried = chrono.filter(s => s.mode !== "match" && Number(s.gbyBest || 0) > 0);
@@ -1671,6 +1691,11 @@ function Trends({
   })), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
+    label: `趙公子 rhythm · avg last ${zr.n || 0}`,
+    value: zr.n ? zr.avg.toFixed(1) : "—",
+    suffix: zr.n ? "/10" : "",
+    accent: true
+  }), /*#__PURE__*/React.createElement(Kpi, {
     label: "綠啡黃 · personal best",
     value: gbyPb || "—",
     accent: true
@@ -1686,6 +1711,12 @@ function Trends({
     suffix: "/10",
     max: 10,
     color: C.chalkSoft
+  }), zr.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
+    title: "趙公子 rhythm over time",
+    data: zr.data,
+    suffix: "/10",
+    max: 10,
+    color: C.ok
   }), gbyData.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
     title: "綠啡黃連環 · pots in a row (solo)",
     data: gbyData,
@@ -1715,7 +1746,7 @@ function Insights({
   // ── 1. Enjoyment-mode split ──
   const on = sessions.filter(s => s.enjoymentMode);
   const off = sessions.filter(s => !s.enjoymentMode);
-  const splitMetrics = [["connectDesire", "連接白波 desire", "/10"], ["gbyBest", "綠啡黃連環", ""]];
+  const splitMetrics = [["zhaoRhythm", "趙公子 rhythm", "/10"], ["connectDesire", "連接白波 desire", "/10"], ["gbyBest", "綠啡黃連環", ""]];
 
   // ── 2. Table-quality split (rated sessions only) ──
   const goodT = sessions.filter(s => Number(s.tableQ || 0) >= 4);
@@ -1758,6 +1789,7 @@ function Insights({
 
   // ── 5. Records + cadence ──
   const bestGbyAll = sessions.reduce((m, s) => Math.max(m, Number(s.gbyBest || 0)), 0);
+  const bestZr = sessions.filter(s => has(s, "zhaoRhythm")).reduce((m, s) => Math.max(m, Number(s.zhaoRhythm)), 0);
   const bestCd = sessions.filter(s => has(s, "connectDesire")).reduce((m, s) => Math.max(m, Number(s.connectDesire)), 0);
   const cutoff = Date.now() - 28 * 24 * 3600 * 1000;
   const last28 = sessions.filter(s => new Date(s.date + "T00:00:00").getTime() >= cutoff).length;
@@ -2029,6 +2061,11 @@ function Insights({
   }, "Records"), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
+    label: "Best 趙公子 rhythm",
+    value: bestZr || "—",
+    suffix: bestZr ? "/10" : "",
+    accent: bestZr >= 9
+  }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Best 連接白波 desire",
     value: bestCd || "—",
     suffix: bestCd ? "/10" : "",
