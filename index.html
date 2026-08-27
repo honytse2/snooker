@@ -457,6 +457,8 @@ const blankSession = () => ({
   eyeBackCue: false,
   // 3 · one eye back to the white, still on the point, micro-adjust body + arm
   eyeConfirm: false,
+  eyeScore: 7,
+  // the third score: how well the four steps were actually executed
   // 4 · one eye back to the object ball, confirm it feels right, then deliver
   // ── 假想球 → 冇可能唔入 — the third fundamental, after wrist and line. ──
   // Picture the ghost ball and the object ball's path into the pocket, and hold
@@ -585,7 +587,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -788,6 +790,17 @@ function LogForm({
     onShort: () => set("zhaoShort", !draft.zhaoShort),
     onMinEffort: () => set("zhaoMinEffort", !draft.zhaoMinEffort),
     onRhythm: v => set("zhaoRhythm", v)
+  }), /*#__PURE__*/React.createElement(EyeLine, {
+    setPoint: draft.eyeSetPoint,
+    checkLine: draft.eyeCheckLine,
+    backCue: draft.eyeBackCue,
+    confirm: draft.eyeConfirm,
+    score: draft.eyeScore,
+    onSetPoint: () => set("eyeSetPoint", !draft.eyeSetPoint),
+    onCheckLine: () => set("eyeCheckLine", !draft.eyeCheckLine),
+    onBackCue: () => set("eyeBackCue", !draft.eyeBackCue),
+    onConfirm: () => set("eyeConfirm", !draft.eyeConfirm),
+    onScore: v => set("eyeScore", v)
   }), /*#__PURE__*/React.createElement(FierceConnect, {
     on: draft.fierceConnect,
     desire: draft.connectDesire,
@@ -813,15 +826,6 @@ function LogForm({
     onFlat: () => set("clFlat", !draft.clFlat),
     onBody: () => set("clBody", !draft.clBody),
     onFree: () => set("clFree", !draft.clFree)
-  }), /*#__PURE__*/React.createElement(EyeLine, {
-    setPoint: draft.eyeSetPoint,
-    checkLine: draft.eyeCheckLine,
-    backCue: draft.eyeBackCue,
-    confirm: draft.eyeConfirm,
-    onSetPoint: () => set("eyeSetPoint", !draft.eyeSetPoint),
-    onCheckLine: () => set("eyeCheckLine", !draft.eyeCheckLine),
-    onBackCue: () => set("eyeBackCue", !draft.eyeBackCue),
-    onConfirm: () => set("eyeConfirm", !draft.eyeConfirm)
   }), /*#__PURE__*/React.createElement(GhostBall, {
     see: draft.ghostSee,
     noDoubt: draft.ghostNoDoubt,
@@ -1193,10 +1197,12 @@ function EyeLine({
   checkLine,
   backCue,
   confirm,
+  score,
   onSetPoint,
   onCheckLine,
   onBackCue,
-  onConfirm
+  onConfirm,
+  onScore
 }) {
   const [info, setInfo] = useState(false);
   const all = setPoint && checkLine && backCue && confirm;
@@ -1233,7 +1239,14 @@ function EyeLine({
     style: st.resetLabel
   }, "由第2步開始"), /*#__PURE__*/React.createElement("div", {
     style: st.resetLine
-  }, "全部單眼 · 到出杆為止")));
+  }, "全部單眼 · 到出杆為止")), /*#__PURE__*/React.createElement(MiniRating, {
+    label: "定線執行",
+    value: score,
+    words: EYE_WORDS,
+    hint: "How well the four steps actually ran — especially on the thin cuts, where the routine is worth most and hardest to hold.",
+    info: info,
+    onChange: onScore
+  }));
 }
 
 // ─────────────────────────────────────────── 3 · 假想球 — NO DOUBT
@@ -1515,6 +1528,7 @@ function MiniRating({
     style: st.metricHint
   }, hint));
 }
+const EYE_WORDS = ["", "Never ran it", "Both eyes throughout", "Started it, then forgot", "Easy shots only", "About half the shots", "Most shots, the check rushed", "Four steps, micro-adjust vague", "Full routine on most shots", "Held it on the thin cuts too", "每一球四步 · 單眼到底"];
 const RHYTHM_WORDS = ["", "Never found it", "Lost it on the first hard shot", "Flashes, then gone", "On and off, mostly off", "Half the session", "There, but kept slipping", "Mostly held, came back slowly", "Held it, recovered fast when lost", "Held through the awkward shots too", "全程趙公子 — 冇甩過"];
 const CONNECT_WORDS = ["", "None — just hitting balls", "Barely wanted it", "Went through the motions", "Wanted it, gave up early", "There for half the session", "Present, but not fierce", "Wanted it most shots", "Fierce most of the session", "死都要感受 — nearly every shot", "激進地感受白波 — 全程"];
 
@@ -1692,6 +1706,10 @@ function History({
     v: `${s.zhaoRhythm ?? "—"}/10`,
     hot: Number(s.zhaoRhythm || 0) >= 8
   }), /*#__PURE__*/React.createElement(Stat, {
+    label: "定線",
+    v: `${s.eyeScore ?? "—"}/10`,
+    hot: Number(s.eyeScore || 0) >= 8
+  }), /*#__PURE__*/React.createElement(Stat, {
     label: "連接白波",
     v: `${s.connectDesire ?? "—"}/10`,
     hot: Number(s.connectDesire || 0) >= 8
@@ -1745,6 +1763,7 @@ function Trends({
   };
   const cd = series("connectDesire");
   const zr = series("zhaoRhythm");
+  const es = series("eyeScore");
   // The key drill is solo-only and 0 means "not attempted", so chart and
   // average across attempts rather than letting blanks drag it down.
   const gbyTried = chrono.filter(s => s.mode !== "match" && Number(s.gbyBest || 0) > 0);
@@ -1767,6 +1786,11 @@ function Trends({
   })), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
+    label: `定線執行 · avg last ${es.n || 0}`,
+    value: es.n ? es.avg.toFixed(1) : "—",
+    suffix: es.n ? "/10" : "",
+    accent: true
+  }), /*#__PURE__*/React.createElement(Kpi, {
     label: `趙公子 rhythm · avg last ${zr.n || 0}`,
     value: zr.n ? zr.avg.toFixed(1) : "—",
     suffix: zr.n ? "/10" : "",
@@ -1793,6 +1817,12 @@ function Trends({
     suffix: "/10",
     max: 10,
     color: C.ok
+  }), es.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
+    title: "定線執行 over time",
+    data: es.data,
+    suffix: "/10",
+    max: 10,
+    color: C.cueDim
   }), gbyData.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
     title: "綠啡黃連環 · pots in a row (solo)",
     data: gbyData,
@@ -1822,7 +1852,7 @@ function Insights({
   // ── 1. Enjoyment-mode split ──
   const on = sessions.filter(s => s.enjoymentMode);
   const off = sessions.filter(s => !s.enjoymentMode);
-  const splitMetrics = [["zhaoRhythm", "趙公子 rhythm", "/10"], ["connectDesire", "連接白波 desire", "/10"], ["gbyBest", "綠啡黃連環", ""]];
+  const splitMetrics = [["zhaoRhythm", "趙公子 rhythm", "/10"], ["eyeScore", "定線執行", "/10"], ["connectDesire", "連接白波 desire", "/10"], ["gbyBest", "綠啡黃連環", ""]];
 
   // ── 2. Table-quality split (rated sessions only) ──
   const goodT = sessions.filter(s => Number(s.tableQ || 0) >= 4);
@@ -1867,6 +1897,7 @@ function Insights({
   // ── 5. Records + cadence ──
   const bestGbyAll = sessions.reduce((m, s) => Math.max(m, Number(s.gbyBest || 0)), 0);
   const bestZr = sessions.filter(s => has(s, "zhaoRhythm")).reduce((m, s) => Math.max(m, Number(s.zhaoRhythm)), 0);
+  const bestEs = sessions.filter(s => has(s, "eyeScore")).reduce((m, s) => Math.max(m, Number(s.eyeScore)), 0);
   const bestCd = sessions.filter(s => has(s, "connectDesire")).reduce((m, s) => Math.max(m, Number(s.connectDesire)), 0);
   const cutoff = Date.now() - 28 * 24 * 3600 * 1000;
   const last28 = sessions.filter(s => new Date(s.date + "T00:00:00").getTime() >= cutoff).length;
@@ -1936,6 +1967,27 @@ function Insights({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
+  }, "雙眼定點 → 單眼定線 · the frame standard"), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereRow
+  }, eyeSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.rulesAdhereNum,
+      fontSize: 26
+    }
+  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, label)))), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "雙眼定點, then one eye all the way to delivery. This is what makes a frame's thin cuts and random lengths playable.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insBlock,
+      ...st.insCl
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
   }, "激進地感受白波 · the spirit"), /*#__PURE__*/React.createElement("div", {
     style: st.rulesAdhereRow
   }, /*#__PURE__*/React.createElement("div", {
@@ -1990,27 +2042,6 @@ function Insights({
   }, label)))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
   }, "Benchmark at 開枱, then every shot a chosen % of it. Below 100% is a session you guessed the power.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insCl
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "雙眼定點 → 單眼定線 · the frame standard"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, eyeSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
-    key: k,
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      ...st.rulesAdhereNum,
-      fontSize: 26
-    }
-  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, label)))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "雙眼定點, then one eye all the way to delivery. This is what makes a frame's thin cuts and random lengths playable.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insCl
@@ -2163,6 +2194,11 @@ function Insights({
     value: bestZr || "—",
     suffix: bestZr ? "/10" : "",
     accent: bestZr >= 9
+  }), /*#__PURE__*/React.createElement(Kpi, {
+    label: "Best 定線執行",
+    value: bestEs || "—",
+    suffix: bestEs ? "/10" : "",
+    accent: bestEs >= 9
   }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Best 連接白波 desire",
     value: bestCd || "—",
