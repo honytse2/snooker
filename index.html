@@ -446,6 +446,18 @@ const blankSession = () => ({
   // THE rating (1–10): how well the centre line held this session
   clAccuracy: 7,
   // 落線準確度 (1–10): cue down ON the line first time, no micro-adjusting
+  // ── 雙眼定點 → 單眼定線 — the frame standard. A frame throws random shot
+  // lengths and mostly thin cuts, angles a line-up never produces, so the
+  // aiming line has to be built and verified against the body every shot.
+  // Step 1 is both eyes on the white; everything after it is one eye. ──
+  eyeSetPoint: false,
+  // 1 · 雙眼定視 the cue ball, set the point of contact
+  eyeCheckLine: false,
+  // 2 · one eye to the object ball, check the line
+  eyeBackCue: false,
+  // 3 · one eye back to the white, still on the point, micro-adjust body + arm
+  eyeConfirm: false,
+  // 4 · one eye back to the object ball, confirm it feels right, then deliver
   // ── 假想球 → 冇可能唔入 — the third fundamental, after wrist and line. ──
   // Picture the ghost ball and the object ball's path into the pocket, and hold
   // it until there is no doubt left. Only then deliver.
@@ -573,7 +585,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -801,6 +813,15 @@ function LogForm({
     onFlat: () => set("clFlat", !draft.clFlat),
     onBody: () => set("clBody", !draft.clBody),
     onFree: () => set("clFree", !draft.clFree)
+  }), /*#__PURE__*/React.createElement(EyeLine, {
+    setPoint: draft.eyeSetPoint,
+    checkLine: draft.eyeCheckLine,
+    backCue: draft.eyeBackCue,
+    confirm: draft.eyeConfirm,
+    onSetPoint: () => set("eyeSetPoint", !draft.eyeSetPoint),
+    onCheckLine: () => set("eyeCheckLine", !draft.eyeCheckLine),
+    onBackCue: () => set("eyeBackCue", !draft.eyeBackCue),
+    onConfirm: () => set("eyeConfirm", !draft.eyeConfirm)
   }), /*#__PURE__*/React.createElement(GhostBall, {
     see: draft.ghostSee,
     noDoubt: draft.ghostNoDoubt,
@@ -1160,6 +1181,59 @@ function CentreLineMethod({
     info: info,
     gold: true
   }));
+}
+
+// ─────────────────────────────────────────── THE FRAME STANDARD — 定線
+// A frame throws random shot lengths and mostly thin cuts — angles a line-up
+// never produces — so the aiming line has to be built and verified against the
+// body on every shot. 雙眼 sets the point on the white; everything after that
+// is one eye, because two eyes cannot agree on a line.
+function EyeLine({
+  setPoint,
+  checkLine,
+  backCue,
+  confirm,
+  onSetPoint,
+  onCheckLine,
+  onBackCue,
+  onConfirm
+}) {
+  const [info, setInfo] = useState(false);
+  const all = setPoint && checkLine && backCue && confirm;
+  const steps = [["1", setPoint, onSetPoint, "雙眼定視白波接觸點", "Both eyes. Address the cue ball and set the exact point of contact you intend to strike."], ["2", checkLine, onCheckLine, "單眼睇目標球對線", "One eye from here on. Look up to the object ball and check whether you are actually on the line."], ["3", backCue, onBackCue, "單眼返白波 · 微調身同手", "Still one eye, back down to the white. Confirm you are still on the point of contact, and micro-adjust body and arm to correct whatever step 2 showed you."], ["4", confirm, onConfirm, "單眼返目標球 · 啱先出杆", "One eye back up to the object ball. Does it feel right now? Only then deliver."]];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.cl,
+      ...(all ? st.clArmed : {})
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clHead
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clTitle
+  }, "雙眼定點 → 單眼定線"), all && /*#__PURE__*/React.createElement("span", {
+    style: st.clTag
+  }, "ALL FOUR"), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), info && /*#__PURE__*/React.createElement("div", {
+    style: st.clCreed
+  }, "The standard for frame play. A line-up gives you repeated lengths and shallow angles; a frame gives you random distances and mostly thin cuts, so the aiming line has to be built fresh and checked against your body every single shot. This is the routine that builds it. Two eyes set the point on the white, then one eye does everything else — cue ball, object ball, back down, back up — because only one eye can hold a line."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
+    key: n,
+    n: n,
+    on: on,
+    onClick: onClick,
+    zh: zh,
+    en: en,
+    info: info
+  })), /*#__PURE__*/React.createElement("div", {
+    style: st.reset
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.resetLabel
+  }, "由第2步開始"), /*#__PURE__*/React.createElement("div", {
+    style: st.resetLine
+  }, "全部單眼 · 到出杆為止")));
 }
 
 // ─────────────────────────────────────────── 3 · 假想球 — NO DOUBT
@@ -1593,7 +1667,9 @@ function History({
     style: st.rowCl
   }, "手腕發力 ✓"), s.clLine && s.clFlat && s.clBody && s.clFree && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
-  }, "平放大法 ✓"), s.ghostSee && s.ghostNoDoubt && /*#__PURE__*/React.createElement("span", {
+  }, "平放大法 ✓"), s.eyeSetPoint && s.eyeCheckLine && s.eyeBackCue && s.eyeConfirm && /*#__PURE__*/React.createElement("span", {
+    style: st.rowCl
+  }, "定線 ✓"), s.ghostSee && s.ghostNoDoubt && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
   }, "假想球 ✓"), s.lastDelivery === "every" && /*#__PURE__*/React.createElement("span", {
     style: st.rowKeyOn
@@ -1773,6 +1849,7 @@ function Insights({
   const zhaoSteps = [["zhaoRightLeg", "⚠ · 右腳企直鎖線"], ["zhaoLine", "1 · 搵線落身"], ["zhaoShort", "2 · 短feather短回杆"], ["zhaoMinEffort", "3 · 最少力"]];
   const murphySteps = [["murphyReturn", "回杆盡量直+慢"]];
   const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"], ["wristDoReMi", "3 · Do Re Mi 最後出杆"]];
+  const eyeSteps = [["eyeSetPoint", "1 · 雙眼定點"], ["eyeCheckLine", "2 · 單眼對線"], ["eyeBackCue", "3 · 返白波微調"], ["eyeConfirm", "4 · 返目標球確認"]];
   const ghostSteps = [["ghostSee", "1 · 睇假想球"], ["ghostNoDoubt", "2 · 冇可能唔入"]];
 
   // ── 3c. Pre-shot two-rules adherence ──
@@ -1913,6 +1990,27 @@ function Insights({
   }, label)))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
   }, "Benchmark at 開枱, then every shot a chosen % of it. Below 100% is a session you guessed the power.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insBlock,
+      ...st.insCl
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "雙眼定點 → 單眼定線 · the frame standard"), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereRow
+  }, eyeSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.rulesAdhereNum,
+      fontSize: 26
+    }
+  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, label)))), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "雙眼定點, then one eye all the way to delivery. This is what makes a frame's thin cuts and random lengths playable.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insCl
