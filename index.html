@@ -391,7 +391,8 @@ const blankSession = () => ({
   zhaoRightLeg: false,
   // ⚠ · 右腳企直 on every single shot — locks the aim line, spares waist + 膊
   zhaoLine: false,
-  // 1 · most of the time and effort goes into the line and settling onto it
+  // 1 · the line, settling onto it, and the cue landing on its spot straight
+  //     away — 下巴右方少少, under the aiming eye, never as a correction
   zhaoShort: false,
   // 2 · short feathering, short backswing
   zhaoMinEffort: false,
@@ -971,7 +972,7 @@ function ZhaoMethod({
 }) {
   const [info, setInfo] = useState(false);
   const all = rightLeg && line && short && minEffort;
-  const steps = [["1", line, onLine, "搵線落身，調stance膊頭手腕", "Most of the time and effort goes here: find the line of aim, get down onto it, and adjust stance, shoulder and wrist to that line."], ["2", short, onShort, "短feather短回杆", "Short feathering and a short backswing."], ["3", minEffort, onMinEffort, "每球用最少力", "Minimum effort on every shot — no more than the shot actually needs."]];
+  const steps = [["1", line, onLine, "搵線落身 · 支cue即刻落啱位", "Most of the time and effort goes here. Find the line of aim, get down onto it, and adjust stance, shoulder and wrist to that line. The cue lands on its spot the moment you are down — 下巴右方少少, under the aiming eye — never after a correction. That offset is a constant, so arriving at it costs nothing while re-finding it every shot costs the rhythm. Calibrate the exact spot once on a shot you know is straight, then it is fixed."], ["2", short, onShort, "短feather短回杆", "Short feathering and a short backswing."], ["3", minEffort, onMinEffort, "每球用最少力", "Minimum effort on every shot — no more than the shot actually needs."]];
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.cl,
@@ -1206,7 +1207,7 @@ function EyeLine({
 }) {
   const [info, setInfo] = useState(false);
   const all = setPoint && checkLine && backCue && confirm;
-  const steps = [["1", setPoint, onSetPoint, "雙眼定視白波接觸點", "Both eyes. Address the cue ball and set the exact point of contact you intend to strike."], ["2", checkLine, onCheckLine, "單眼睇目標球對線", "One eye from here on. Look up to the object ball and check whether you are actually on the line."], ["3", backCue, onBackCue, "單眼返白波 · 微調身同手", "Still one eye, back down to the white. Confirm you are still on the point of contact, and micro-adjust body and arm to correct whatever step 2 showed you."], ["4", confirm, onConfirm, "單眼返目標球 · 啱先出杆", "One eye back up to the object ball. Does it feel right now? Only then deliver."]];
+  const steps = [["1", setPoint, onSetPoint, "雙眼定視白波接觸點", "Both eyes. Address the cue ball and set the exact point of contact you intend to strike."], ["2", checkLine, onCheckLine, "單眼睇目標球對線", "One eye from here on. Look up to the object ball and check whether you are actually on the line."], ["3", backCue, onBackCue, "單眼返白波 · 微調身同手", "Still one eye, back down to the white. Confirm you are still on the point of contact, and micro-adjust body and arm to correct whatever step 2 showed you. This correction should be small and point a different way each shot. If it is large and always the same direction, that is the cue arriving in the wrong place under your face, not the line being wrong — fix it in 趙公子 step 1, not here."], ["4", confirm, onConfirm, "單眼返目標球 · 啱先出杆", "One eye back up to the object ball. Does it feel right now? Only then deliver."]];
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.cl,
