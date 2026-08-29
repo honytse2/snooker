@@ -427,6 +427,8 @@ const blankSession = () => ({
   // 開枱: max force each hand, up and down the table, trajectory straight = 100%
   wristPerShot: false,
   // every shot: recall the benchmark, pick the % (40%? 60%?), flick to exactly that
+  // Lives on 趙公子打法 as step 4 — the name is kept so sessions logged while
+  // it sat under 手腕發力法 still count.
   wristDoReMi: false,
   // hold the Do-Re-Mi finger squeeze back until the final delivery — this is
   // what kills the miscues; squeeze through the white, never before it
@@ -785,11 +787,13 @@ function LogForm({
     line: draft.zhaoLine,
     short: draft.zhaoShort,
     minEffort: draft.zhaoMinEffort,
+    doReMi: draft.wristDoReMi,
     rhythm: draft.zhaoRhythm,
     onRightLeg: () => set("zhaoRightLeg", !draft.zhaoRightLeg),
     onLine: () => set("zhaoLine", !draft.zhaoLine),
     onShort: () => set("zhaoShort", !draft.zhaoShort),
     onMinEffort: () => set("zhaoMinEffort", !draft.zhaoMinEffort),
+    onDoReMi: () => set("wristDoReMi", !draft.wristDoReMi),
     onRhythm: v => set("zhaoRhythm", v)
   }), /*#__PURE__*/React.createElement(EyeLine, {
     setPoint: draft.eyeSetPoint,
@@ -814,10 +818,8 @@ function LogForm({
     bench: draft.wristBenchmark,
     perShot: draft.wristPerShot,
     force: draft.wristForce,
-    doReMi: draft.wristDoReMi,
     onBench: () => set("wristBenchmark", !draft.wristBenchmark),
-    onPerShot: () => set("wristPerShot", !draft.wristPerShot),
-    onDoReMi: () => set("wristDoReMi", !draft.wristDoReMi)
+    onPerShot: () => set("wristPerShot", !draft.wristPerShot)
   }), /*#__PURE__*/React.createElement(CentreLineMethod, {
     line: draft.clLine,
     flat: draft.clFlat,
@@ -963,16 +965,18 @@ function ZhaoMethod({
   line,
   short,
   minEffort,
+  doReMi,
   rhythm,
   onRightLeg,
   onLine,
   onShort,
   onMinEffort,
+  onDoReMi,
   onRhythm
 }) {
   const [info, setInfo] = useState(false);
-  const all = rightLeg && line && short && minEffort;
-  const steps = [["1", line, onLine, "搵線落身 · 支cue即刻落啱位", "Most of the time and effort goes here. Find the line of aim, get down onto it, and adjust stance, shoulder and wrist to that line. The cue lands on its spot the moment you are down — 下巴右方少少, under the aiming eye — never after a correction. That offset is a constant, so arriving at it costs nothing while re-finding it every shot costs the rhythm. Calibrate the exact spot once on a shot you know is straight, then it is fixed."], ["2", short, onShort, "短feather短回杆", "Short feathering and a short backswing."], ["3", minEffort, onMinEffort, "每球用最少力", "Minimum effort on every shot — no more than the shot actually needs."]];
+  const all = rightLeg && line && short && minEffort && doReMi;
+  const steps = [["1", line, onLine, "搵線落身 · 支cue即刻落啱位", "Most of the time and effort goes here. Find the line of aim, get down onto it, and adjust stance, shoulder and wrist to that line. The cue lands on its spot the moment you are down — 下巴右方少少, under the aiming eye — never after a correction. That offset is a constant, so arriving at it costs nothing while re-finding it every shot costs the rhythm. Calibrate the exact spot once on a shot you know is straight, then it is fixed."], ["2", short, onShort, "短feather短回杆", "Short feathering and a short backswing."], ["3", minEffort, onMinEffort, "每球用最少力", "Minimum effort on every shot — no more than the shot actually needs."], ["4", doReMi, onDoReMi, "Do Re Mi 三指順序擠 · 淨係最後出杆", "The three fingers squeeze in sequence — Do, Re, Mi — on the final delivery only, hitting through the white. Never during the feathering: holding it back is what lifted the consistency, and applying it early is what brings the miscues back. This is the foundation of the potting."]];
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.cl,
@@ -1095,14 +1099,12 @@ function YuppieRhythm() {
 function WristForce({
   bench,
   perShot,
-  doReMi,
   onBench,
-  onPerShot,
-  onDoReMi
+  onPerShot
 }) {
   const [info, setInfo] = useState(false);
-  const both = bench && perShot && doReMi;
-  const steps = [["1", bench, onBench, "開枱定 benchmark", "Max force each hand, up and down the table, trajectory as straight as you can. That is your 100%."], ["2", perShot, onPerShot, "每一球揀 %", "Recall the benchmark → 40%? 60%? → flick the wrist to exactly that."], ["3", doReMi, onDoReMi, "Do Re Mi 淨係最後出杆，唔好喺feathering", "The three-finger squeeze — Do, Re, Mi — belongs to the final delivery through the white and nothing before it. Never during the first few featherings. Proven again: holding it back is what lifted the consistency, and applying it early is what brings the miscues back."]];
+  const both = bench && perShot;
+  const steps = [["1", bench, onBench, "開枱定 benchmark", "Max force each hand, up and down the table, trajectory as straight as you can. That is your 100%."], ["2", perShot, onPerShot, "每一球揀 %", "Recall the benchmark → 40%? 60%? → flick the wrist to exactly that."]];
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.cl,
@@ -1114,14 +1116,14 @@ function WristForce({
     style: st.clTitle
   }, "手腕發力法"), both && /*#__PURE__*/React.createElement("span", {
     style: st.clTag
-  }, "ALL THREE"), /*#__PURE__*/React.createElement("span", {
+  }, "BOTH"), /*#__PURE__*/React.createElement("span", {
     style: st.clSpacer
   }), /*#__PURE__*/React.createElement(InfoBtn, {
     on: info,
     onClick: () => setInfo(!info)
   })), info && /*#__PURE__*/React.createElement("div", {
     style: st.clCreed
-  }, "Power and cue-ball feel both come from flicking the wrist into the white. This sits above everything — 一切由手腕帶起，唔好用手臂推. The Do-Re-Mi squeeze is the delivery itself: hold it until the last moment and the miscues disappear."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
+  }, "Power and cue-ball feel both come from flicking the wrist into the white. This sits above everything — 一切由手腕帶起，唔好用手臂推. The Do-Re-Mi squeeze that finishes the stroke now lives on 趙公子打法, where the delivery belongs."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
     key: n,
     n: n,
     on: on,
@@ -1670,7 +1672,7 @@ function History({
     style: st.rowMode(s.mode)
   }, s.mode === "match" ? "MATCH" : "SOLO"), s.venue && /*#__PURE__*/React.createElement("span", {
     style: st.rowVenue
-  }, s.venue), s.zhaoRightLeg && s.zhaoLine && s.zhaoShort && s.zhaoMinEffort && /*#__PURE__*/React.createElement("span", {
+  }, s.venue), s.zhaoRightLeg && s.zhaoLine && s.zhaoShort && s.zhaoMinEffort && s.wristDoReMi && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
   }, "趙公子 ✓"), s.simFramePlayed && /*#__PURE__*/React.createElement("span", {
     style: s.simFrameHeld ? st.rowCl : st.rowTrial
@@ -1877,9 +1879,9 @@ function Insights({
   const clNot = sessions.filter(s => has(s, "clLine") && !(s.clLine && s.clFlat && s.clBody));
   const clSteps = [["clLine", "1 · 睇線"], ["clFlat", "2 · 平放"], ["clBody", "3 · 全身遷就"], ["clFree", "4 · 放鬆自由"]];
   const fierce = sessions.filter(s => s.fierceConnect);
-  const zhaoSteps = [["zhaoRightLeg", "⚠ · 右腳企直鎖線"], ["zhaoLine", "1 · 搵線落身"], ["zhaoShort", "2 · 短feather短回杆"], ["zhaoMinEffort", "3 · 最少力"]];
+  const zhaoSteps = [["zhaoRightLeg", "⚠ · 右腳企直鎖線"], ["zhaoLine", "1 · 搵線落身"], ["zhaoShort", "2 · 短feather短回杆"], ["zhaoMinEffort", "3 · 最少力"], ["wristDoReMi", "4 · Do Re Mi"]];
   const murphySteps = [["murphyReturn", "回杆盡量直+慢"]];
-  const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"], ["wristDoReMi", "3 · Do Re Mi 最後出杆"]];
+  const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"]];
   const eyeSteps = [["eyeSetPoint", "1 · 雙眼定點"], ["eyeCheckLine", "2 · 單眼對線"], ["eyeBackCue", "3 · 返白波微調"], ["eyeConfirm", "4 · 返目標球確認"]];
   const ghostSteps = [["ghostSee", "1 · 睇假想球"], ["ghostNoDoubt", "2 · 冇可能唔入"]];
 
