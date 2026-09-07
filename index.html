@@ -454,7 +454,8 @@ const blankSession = () => ({
   // aiming line has to be built and verified against the body every shot.
   // Step 1 is both eyes on the white; everything after it is one eye. ──
   eyeSetPoint: false,
-  // 1 · 雙眼定視 the cue ball, set the point of contact
+  // 1 · 雙眼定視 — pick one precise point on the white and commit to it. The
+  //     whole routine is checked against this point, so vague here is fatal
   eyeCheckLine: false,
   // 2 · one eye to the object ball, check the line
   eyeBackCue: false,
@@ -1209,7 +1210,7 @@ function EyeLine({
 }) {
   const [info, setInfo] = useState(false);
   const all = setPoint && checkLine && backCue && confirm;
-  const steps = [["1", setPoint, onSetPoint, "雙眼定視白波接觸點", "Both eyes. Address the cue ball and set the exact point of contact you intend to strike."], ["2", checkLine, onCheckLine, "單眼睇目標球對線", "One eye from here on. Look up to the object ball and check whether you are actually on the line."], ["3", backCue, onBackCue, "單眼返白波 · 微調身同手", "Still one eye, back down to the white. Confirm you are still on the point of contact, and micro-adjust body and arm to correct whatever step 2 showed you. This correction should be small and point a different way each shot. If it is large and always the same direction, that is the cue arriving in the wrong place under your face, not the line being wrong — fix it in 趙公子 step 1, not here."], ["4", confirm, onConfirm, "單眼返目標球 · 啱先出杆", "One eye back up to the object ball. Does it feel right now? Only then deliver."]];
+  const steps = [["1", setPoint, onSetPoint, "雙眼定視 · 揀實白波一個準確點", "Both eyes, and this is a decision rather than a look. Pick one specific, precise point on the white and commit to it — 唔係盲無目的. Everything after this is checked against that point: step 3 asks whether you are still on it, so if the point was vague there is nothing for the next three steps to verify."], ["2", checkLine, onCheckLine, "單眼睇目標球對線", "One eye from here on. Look up to the object ball and check whether you are actually on the line."], ["3", backCue, onBackCue, "單眼返白波 · 微調身同手", "Still one eye, back down to the white. Confirm you are still on the point of contact, and micro-adjust body and arm to correct whatever step 2 showed you. This correction should be small and point a different way each shot. If it is large and always the same direction, that is the cue arriving in the wrong place under your face, not the line being wrong — fix it in 趙公子 step 1, not here."], ["4", confirm, onConfirm, "單眼返目標球 · 啱先出杆", "One eye back up to the object ball. Does it feel right now? Only then deliver."]];
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.cl,
@@ -1882,7 +1883,7 @@ function Insights({
   const zhaoSteps = [["zhaoRightLeg", "⚠ · 右腳企直鎖線"], ["zhaoLine", "1 · 搵線落身"], ["zhaoShort", "2 · 短feather短回杆"], ["zhaoMinEffort", "3 · 最少力"], ["wristDoReMi", "4 · Do Re Mi"]];
   const murphySteps = [["murphyReturn", "回杆盡量直+慢"]];
   const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"]];
-  const eyeSteps = [["eyeSetPoint", "1 · 雙眼定點"], ["eyeCheckLine", "2 · 單眼對線"], ["eyeBackCue", "3 · 返白波微調"], ["eyeConfirm", "4 · 返目標球確認"]];
+  const eyeSteps = [["eyeSetPoint", "1 · 雙眼揀實點"], ["eyeCheckLine", "2 · 單眼對線"], ["eyeBackCue", "3 · 返白波微調"], ["eyeConfirm", "4 · 返目標球確認"]];
   const ghostSteps = [["ghostSee", "1 · 睇假想球"], ["ghostNoDoubt", "2 · 冇可能唔入"]];
 
   // ── 3c. Pre-shot two-rules adherence ──
@@ -1984,7 +1985,7 @@ function Insights({
     style: st.rulesAdhereLabel
   }, label)))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "雙眼定點, then one eye all the way to delivery. This is what makes a frame's thin cuts and random lengths playable.")), /*#__PURE__*/React.createElement("div", {
+  }, "揀實一個準確點, then one eye all the way to delivery. A vague point leaves the next three steps nothing to verify.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insCl
