@@ -370,6 +370,11 @@ const blankSession = () => ({
   duration: 60,
   mode: "solo",
   // solo | match
+  // ── 今日練咩 — every session nurtures ONE ability, never both. Chosen before
+  // walking to the table and read back after, so there is never a session where
+  // you cannot say what you were practising. ──
+  focus: "",
+  // "" unset | consistency (技術·基本功·節奏) | feel (純粹連接白波)
   venue: "",
   // where — lets trends separate table conditions from form
   tableQ: 0,
@@ -591,7 +596,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "focus", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -783,7 +788,10 @@ function LogForm({
     "aria-label": `table quality ${n} of 5`
   })), /*#__PURE__*/React.createElement("span", {
     style: st.tqVal
-  }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), /*#__PURE__*/React.createElement(ZhaoMethod, {
+  }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), draft.mode !== "match" && /*#__PURE__*/React.createElement(FocusPick, {
+    value: draft.focus,
+    onChange: v => set("focus", v)
+  }), /*#__PURE__*/React.createElement(ZhaoMethod, {
     rightLeg: draft.zhaoRightLeg,
     line: draft.zhaoLine,
     short: draft.zhaoShort,
@@ -855,7 +863,17 @@ function LogForm({
   }), /*#__PURE__*/React.createElement(KeystoneCreed, {
     value: draft.lastDelivery,
     onChange: v => set("lastDelivery", v)
-  }), /*#__PURE__*/React.createElement("button", {
+  }), draft.mode !== "match" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.reset,
+      marginTop: 0,
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.resetLabel
+  }, "今日練咗"), /*#__PURE__*/React.createElement("div", {
+    style: st.resetLine
+  }, draft.focus ? FOCUS_VERDICT[draft.focus] : "未揀 focus · 返上面揀一個")), /*#__PURE__*/React.createElement("button", {
     onClick: () => set("enjoymentMode", !draft.enjoymentMode),
     style: {
       ...st.toggle,
@@ -1189,6 +1207,66 @@ function CentreLineMethod({
     info: info,
     gold: true
   }));
+}
+
+// ─────────────────────────────────────────── 今日練咩 — ONE ABILITY
+// Every session nurtures one of two abilities and only one: consistency (the
+// technique, the foundation forms, the rhythm) or touch and feel (the pure
+// connection with the cue ball). Picked before play, read back before saving,
+// so no session is ever logged without knowing which one it was.
+const FOCI = [["consistency", "一致性", "技術 · 基本功 · 節奏 — 每一球行同一套"], ["feel", "手感", "淨係感受杆頭同白波 — 好似瑜伽"]];
+const FOCUS_HOLD = {
+  consistency: "每一球行同一套 · 趙公子 · 定線 · 手腕 · 平放",
+  feel: "淨係聽杆頭 · 死都要感受連接白波"
+};
+const FOCUS_VERDICT = {
+  consistency: "一致性 · 睇 趙公子 rhythm + 定線執行",
+  feel: "手感 · 睇 連接白波 desire"
+};
+function FocusPick({
+  value,
+  onChange
+}) {
+  const [info, setInfo] = useState(false);
+  const picked = FOCI.find(([k]) => k === value);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.focusCard,
+      ...(value ? st.focusCardOn : {})
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clHead
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.focusTitle
+  }, "今日練咩"), picked && /*#__PURE__*/React.createElement("span", {
+    style: st.rowCue
+  }, picked[1]), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), info && /*#__PURE__*/React.createElement("div", {
+    style: st.clCreed
+  }, "Every session nurtures one of two abilities, and only one. 一致性 is all the technique, the foundation forms and the rhythm — 趙公子打法, 定線, 手腕發力, 中心線路平放 — every ball run through the same procedure; the verdict is the 趙公子 rhythm and 定線執行 scores. 手感 is the pure connection with the cue ball: like Yoga, where the only thing in your attention is the feedback coming back through the cue tip. The checklists stay, but they are not the point, and the verdict is the 連接白波 desire score. Pick one before you walk to the table — a session that tries to be both ends up being neither."), /*#__PURE__*/React.createElement("div", {
+    style: st.focusOpts
+  }, FOCI.map(([k, zh, en]) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    onClick: () => onChange(value === k ? "" : k),
+    style: {
+      ...st.focusOpt,
+      ...(value === k ? st.focusOptOn : {})
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.focusZh
+  }, zh), /*#__PURE__*/React.createElement("span", {
+    style: st.clEn
+  }, en)))), /*#__PURE__*/React.createElement("div", {
+    style: st.reset
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.resetLabel
+  }, value ? "今日守住" : "未揀"), /*#__PURE__*/React.createElement("div", {
+    style: st.resetLine
+  }, value ? FOCUS_HOLD[value] : "揀一個先落枱")));
 }
 
 // ─────────────────────────────────────────── THE FRAME STANDARD — 定線
@@ -1673,7 +1751,11 @@ function History({
     style: st.rowMode(s.mode)
   }, s.mode === "match" ? "MATCH" : "SOLO"), s.venue && /*#__PURE__*/React.createElement("span", {
     style: st.rowVenue
-  }, s.venue), s.zhaoRightLeg && s.zhaoLine && s.zhaoShort && s.zhaoMinEffort && s.wristDoReMi && /*#__PURE__*/React.createElement("span", {
+  }, s.venue), s.focus === "consistency" && /*#__PURE__*/React.createElement("span", {
+    style: st.rowCl
+  }, "一致性"), s.focus === "feel" && /*#__PURE__*/React.createElement("span", {
+    style: st.rowCue
+  }, "手感"), s.zhaoRightLeg && s.zhaoLine && s.zhaoShort && s.zhaoMinEffort && s.wristDoReMi && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
   }, "趙公子 ✓"), s.simFramePlayed && /*#__PURE__*/React.createElement("span", {
     style: s.simFrameHeld ? st.rowCl : st.rowTrial
@@ -1854,6 +1936,8 @@ function Insights({
   const fmt = (v, d = 1) => v === null ? "—" : v.toFixed(d);
 
   // ── 1. Enjoyment-mode split ──
+  const fCons = sessions.filter(s => s.focus === "consistency");
+  const fFeel = sessions.filter(s => s.focus === "feel");
   const on = sessions.filter(s => s.enjoymentMode);
   const off = sessions.filter(s => !s.enjoymentMode);
   const splitMetrics = [["zhaoRhythm", "趙公子 rhythm", "/10"], ["eyeScore", "定線執行", "/10"], ["connectDesire", "連接白波 desire", "/10"], ["gbyBest", "綠啡黃連環", ""]];
@@ -2215,7 +2299,20 @@ function Insights({
   }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Sessions · last 28 days",
     value: last28
-  }))), on.length >= 1 && off.length >= 1 && /*#__PURE__*/React.createElement("div", {
+  }))), fCons.length >= 1 && fFeel.length >= 1 && /*#__PURE__*/React.createElement("div", {
+    style: st.insBlock
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "今日練咩 — 一致性 vs 手感"), /*#__PURE__*/React.createElement(SplitTable, {
+    a: fCons,
+    b: fFeel,
+    aLabel: "一致性",
+    bLabel: "手感"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "一致性 owns 趙公子 rhythm and 定線執行; 手感 owns 連接白波 desire. Each side should lead on its own score — if it doesn't, the focus wasn't held that session."), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "Unlabelled sessions (n=", sessions.length - fCons.length - fFeel.length, ") sit in neither column.")), on.length >= 1 && off.length >= 1 && /*#__PURE__*/React.createElement("div", {
     style: st.insBlock
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
@@ -2821,6 +2918,54 @@ const st = {
   },
   featherKpiWrap: {
     marginBottom: 10
+  },
+  // 今日練咩 — session framing, so it is deliberately quieter than the
+  // technique cards below it. Gold, not baize green: it is a decision, not a
+  // drill.
+  focusCard: {
+    background: "rgba(255,255,255,0.03)",
+    border: `1px solid ${C.line}`,
+    borderRadius: 14,
+    padding: "14px 15px 15px",
+    marginBottom: 18
+  },
+  focusCardOn: {
+    borderColor: "rgba(217,178,106,0.5)",
+    background: "rgba(217,178,106,0.06)"
+  },
+  focusTitle: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 17,
+    fontWeight: 700,
+    color: C.cue,
+    letterSpacing: "0.02em"
+  },
+  focusOpts: {
+    display: "grid",
+    gap: 8
+  },
+  focusOpt: {
+    display: "block",
+    width: "100%",
+    textAlign: "left",
+    background: "rgba(0,0,0,0.22)",
+    border: `1px solid ${C.line}`,
+    borderRadius: 11,
+    padding: "11px 13px",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    color: C.boneDim
+  },
+  focusOptOn: {
+    background: "rgba(217,178,106,0.13)",
+    borderColor: "rgba(217,178,106,0.7)",
+    color: C.cue
+  },
+  focusZh: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 17,
+    fontWeight: 700,
+    lineHeight: 1.25
   },
   // 中心線路平放大法 — the hero card. Heavier than every other block on purpose.
   cl: {
