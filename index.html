@@ -379,7 +379,15 @@ const blankSession = () => ({
   // where — lets trends separate table conditions from form
   tableQ: 0,
   // table quality 1–5, 0 = unrated
-  // ── 激進地感受白波 — the spirit. Read it every session, before anything else.
+  // ── 串連兩點 — above everything else in this app, and above everything
+  // else at the table. Every single shot is the linking of the point held in
+  // the mind on the white to the object ball, with the cue as the thing that
+  // joins them. The point stays lit — 黃色發光 — from address to delivery.
+  // Not a technique and not a mood: it is what a shot IS. Everything below
+  // serves it. When a shot goes wrong, come back here before anything else:
+  // if the point went dark, nothing further down could have saved it. ──
+  twoPoints: false,
+  // ── 激進地感受白波 — the spirit. The desire to make that connection.
   // Two hours of rubbish and frustration, close to hating the game. Turning
   // this on — fiercely wanting to feel the white, no matter what — is what
   // brought back the enjoyment and a level worth accepting. It outranks every
@@ -596,7 +604,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "focus", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "focus", "twoPoints", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -734,7 +742,10 @@ function LogForm({
   });
   return /*#__PURE__*/React.createElement("div", {
     style: st.card
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(TwoPoints, {
+    on: draft.twoPoints,
+    onToggle: () => set("twoPoints", !draft.twoPoints)
+  }), /*#__PURE__*/React.createElement("div", {
     style: st.metaRow
   }, /*#__PURE__*/React.createElement(Field, {
     label: "Date"
@@ -976,9 +987,118 @@ function FierceConnect({
   }));
 }
 
-// ─────────────────────────────────────────── FIRST OF ALL — 趙公子打法
-// The first thing in the app, ahead of even the spirit band, still on trial.
-// It conquered the North Point pool table; clubhouse table next, then snooker.
+// ══════════════════════════════════════════ ABOVE ALL — 串連兩點
+// The foremost thing in the app, ahead of the spirit band and ahead of
+// 趙公子打法. Every ball is the linking of two points: the one held in the
+// mind on the white — kept lit the whole way through — and the object ball.
+// The cue is only the thing that joins them. Nothing below this card makes
+// sense without it, which is why it opens the form before even the date.
+function TwoPoints({
+  on,
+  onToggle
+}) {
+  const [info, setInfo] = useState(false);
+  const GOLD = "#FFD86B";
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.twoPoints,
+      ...(on ? st.twoPointsOn : {})
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clHead
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.spiritEyebrow
+  }, "每一球波 · 由第一球到最後一球"), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), /*#__PURE__*/React.createElement("div", {
+    style: st.tpLine
+  }, "串連兩點"), /*#__PURE__*/React.createElement("div", {
+    style: st.tpSub
+  }, "心中白波點 ↔ 目標球"), /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 300 70",
+    style: st.tpArt,
+    role: "img",
+    "aria-label": "心中嘅白波點，用支cue串連到目標球"
+  }, /*#__PURE__*/React.createElement("line", {
+    x1: 4,
+    y1: 35,
+    x2: 51,
+    y2: 35,
+    stroke: C.cueDim,
+    strokeWidth: 6,
+    strokeLinecap: "round"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: 90,
+    y1: 35,
+    x2: 215,
+    y2: 35,
+    stroke: GOLD,
+    strokeWidth: 1.5,
+    strokeDasharray: "5 6",
+    opacity: 0.8
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: 72,
+    cy: 35,
+    r: 18,
+    fill: "rgba(233,231,226,0.13)",
+    stroke: "rgba(233,231,226,0.55)",
+    strokeWidth: 1.2
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: 86,
+    cy: 35,
+    r: 12,
+    fill: GOLD,
+    opacity: 0.14
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: 86,
+    cy: 35,
+    r: 7.5,
+    fill: GOLD,
+    opacity: 0.3
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: 86,
+    cy: 35,
+    r: 3.6,
+    fill: GOLD
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: 233,
+    cy: 35,
+    r: 16,
+    fill: "rgba(199,91,67,0.5)",
+    stroke: "rgba(199,91,67,0.95)",
+    strokeWidth: 1.2
+  })), /*#__PURE__*/React.createElement("div", {
+    style: st.tpGlow
+  }, "腦海入面一直有嗰個黃色發光嘅白波點位 · 用支cue連接兩個點"), info && /*#__PURE__*/React.createElement("div", {
+    style: st.spiritStory
+  }, "每一球波，都係心中嘅白波點同目標球嘅串連 — 腦海入面一直有嗰個黃色發光嘅白波點位，用球杆去連接兩個點。 This is the shape of every single shot, and it overrides everything else in here. It is not a technique to run and not a mood to switch on: it is what a shot ", /*#__PURE__*/React.createElement("em", null, "is"), ". The point on the white is held in the mind and stays lit the whole way — through the address, through the feathering, through the delivery — and the cue's only job is to join it to the object ball. Everything below serves it: 激進地感受白波 is the desire to make that connection, 趙公子打法 is how the body gets onto it, and 雙眼定點 step 1 is where the point gets chosen — 揀實白波一個準確點 — because this is what that point is for. When a ball goes wrong, come back here before any other card: if the point went dark, nothing further down could have saved the shot."), /*#__PURE__*/React.createElement("button", {
+    onClick: onToggle,
+    style: {
+      ...st.rule,
+      ...st.spiritRule,
+      ...(on ? st.tpRuleOn : {}),
+      marginBottom: 0
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.ruleCheck(on),
+      ...(on ? {
+        background: GOLD,
+        color: "#2A2113"
+      } : {})
+    }
+  }, on ? "\u2713" : "\u25cf"), /*#__PURE__*/React.createElement("span", {
+    style: st.ruleText
+  }, /*#__PURE__*/React.createElement("strong", null, "每一球都串連咗兩個點"))));
+}
+
+// ─────────────────────────────────────────── THE METHOD — 趙公子打法
+// The first technique in the app, under 串連兩點 and the spirit band: this is
+// how the body gets onto the line that joins the two points.
+// It conquered the North Point pool table, then the Snookery match table.
 function ZhaoMethod({
   rightLeg,
   line,
@@ -1007,7 +1127,7 @@ function ZhaoMethod({
     style: st.clTitle
   }, "趙公子打法"), /*#__PURE__*/React.createElement("span", {
     style: st.clTag
-  }, all ? "RAN IT" : "FIRST"), /*#__PURE__*/React.createElement("span", {
+  }, all ? "RAN IT" : "THE METHOD"), /*#__PURE__*/React.createElement("span", {
     style: st.clSpacer
   }), /*#__PURE__*/React.createElement(InfoBtn, {
     on: info,
@@ -1751,7 +1871,9 @@ function History({
     style: st.rowMode(s.mode)
   }, s.mode === "match" ? "MATCH" : "SOLO"), s.venue && /*#__PURE__*/React.createElement("span", {
     style: st.rowVenue
-  }, s.venue), s.focus === "consistency" && /*#__PURE__*/React.createElement("span", {
+  }, s.venue), s.twoPoints && /*#__PURE__*/React.createElement("span", {
+    style: st.rowCue
+  }, "串連兩點 ✓"), s.focus === "consistency" && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
   }, "一致性"), s.focus === "feel" && /*#__PURE__*/React.createElement("span", {
     style: st.rowCue
@@ -1980,6 +2102,7 @@ function Insights({
   const framePlayed = sessions.filter(s => s.simFramePlayed);
   const frameHeld = framePlayed.filter(s => s.simFrameHeld);
   const closedWith = sessions.filter(s => s.drillDToD);
+  const twoPt = sessions.filter(s => s.twoPoints);
   const pctOf = list => sessions.length ? Math.round(list.length / sessions.length * 100) : 0;
 
   // ── 5. Records + cadence ──
@@ -2027,13 +2150,30 @@ function Insights({
     }, d === null ? "—" : `${d > 0 ? "+" : ""}${d.toFixed(1)}`));
   }));
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: st.insBlock
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "串連兩點 · above all"), /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereRow
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.rulesAdhereItem
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.rulesAdhereNum,
+      color: C.cue
+    }
+  }, pctOf(twoPt), "%"), /*#__PURE__*/React.createElement("span", {
+    style: st.rulesAdhereLabel
+  }, "每一球串連兩點 (", twoPt.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "心中白波點 ↔ 目標球，用支cue串連. The one figure above all the others — if the point went dark, nothing below could have saved the shot.")), /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.insBlock,
       ...st.insCl
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
-  }, "趙公子打法 · first of all"), /*#__PURE__*/React.createElement("div", {
+  }, "趙公子打法 · the method"), /*#__PURE__*/React.createElement("div", {
     style: st.rulesAdhereRow
   }, zhaoSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
     key: k,
@@ -3057,7 +3197,55 @@ const st = {
     color: C.boneDim,
     marginTop: 4
   },
-  // The spirit band opens the app. Not a card in the metric family — it is the
+  // 串連兩點 opens the app, above even the date. Gold rather than baize, for
+  // the same reason the point in the mind is gold: it is the thing that lights
+  // up and stays lit. Heavier than the spirit band on purpose.
+  twoPoints: {
+    background: "linear-gradient(180deg, rgba(217,178,106,0.18) 0%, rgba(217,178,106,0.04) 100%)",
+    border: "1.5px solid rgba(217,178,106,0.5)",
+    borderRadius: 16,
+    padding: "15px 16px 16px",
+    marginBottom: 18
+  },
+  twoPointsOn: {
+    borderColor: "rgba(217,178,106,0.9)",
+    background: "linear-gradient(180deg, rgba(217,178,106,0.28) 0%, rgba(217,178,106,0.07) 100%)"
+  },
+  tpLine: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 27,
+    fontWeight: 700,
+    color: C.cue,
+    lineHeight: 1.25,
+    letterSpacing: "0.02em",
+    marginTop: 2
+  },
+  tpSub: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 17,
+    fontWeight: 700,
+    color: C.bone,
+    lineHeight: 1.35,
+    marginTop: 3
+  },
+  tpArt: {
+    display: "block",
+    width: "100%",
+    height: "auto",
+    margin: "10px 0 2px"
+  },
+  tpGlow: {
+    fontSize: 12,
+    color: C.cue,
+    opacity: 0.92,
+    lineHeight: 1.45,
+    marginTop: 4
+  },
+  tpRuleOn: {
+    borderColor: "rgba(217,178,106,0.7)",
+    background: "rgba(217,178,106,0.17)"
+  },
+  // The spirit band follows it. Not a card in the metric family — it is the
   // one thing here that is a state of mind, so it gets its own weight.
   spirit: {
     background: "linear-gradient(180deg, rgba(94,226,160,0.16) 0%, rgba(94,226,160,0.04) 100%)",
