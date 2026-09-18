@@ -370,177 +370,91 @@ const blankSession = () => ({
   duration: 60,
   mode: "solo",
   // solo | match
-  // ── 今日練咩 — every session nurtures ONE ability, never both. Chosen before
-  // walking to the table and read back after, so there is never a session where
-  // you cannot say what you were practising. ──
+  // ── 1 · 心中有餘光 ──────────────────────────────────────────────────────
+  // Every ball is the linking of the point held on the white to the object
+  // ball, the cue being the only thing that joins them. 餘光 is the word that
+  // matters: the point is never stared at, it is held — lit at the edge of
+  // attention from getting down to the cue going through. If it goes dark,
+  // nothing the body does in 2 or 3 can save the shot.
+  ex1Glow: false,
+  glowScore: 7,
+  // ── 2 · 趙公子式 ────────────────────────────────────────────────────────
+  // 鎖腳 · 平放Cue落白波點位 · 短feathering · Do Re Mi squeeze into cue ball.
+  // How the body gets onto the line that joins the two points. Proven on the
+  // North Point pool table, then on the Snookery match table.
+  ex2Zhao: false,
+  zhaoRhythm: 7,
+  // kept under its original name on purpose — every session that already
+  // rated the 趙公子 rhythm still counts toward this execution
+  // ── 3 · 優皮士節奏 ──────────────────────────────────────────────────────
+  // 內心讀出「優皮士」and the most natural rhythm follows. 濕cue也好，瞄准也
+  // 好 — this rhythm dominates and powers everything done at the table. Not a
+  // step inside the shot: the tempo the whole session runs at.
+  ex3Yuppie: false,
+  yuppieScore: 7,
+  note: "",
+  // ── LEGACY ─────────────────────────────────────────────────────────────
+  // Retired from the interface when the tracker was reduced to the three
+  // executions above. Every one of them is still carried here so that older
+  // sessions — and every CSV export ever taken — keep their exact shape.
+  // Nothing writes these any more; nothing reads them but the exporter.
   focus: "",
-  // "" unset | consistency (技術·基本功·節奏) | feel (純粹連接白波)
   venue: "",
-  // where — lets trends separate table conditions from form
   tableQ: 0,
-  // table quality 1–5, 0 = unrated
-  // ── 串連兩點 — above everything else in this app, and above everything
-  // else at the table. Every single shot is the linking of the point held in
-  // the mind on the white to the object ball, with the cue as the thing that
-  // joins them. The point stays lit — 黃色發光 — from address to delivery.
-  // Not a technique and not a mood: it is what a shot IS. Everything below
-  // serves it. When a shot goes wrong, come back here before anything else:
-  // if the point went dark, nothing further down could have saved it. ──
   twoPoints: false,
-  // ── 激進地感受白波 — the spirit. The desire to make that connection.
-  // Two hours of rubbish and frustration, close to hating the game. Turning
-  // this on — fiercely wanting to feel the white, no matter what — is what
-  // brought back the enjoyment and a level worth accepting. It outranks every
-  // technique here because the same switch carries off the table too, into
-  // connecting with people and with the ones you love. ──
   fierceConnect: false,
   connectDesire: 7,
-  // THE score, and now the only one: how fiercely you wanted to feel the white
-  // ── 趙公子打法 — the first thing in the app. Proven: conquered the North
-  // Point pool table, then the Snookery match-play snooker table.
-  // 右腳企直 is the precondition for all of it, and outranks every other body
-  // cue here: it anchors the body onto the line of aim, and because it locks
-  // before anything else moves it spares both the waist and the shoulder. ──
   zhaoRightLeg: false,
-  // ⚠ · 右腳企直 on every single shot — locks the aim line, spares waist + 膊
   zhaoLine: false,
-  // 1 · the line, settling onto it, and the cue landing on its spot straight
-  //     away — 下巴右方少少, under the aiming eye, never as a correction
   zhaoShort: false,
-  // 2 · short feathering, short backswing
   zhaoMinEffort: false,
-  // 3 · minimum effort on every shot
-  zhaoRhythm: 7,
-  // the second score: how well the 趙公子 rhythm held, and how fast it came
-  // back when the table knocked it out
-  // ── 起手離遠啲 — the shoulder guard. Above everything, because this one is
-  // about not getting hurt. Addressing the white with the tip already on its
-  // edge is what strains the left shoulder; start with a gap and close it
-  // gradually over the first few featherings. ──
-  // LEGACY — the 起手離遠啲 shoulder guard was retired once 右腳企直 proved it
-  // already carries that load by locking before the shoulder moves at all.
   addressGap: false,
-  // ── 回杆 — the one Shaun Murphy technique still on trial. The trial started
-  // as three; the other two were folded away once this was the part that kept
-  // earning its place. ──
   murphyReturn: false,
-  // 回杆盡量直+慢 — straight feeds a straight delivery, slow feeds the timing
-  // LEGACY — the two retired thirds of the original trial.
   murphyFeatherStart: false,
   murphyStraight: false,
   murphySlow: false,
-  // ── 優皮士 rhythm — the wrist grip on the final delivery. Tops the scores. ──
-  // The feeling in the gripping hand as the cue goes through the white: 慢,
-  // 有感知, in rhythm. Deploying this is what first produced 10+ in 綠啡黃連環.
   yuppieRhythm: 7,
-  // ── 手腕發力法 — the engine, directly under the rhythm. ──
-  // All power and all cue-ball feel come from flicking the wrist into the white.
-  // Calibrate the benchmark at 開枱, then every shot is a chosen % of it.
   wristBenchmark: false,
-  // 開枱: max force each hand, up and down the table, trajectory straight = 100%
   wristPerShot: false,
-  // every shot: recall the benchmark, pick the % (40%? 60%?), flick to exactly that
-  // Lives on 趙公子打法 as step 4 — the name is kept so sessions logged while
-  // it sat under 手腕發力法 still count.
   wristDoReMi: false,
-  // hold the Do-Re-Mi finger squeeze back until the final delivery — this is
-  // what kills the miscues; squeeze through the white, never before it
   wristForce: 7,
-  // 發力控制 (1–10): how consistently each shot was a chosen % delivered by wrist
-  // ── 中心線路平放大法 — the method every shot is aimed along. ──
-  // Steps 1–3 are 基本功: they must be complete before a ball is struck. Step 4
-  // is what finishing them earns — relaxed, free play with the white.
   clLine: false,
-  // 1 · 睇幾厚幾簿，搵出中心線路
   clFlat: false,
-  // 2 · 平放支cue落中心線路 — zero grip force, four fingers carry the weight
   clBody: false,
-  // 3 · 全身（眼、腰、左手枕手）迎合遷就中心線路
   clFree: false,
-  // 4 · 之後放鬆打，自由發揮，感受白波
   centreLine: 7,
-  // THE rating (1–10): how well the centre line held this session
   clAccuracy: 7,
-  // 落線準確度 (1–10): cue down ON the line first time, no micro-adjusting
-  // ── 雙眼定點 → 單眼定線 — the frame standard. A frame throws random shot
-  // lengths and mostly thin cuts, angles a line-up never produces, so the
-  // aiming line has to be built and verified against the body every shot.
-  // Step 1 is both eyes on the white; everything after it is one eye. ──
   eyeSetPoint: false,
-  // 1 · 雙眼定視 — pick one precise point on the white and commit to it. The
-  //     whole routine is checked against this point, so vague here is fatal
   eyeCheckLine: false,
-  // 2 · one eye to the object ball, check the line
   eyeBackCue: false,
-  // 3 · one eye back to the white, still on the point, micro-adjust body + arm
   eyeConfirm: false,
   eyeScore: 7,
-  // the third score: how well the four steps were actually executed
-  // 4 · one eye back to the object ball, confirm it feels right, then deliver
-  // ── 假想球 → 冇可能唔入 — the third fundamental, after wrist and line. ──
-  // Picture the ghost ball and the object ball's path into the pocket, and hold
-  // it until there is no doubt left. Only then deliver.
   ghostSee: false,
-  // see the ghost ball + the object ball's line into the pocket
   ghostNoDoubt: false,
-  // hold the picture until 冇可能唔入 — any doubt means stand up and restart
   ghostConfidence: 7,
-  // 出杆信心 (1–10): how consistently you reached no-doubt before delivering
-  // Secondary rating — cue-arm awareness mapped to straight delivery.
-  // 9 = complete through the feathers. 10 = carried through the final stroke.
   feather: 7,
   presence: 7,
   natural: 7,
   longpot: null,
   safety: 7,
-  // LEGACY — break figures had no input anywhere in the form and their
-  // readouts are retired. Kept so older sessions and CSV exports keep shape.
   highBreak: 0,
   fifties: 0,
   centuries: 0,
-  // LEGACY — the Mark Allen drill was retired along with its readouts. Kept so
-  // older sessions and CSV exports keep their shape; nothing writes these now.
   drillDone: false,
   drillLow: 0,
   drillHigh: 0,
   drillMins: 12,
-  // LEGACY — the 開波 open-table drill was folded into 綠啡黃連環, which covers
-  // the same potting work. Kept so older sessions and CSV exports keep shape.
   drillOpenTable: false,
-  // The closer — every session ends here.
   drillDToD: false,
-  // 白波D區打返D區 — 總結白波力量感覺控制
-  // ── 模擬一局 — a frame against yourself in every session while a match is
-  // coming up. Judged on whether the method held, not on the balls. ──
   simFramePlayed: false,
-  // played a simulated frame this session
   simFrameHeld: false,
-  // held 趙公子打法 the whole way through it
-  // ── THE key drill: green → brown → yellow, potted in a row, for a record. ──
-  // Correlates best with how well the whole game plays, so every solo session
-  // is an attempt on the personal best. 0 = not attempted this session.
   gbyBest: 0,
-  // LEGACY — the rolling-experiment block was retired with its readouts. Kept
-  // so older sessions and CSV exports keep their shape; nothing writes these.
   expName: "",
   expVerdict: "",
-  note: "",
   enjoymentMode: true,
-  // did you enter enjoyment-snooker mode first
-  // The non-negotiables — acknowledged every session, solo or match.
-  // Not scored: either you committed to them before play, or you didn't.
   ruleCueStraight: false,
-  // when you pick up the cue: sight down it, confirm it's straight
-  // LEGACY — the chin/chest rule was retired.
   ruleChinChest: false,
-  // never touch chin/chest + imagine each shot
   ruleTipFeedback: false,
-  // always 預先想像 each shot's cue-tip feedback
-  // THE KEYSTONE habit — a beat of pause at the end of the backswing, then one
-  // slow, smooth acceleration through the white. The last last. Rediscovered
-  // 10 Jul 2026, buried under years of accumulated technique. Answering for it
-  // every session is the ritual that reinstalls it.
-  // "" unanswered · forgot · partial (some strikes) · every (every strike)
   lastDelivery: ""
 });
 function App() {
@@ -568,15 +482,14 @@ function App() {
     }
   };
 
-  // Carry stable defaults from the most recent session into a fresh draft —
-  // duration rarely changes and venue persists until you change it.
+  // Carry the one stable default from the most recent session — duration
+  // rarely changes from one visit to the next.
   const seedFrom = (list, base) => {
     const last = list && list[0];
     if (!last) return base;
     return {
       ...base,
-      duration: last.duration || base.duration,
-      venue: last.venue || ""
+      duration: last.duration || base.duration
     };
   };
   useEffect(() => {
@@ -604,7 +517,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "focus", "twoPoints", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "ex1Glow", "glowScore", "ex2Zhao", "ex3Yuppie", "yuppieScore", "focus", "twoPoints", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -673,10 +586,6 @@ function App() {
     reader.readAsText(file);
   };
 
-  // ── derived stats ──
-  const recent = sessions.slice(0, 12);
-  const avg = k => recent.length ? recent.reduce((a, s) => a + Number(s[k] || 0), 0) / recent.length : 0;
-  const bestGby = sessions.reduce((m, s) => Math.max(m, Number(s.gbyBest || 0)), 0);
   return /*#__PURE__*/React.createElement("div", {
     style: st.page
   }, /*#__PURE__*/React.createElement("style", null, globalCss), /*#__PURE__*/React.createElement("header", {
@@ -703,8 +612,7 @@ function App() {
   }, "Racking up your sessions…") : view === "log" ? /*#__PURE__*/React.createElement(LogForm, {
     draft: draft,
     setDraft: setDraft,
-    onSave: saveDraft,
-    bestGby: bestGby
+    onSave: saveDraft
   }) : view === "history" ? /*#__PURE__*/React.createElement(History, {
     sessions: sessions,
     onRemove: remove,
@@ -719,9 +627,7 @@ function App() {
     onOpenTab: openInTab,
     copyOK: copyOK
   }) : view === "trends" ? /*#__PURE__*/React.createElement(Trends, {
-    sessions: sessions,
-    avg: avg,
-    recentN: recent.length,
+    sessions: sessions
   }) : /*#__PURE__*/React.createElement(Insights, {
     sessions: sessions
   }), /*#__PURE__*/React.createElement("footer", {
@@ -729,12 +635,137 @@ function App() {
   }, "Enjoyment first. Measure second."));
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// THE THREE EXECUTIONS
+// ══════════════════════════════════════════════════════════════════════════
+// Everything else has been dropped. These three are all that is needed to
+// play, to practise, and to turn the whole thing into habit at the table.
+// One card each, one tick each, one score each — nothing in between.
+
+// The picture execution 1 is about: the cue, the white with the point lit on
+// it, and the line running from that point to the object ball.
+const GOLD = "#FFD86B";
+const GlowArt = () => /*#__PURE__*/React.createElement("svg", {
+  viewBox: "0 0 300 70",
+  style: st.execArt,
+  role: "img",
+  "aria-label": "心中嘅白波點，用支cue串連到目標球"
+}, /*#__PURE__*/React.createElement("line", {
+  x1: 4,
+  y1: 35,
+  x2: 51,
+  y2: 35,
+  stroke: C.cueDim,
+  strokeWidth: 6,
+  strokeLinecap: "round"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: 90,
+  y1: 35,
+  x2: 215,
+  y2: 35,
+  stroke: GOLD,
+  strokeWidth: 1.5,
+  strokeDasharray: "5 6",
+  opacity: 0.8
+}), /*#__PURE__*/React.createElement("circle", {
+  cx: 72,
+  cy: 35,
+  r: 18,
+  fill: "rgba(233,231,226,0.13)",
+  stroke: "rgba(233,231,226,0.55)",
+  strokeWidth: 1.2
+}), /*#__PURE__*/React.createElement("circle", {
+  cx: 86,
+  cy: 35,
+  r: 12,
+  fill: GOLD,
+  opacity: 0.14
+}), /*#__PURE__*/React.createElement("circle", {
+  cx: 86,
+  cy: 35,
+  r: 7.5,
+  fill: GOLD,
+  opacity: 0.3
+}), /*#__PURE__*/React.createElement("circle", {
+  cx: 86,
+  cy: 35,
+  r: 3.6,
+  fill: GOLD
+}), /*#__PURE__*/React.createElement("circle", {
+  cx: 233,
+  cy: 35,
+  r: 16,
+  fill: "rgba(199,91,67,0.5)",
+  stroke: "rgba(199,91,67,0.95)",
+  strokeWidth: 1.2
+}));
+
+// One card, used three times. The face is keywords only; the whole reasoning
+// — including the parts that must never be lost — sits behind the (i).
+function ExecCard({
+  n,
+  title,
+  lines,
+  art,
+  story,
+  tick,
+  tickLabel,
+  score,
+  scoreLabel,
+  words,
+  hint,
+  onTick,
+  onScore
+}) {
+  const [info, setInfo] = useState(false);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.exec,
+      ...(tick ? st.execOn : {})
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clHead
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.execN
+  }, n), /*#__PURE__*/React.createElement("div", {
+    style: st.execTitle
+  }, title), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), lines.map(l => /*#__PURE__*/React.createElement("div", {
+    key: l,
+    style: st.execLine
+  }, l)), art || null, info && /*#__PURE__*/React.createElement("div", {
+    style: st.spiritStory
+  }, story), /*#__PURE__*/React.createElement("button", {
+    onClick: onTick,
+    style: {
+      ...st.rule,
+      ...st.execRule,
+      ...(tick ? st.execRuleOn : {}),
+      marginBottom: 0
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.ruleCheck(tick)
+  }, tick ? "\u2713" : "\u25cf"), /*#__PURE__*/React.createElement("span", {
+    style: st.ruleText
+  }, /*#__PURE__*/React.createElement("strong", null, tickLabel))), /*#__PURE__*/React.createElement(MiniRating, {
+    label: scoreLabel,
+    value: score,
+    words: words,
+    hint: hint,
+    info: info,
+    onChange: onScore
+  }));
+}
+
 // ─────────────────────────────────────────── LOG FORM
 function LogForm({
   draft,
   setDraft,
-  onSave,
-  bestGby
+  onSave
 }) {
   const set = (k, v) => setDraft({
     ...draft,
@@ -742,10 +773,7 @@ function LogForm({
   });
   return /*#__PURE__*/React.createElement("div", {
     style: st.card
-  }, /*#__PURE__*/React.createElement(TwoPoints, {
-    on: draft.twoPoints,
-    onToggle: () => set("twoPoints", !draft.twoPoints)
-  }), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     style: st.metaRow
   }, /*#__PURE__*/React.createElement(Field, {
     label: "Date"
@@ -762,9 +790,7 @@ function LogForm({
     value: draft.duration,
     onChange: e => set("duration", Number(e.target.value)),
     style: st.input
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: "Type"
-  }, /*#__PURE__*/React.createElement("div", {
+  }))), /*#__PURE__*/React.createElement("div", {
     style: st.seg
   }, [["solo", "Solo practice"], ["match", "Match play"]].map(([k, l]) => /*#__PURE__*/React.createElement("button", {
     key: k,
@@ -773,126 +799,47 @@ function LogForm({
       ...st.segBtn,
       ...(draft.mode === k ? st.segOn : {})
     }
-  }, l))))), /*#__PURE__*/React.createElement("div", {
-    style: st.metaRow
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: "Venue",
-    hint: "Carries over"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    placeholder: "e.g. Home / TST / Wiley",
-    value: draft.venue,
-    onChange: e => set("venue", e.target.value),
-    style: st.input
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: "Table quality",
-    hint: "Conditions, not form"
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.tqDots
-  }, [1, 2, 3, 4, 5].map(n => /*#__PURE__*/React.createElement("button", {
-    key: n,
-    onClick: () => set("tableQ", draft.tableQ === n ? 0 : n),
-    style: {
-      ...st.tqDot,
-      ...(n <= draft.tableQ ? st.tqDotOn : {})
-    },
-    "aria-label": `table quality ${n} of 5`
-  })), /*#__PURE__*/React.createElement("span", {
-    style: st.tqVal
-  }, draft.tableQ ? `${draft.tableQ}/5` : "—")))), draft.mode !== "match" && /*#__PURE__*/React.createElement(FocusPick, {
-    value: draft.focus,
-    onChange: v => set("focus", v)
-  }), /*#__PURE__*/React.createElement(ZhaoMethod, {
-    rightLeg: draft.zhaoRightLeg,
-    line: draft.zhaoLine,
-    short: draft.zhaoShort,
-    minEffort: draft.zhaoMinEffort,
-    doReMi: draft.wristDoReMi,
-    rhythm: draft.zhaoRhythm,
-    onRightLeg: () => set("zhaoRightLeg", !draft.zhaoRightLeg),
-    onLine: () => set("zhaoLine", !draft.zhaoLine),
-    onShort: () => set("zhaoShort", !draft.zhaoShort),
-    onMinEffort: () => set("zhaoMinEffort", !draft.zhaoMinEffort),
-    onDoReMi: () => set("wristDoReMi", !draft.wristDoReMi),
-    onRhythm: v => set("zhaoRhythm", v)
-  }), /*#__PURE__*/React.createElement(EyeLine, {
-    setPoint: draft.eyeSetPoint,
-    checkLine: draft.eyeCheckLine,
-    backCue: draft.eyeBackCue,
-    confirm: draft.eyeConfirm,
-    score: draft.eyeScore,
-    onSetPoint: () => set("eyeSetPoint", !draft.eyeSetPoint),
-    onCheckLine: () => set("eyeCheckLine", !draft.eyeCheckLine),
-    onBackCue: () => set("eyeBackCue", !draft.eyeBackCue),
-    onConfirm: () => set("eyeConfirm", !draft.eyeConfirm),
-    onScore: v => set("eyeScore", v)
-  }), /*#__PURE__*/React.createElement(FierceConnect, {
-    on: draft.fierceConnect,
-    desire: draft.connectDesire,
-    onToggle: () => set("fierceConnect", !draft.fierceConnect),
-    onDesire: v => set("connectDesire", v)
-  }), /*#__PURE__*/React.createElement(MurphyReturn, {
-    ret: draft.murphyReturn,
-    onRet: () => set("murphyReturn", !draft.murphyReturn)
-  }), /*#__PURE__*/React.createElement(YuppieRhythm, null), /*#__PURE__*/React.createElement(WristForce, {
-    bench: draft.wristBenchmark,
-    perShot: draft.wristPerShot,
-    force: draft.wristForce,
-    onBench: () => set("wristBenchmark", !draft.wristBenchmark),
-    onPerShot: () => set("wristPerShot", !draft.wristPerShot)
-  }), /*#__PURE__*/React.createElement(CentreLineMethod, {
-    line: draft.clLine,
-    flat: draft.clFlat,
-    body: draft.clBody,
-    free: draft.clFree,
-    onLine: () => set("clLine", !draft.clLine),
-    onFlat: () => set("clFlat", !draft.clFlat),
-    onBody: () => set("clBody", !draft.clBody),
-    onFree: () => set("clFree", !draft.clFree)
-  }), /*#__PURE__*/React.createElement(GhostBall, {
-    see: draft.ghostSee,
-    noDoubt: draft.ghostNoDoubt,
-    onSee: () => set("ghostSee", !draft.ghostSee),
-    onNoDoubt: () => set("ghostNoDoubt", !draft.ghostNoDoubt)
-  }), /*#__PURE__*/React.createElement(PreShotRules, {
-    cue: draft.ruleCueStraight,
-    tip: draft.ruleTipFeedback,
-    onCue: () => set("ruleCueStraight", !draft.ruleCueStraight),
-    onTip: () => set("ruleTipFeedback", !draft.ruleTipFeedback)
-  }), draft.mode !== "match" && /*#__PURE__*/React.createElement(SimFrame, {
-    played: draft.simFramePlayed,
-    held: draft.simFrameHeld,
-    onPlayed: () => set("simFramePlayed", !draft.simFramePlayed),
-    onHeld: () => set("simFrameHeld", !draft.simFrameHeld)
-  }), draft.mode !== "match" && /*#__PURE__*/React.createElement(GbyChallenge, {
-    value: draft.gbyBest,
-    pb: bestGby,
-    onChange: v => set("gbyBest", v)
-  }), /*#__PURE__*/React.createElement(ClosingDrill, {
-    dtod: draft.drillDToD,
-    onDtod: () => set("drillDToD", !draft.drillDToD)
-  }), /*#__PURE__*/React.createElement(KeystoneCreed, {
-    value: draft.lastDelivery,
-    onChange: v => set("lastDelivery", v)
-  }), draft.mode !== "match" && /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.reset,
-      marginTop: 0,
-      marginBottom: 14
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.resetLabel
-  }, "今日練咗"), /*#__PURE__*/React.createElement("div", {
-    style: st.resetLine
-  }, draft.focus ? FOCUS_VERDICT[draft.focus] : "未揀 focus · 返上面揀一個")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => set("enjoymentMode", !draft.enjoymentMode),
-    style: {
-      ...st.toggle,
-      ...(draft.enjoymentMode ? st.toggleOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.toggleDot(draft.enjoymentMode)
-  }), "Entered enjoyment mode before play"), /*#__PURE__*/React.createElement(SectionLabel, {
+  }, l))), /*#__PURE__*/React.createElement(ExecCard, {
+    n: "1",
+    title: "心中有餘光",
+    lines: ["白波點一直發光", "用支cue串連白波點同目標球"],
+    art: /*#__PURE__*/React.createElement(GlowArt, null),
+    story: "每一球波，都係心中嘅白波點同目標球嘅串連 — 腦海入面一直有嗰個黃色發光嘅白波點位，用球杆去連接兩個點。 餘光 is the word that carries it: the point is never stared at, it is held — lit at the edge of attention from the moment you get down to the moment the cue goes through the white. It does not go out during the feathering and it does not go out on the delivery. This is what a shot is, and the other two executions exist only to serve it. When a ball goes wrong, come here before anything else: if the point went dark, nothing the body did could have saved that shot.",
+    tick: draft.ex1Glow,
+    tickLabel: "每一球都有餘光",
+    score: draft.glowScore,
+    scoreLabel: "餘光",
+    words: GLOW_WORDS,
+    hint: "How steadily the point stayed lit — through the feathering and through the delivery, not just at address.",
+    onTick: () => set("ex1Glow", !draft.ex1Glow),
+    onScore: v => set("glowScore", v)
+  }), /*#__PURE__*/React.createElement(ExecCard, {
+    n: "2",
+    title: "趙公子式",
+    lines: ["鎖腳 · 平放Cue落白波點位", "短feathering · Do Re Mi squeeze"],
+    story: "Four parts, one action, and the order is the order. 鎖腳 — 右腳企直 on every single shot. It anchors the whole body onto the line of aim, and because it locks before anything else moves it spares both the waist and the shoulder; that is why it comes first and why it matters beyond snooker — a hurt back follows you off the table. 平放Cue落白波點位 — lay the cue onto the point, 平放 meaning zero grip force: four fingers only carry the cue's weight against gravity, nothing squeezes. It lands on its spot the moment you are down — 下巴右方少少, under the aiming eye — never as a correction afterwards. This is 中心線路平放大法 reduced to the thing that actually did the work, and it is never to be abandoned: it is what turned rubbish, frustrating snooker into snooker worth playing. 短feathering — short feather, short backswing, minimum effort for the shot in front of you. Do Re Mi squeeze into cue ball — the three fingers squeeze in sequence on the final delivery only, hitting through the white. Never during the feathering: holding it back is what lifted the consistency, and applying it early is what brings the miscues back. This is the foundation of the potting. Proven on the North Point pool table, then on the Snookery match table.",
+    tick: draft.ex2Zhao,
+    tickLabel: "每一球都行趙公子式",
+    score: draft.zhaoRhythm,
+    scoreLabel: "趙公子式",
+    words: RHYTHM_WORDS,
+    hint: "How well the four parts held, and how fast they came back when the table knocked them out.",
+    onTick: () => set("ex2Zhao", !draft.ex2Zhao),
+    onScore: v => set("zhaoRhythm", v)
+  }), /*#__PURE__*/React.createElement(ExecCard, {
+    n: "3",
+    title: "優皮士節奏",
+    lines: ["內心讀出「優皮士」", "濕cue、瞄準、出杆 — 全部跟呢個節奏"],
+    story: "內心讀出優皮士，去拎達到最自然節奏。 Say it inside, and the most natural rhythm you have arrives with it. 濕cue也好，瞄准也好 — this rhythm dominates and powers everything done on the table. It is not a step inside the shot like the other two: it is the tempo the whole session runs at, and the other two executions are carried by it. Deploying it is what first produced 10+ in 綠啡黃連環. When the table turns awkward and the rhythm goes, this is the way back in — read it again, let the tempo return, and the body follows.",
+    tick: draft.ex3Yuppie,
+    tickLabel: "全程跟住優皮士節奏",
+    score: draft.yuppieScore,
+    scoreLabel: "優皮士節奏",
+    words: YUPPIE_WORDS,
+    hint: "How much of the session ran at the natural rhythm rather than the table's.",
+    onTick: () => set("ex3Yuppie", !draft.ex3Yuppie),
+    onScore: v => set("yuppieScore", v)
+  }), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "01",
     title: "One line",
     note: "Optional"
@@ -908,798 +855,6 @@ function LogForm({
   }, "Save session →"));
 }
 
-// ── One tickable step row. Shared by all three fundamentals. The keyword is
-// always visible; the full description only appears when (i) is expanded. ──
-const StepRow = ({
-  n,
-  on,
-  onClick,
-  zh,
-  en,
-  info,
-  gold
-}) => /*#__PURE__*/React.createElement("button", {
-  onClick: onClick,
-  style: {
-    ...st.rule,
-    ...(gold ? st.clFreeRule : {}),
-    ...(on ? gold ? st.clFreeOn : st.ruleOn : {})
-  }
-}, /*#__PURE__*/React.createElement("span", {
-  style: gold ? st.clFreeCheck(on) : st.ruleCheck(on)
-}, on ? "\u2713" : n), /*#__PURE__*/React.createElement("span", {
-  style: st.ruleText
-}, /*#__PURE__*/React.createElement("strong", null, zh), info && /*#__PURE__*/React.createElement("span", {
-  style: st.clEn
-}, en)));
-
-// ─────────────────────────────────────────── THE SPIRIT — 激進地感受白波
-// The first thing in the app, and the only one that is not a technique. The
-// words stay on screen every session; the story of why lives behind the (i).
-function FierceConnect({
-  on,
-  desire,
-  onToggle,
-  onDesire
-}) {
-  const [info, setInfo] = useState(false);
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.spirit,
-      ...(on ? st.spiritOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clHead
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.spiritEyebrow
-  }, "每次攞起支cue"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), /*#__PURE__*/React.createElement("div", {
-    style: st.spiritLine
-  }, "激進地感受白波"), /*#__PURE__*/React.createElement("div", {
-    style: st.spiritLine
-  }, "死都要感受連接白波"), /*#__PURE__*/React.createElement("div", {
-    style: st.spiritCarry
-  }, "連接白波 · 連接人 — 枱上枱下，同一個switch"), info && /*#__PURE__*/React.createElement("div", {
-    style: st.spiritStory
-  }, "Two hours of rubbish, frustration, starting to hate the game. Turning this on — fiercely wanting to feel the white, no matter what — brought the enjoyment back and produced a level worth accepting. It is the switch from \"I hate this game\" to \"I enjoy this game\", and it does not stop at the table: the same intent carries into connecting with people, and with the ones you love, once the cue is down. That is why it sits above everything else here. When it goes wrong again, this is the switch — not more technique."), /*#__PURE__*/React.createElement("button", {
-    onClick: onToggle,
-    style: {
-      ...st.rule,
-      ...st.spiritRule,
-      ...(on ? st.spiritRuleOn : {}),
-      marginBottom: 0
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.ruleCheck(on)
-  }, on ? "\u2713" : "\u25cf"), /*#__PURE__*/React.createElement("span", {
-    style: st.ruleText
-  }, /*#__PURE__*/React.createElement("strong", null, "帶住呢個心態入場"))), /*#__PURE__*/React.createElement(MiniRating, {
-    label: "連接白波 · desire",
-    value: desire,
-    words: CONNECT_WORDS,
-    hint: "The only score kept. Everything else in here is a practice, not a number.",
-    info: info,
-    onChange: onDesire
-  }));
-}
-
-// ══════════════════════════════════════════ ABOVE ALL — 串連兩點
-// The foremost thing in the app, ahead of the spirit band and ahead of
-// 趙公子打法. Every ball is the linking of two points: the one held in the
-// mind on the white — kept lit the whole way through — and the object ball.
-// The cue is only the thing that joins them. Nothing below this card makes
-// sense without it, which is why it opens the form before even the date.
-function TwoPoints({
-  on,
-  onToggle
-}) {
-  const [info, setInfo] = useState(false);
-  const GOLD = "#FFD86B";
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.twoPoints,
-      ...(on ? st.twoPointsOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clHead
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.spiritEyebrow
-  }, "每一球波 · 由第一球到最後一球"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), /*#__PURE__*/React.createElement("div", {
-    style: st.tpLine
-  }, "串連兩點"), /*#__PURE__*/React.createElement("div", {
-    style: st.tpSub
-  }, "心中白波點 ↔ 目標球"), /*#__PURE__*/React.createElement("svg", {
-    viewBox: "0 0 300 70",
-    style: st.tpArt,
-    role: "img",
-    "aria-label": "心中嘅白波點，用支cue串連到目標球"
-  }, /*#__PURE__*/React.createElement("line", {
-    x1: 4,
-    y1: 35,
-    x2: 51,
-    y2: 35,
-    stroke: C.cueDim,
-    strokeWidth: 6,
-    strokeLinecap: "round"
-  }), /*#__PURE__*/React.createElement("line", {
-    x1: 90,
-    y1: 35,
-    x2: 215,
-    y2: 35,
-    stroke: GOLD,
-    strokeWidth: 1.5,
-    strokeDasharray: "5 6",
-    opacity: 0.8
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: 72,
-    cy: 35,
-    r: 18,
-    fill: "rgba(233,231,226,0.13)",
-    stroke: "rgba(233,231,226,0.55)",
-    strokeWidth: 1.2
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: 86,
-    cy: 35,
-    r: 12,
-    fill: GOLD,
-    opacity: 0.14
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: 86,
-    cy: 35,
-    r: 7.5,
-    fill: GOLD,
-    opacity: 0.3
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: 86,
-    cy: 35,
-    r: 3.6,
-    fill: GOLD
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: 233,
-    cy: 35,
-    r: 16,
-    fill: "rgba(199,91,67,0.5)",
-    stroke: "rgba(199,91,67,0.95)",
-    strokeWidth: 1.2
-  })), /*#__PURE__*/React.createElement("div", {
-    style: st.tpGlow
-  }, "腦海入面一直有嗰個黃色發光嘅白波點位 · 用支cue連接兩個點"), info && /*#__PURE__*/React.createElement("div", {
-    style: st.spiritStory
-  }, "每一球波，都係心中嘅白波點同目標球嘅串連 — 腦海入面一直有嗰個黃色發光嘅白波點位，用球杆去連接兩個點。 This is the shape of every single shot, and it overrides everything else in here. It is not a technique to run and not a mood to switch on: it is what a shot ", /*#__PURE__*/React.createElement("em", null, "is"), ". The point on the white is held in the mind and stays lit the whole way — through the address, through the feathering, through the delivery — and the cue's only job is to join it to the object ball. Everything below serves it: 激進地感受白波 is the desire to make that connection, 趙公子打法 is how the body gets onto it, and 雙眼定點 step 1 is where the point gets chosen — 揀實白波一個準確點 — because this is what that point is for. When a ball goes wrong, come back here before any other card: if the point went dark, nothing further down could have saved the shot."), /*#__PURE__*/React.createElement("button", {
-    onClick: onToggle,
-    style: {
-      ...st.rule,
-      ...st.spiritRule,
-      ...(on ? st.tpRuleOn : {}),
-      marginBottom: 0
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      ...st.ruleCheck(on),
-      ...(on ? {
-        background: GOLD,
-        color: "#2A2113"
-      } : {})
-    }
-  }, on ? "\u2713" : "\u25cf"), /*#__PURE__*/React.createElement("span", {
-    style: st.ruleText
-  }, /*#__PURE__*/React.createElement("strong", null, "每一球都串連咗兩個點"))));
-}
-
-// ─────────────────────────────────────────── THE METHOD — 趙公子打法
-// The first technique in the app, under 串連兩點 and the spirit band: this is
-// how the body gets onto the line that joins the two points.
-// It conquered the North Point pool table, then the Snookery match table.
-function ZhaoMethod({
-  rightLeg,
-  line,
-  short,
-  minEffort,
-  doReMi,
-  rhythm,
-  onRightLeg,
-  onLine,
-  onShort,
-  onMinEffort,
-  onDoReMi,
-  onRhythm
-}) {
-  const [info, setInfo] = useState(false);
-  const all = rightLeg && line && short && minEffort && doReMi;
-  const steps = [["1", line, onLine, "搵線落身 · 支cue即刻落啱位", "Most of the time and effort goes here. Find the line of aim, get down onto it, and adjust stance, shoulder and wrist to that line. The cue lands on its spot the moment you are down — 下巴右方少少, under the aiming eye — never after a correction. That offset is a constant, so arriving at it costs nothing while re-finding it every shot costs the rhythm. Calibrate the exact spot once on a shot you know is straight, then it is fixed."], ["2", short, onShort, "短feather短回杆", "Short feathering and a short backswing."], ["3", minEffort, onMinEffort, "每球用最少力", "Minimum effort on every shot — no more than the shot actually needs."], ["4", doReMi, onDoReMi, "Do Re Mi 三指順序擠 · 淨係最後出杆", "The three fingers squeeze in sequence — Do, Re, Mi — on the final delivery only, hitting through the white. Never during the feathering: holding it back is what lifted the consistency, and applying it early is what brings the miscues back. This is the foundation of the potting."]];
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.cl,
-      ...(all ? st.clArmed : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clHead
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clTitle
-  }, "趙公子打法"), /*#__PURE__*/React.createElement("span", {
-    style: st.clTag
-  }, all ? "RAN IT" : "THE METHOD"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), info && /*#__PURE__*/React.createElement("div", {
-    style: st.clCreed
-  }, "The first thing in the app, and no longer on trial: it conquered the North Point pool table, then the Snookery match-play snooker table. 右腳企直 comes before the three 特點, and above every other body cue in this app, because it locks first: it anchors the whole body onto the line of aim, and locking before anything else moves is what keeps the load off both the waist and the left shoulder. A hurt back does not stay at the table, so this outranks anything about playing well. 手掌逗住支cue，平放落線，唔揸 is the way in and the way back: start every shot with it, and when a frame knocks you off it, that is the phrase that returns you. The moment you notice you are holding the cue, stand up and address again."), /*#__PURE__*/React.createElement(StepRow, {
-    n: "\u26a0",
-    on: rightLeg,
-    onClick: onRightLeg,
-    zh: "右腳企直 · 鎖線護腰護膊",
-    en: "Right leg locked straight on every single shot. It does two jobs. It anchors the body onto the line of aim, so stance, shoulder and wrist all lock onto that line around it. And because it locks before any other part of the body moves, the load never reaches the waist or the shoulder.",
-    info: info,
-    gold: true
-  }), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
-    key: n,
-    n: n,
-    on: on,
-    onClick: onClick,
-    zh: zh,
-    en: en,
-    info: info
-  })), /*#__PURE__*/React.createElement("div", {
-    style: st.reset
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.resetLabel
-  }, "每一球起手 · 落錯就返呢度"), /*#__PURE__*/React.createElement("div", {
-    style: st.resetLine
-  }, "手掌逗住支cue，平放落線，唔揸")), /*#__PURE__*/React.createElement(MiniRating, {
-    label: "趙公子 rhythm",
-    value: rhythm,
-    words: RHYTHM_WORDS,
-    hint: "How well the rhythm held, and how fast it came back when the table knocked it out. Score the rhythm, never the balls.",
-    info: info,
-    onChange: onRhythm
-  }));
-}
-
-// ─────────────────────────────────────────── ON TRIAL — 回杆 (Shaun Murphy)
-// Two techniques being tested, both about the return motion: pulling the cue
-// tip away from the white in the final backswing. Marked as a trial on
-// purpose — they have not earned a place beside the settled practices yet.
-function MurphyReturn({
-  ret,
-  onRet
-}) {
-  const [info, setInfo] = useState(false);
-  const both = ret;
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.cl,
-      ...st.trial,
-      ...(both ? st.trialOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clHead
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.clTitle,
-      ...st.trialTitle
-    }
-  }, "回杆"), /*#__PURE__*/React.createElement("span", {
-    style: st.trialTag
-  }, both ? "TRIED" : "ON TRIAL"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), info && /*#__PURE__*/React.createElement("div", {
-    style: st.clCreed
-  }, "The one Shaun Murphy technique that survived the trial. The return motion — pulling the tip away from the white in the final backswing — as straight as you can, which feeds a straight delivery, and as slow as you can, which feeds the timing. The other two are folded away; this is the part that kept earning its place."), /*#__PURE__*/React.createElement(StepRow, {
-    n: "1",
-    on: ret,
-    onClick: onRet,
-    zh: "回杆盡量直+慢",
-    en: "Pull the tip away from the white as straight and as slow as you can. Straight feeds a straight delivery; slow feeds the timing.",
-    info: info
-  }));
-}
-
-// ─────────────────────────────────────────── 0 · 優皮士 rhythm — THE GRIP
-// The wrist grip on the final delivery: 慢, 有感知, in rhythm. It sits above
-// everything else because it is what changed the consistency — the first 10+
-// runs in 綠啡黃連環 came after deploying it.
-function YuppieRhythm() {
-  const [info, setInfo] = useState(false);
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.cl
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clHead
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clTitle
-  }, "優皮士 rhythm"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), info && /*#__PURE__*/React.createElement("div", {
-    style: st.clCreed
-  }, "The feeling in the gripping hand as the cue goes through the white — 慢, 有感知, in rhythm. This is what fundamentally changed the consistency: the first 10+ runs in 綠啡黃連環 came only after deploying it."));
-}
-
-// ─────────────────────────────────────────── 1 · 手腕發力法 — THE ENGINE
-// Tops everything. All power and all cue-ball feel come from the wrist flick.
-// Calibrate the benchmark at 開枱, then every shot is a chosen percentage of it.
-function WristForce({
-  bench,
-  perShot,
-  onBench,
-  onPerShot
-}) {
-  const [info, setInfo] = useState(false);
-  const both = bench && perShot;
-  const steps = [["1", bench, onBench, "開枱定 benchmark", "Max force each hand, up and down the table, trajectory as straight as you can. That is your 100%."], ["2", perShot, onPerShot, "每一球揀 %", "Recall the benchmark → 40%? 60%? → flick the wrist to exactly that."]];
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.cl,
-      ...(both ? st.clArmed : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clHead
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clTitle
-  }, "手腕發力法"), both && /*#__PURE__*/React.createElement("span", {
-    style: st.clTag
-  }, "BOTH"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), info && /*#__PURE__*/React.createElement("div", {
-    style: st.clCreed
-  }, "Power and cue-ball feel both come from flicking the wrist into the white. This sits above everything — 一切由手腕帶起，唔好用手臂推. The Do-Re-Mi squeeze that finishes the stroke now lives on 趙公子打法, where the delivery belongs."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
-    key: n,
-    n: n,
-    on: on,
-    onClick: onClick,
-    zh: zh,
-    en: en,
-    info: info
-  })));
-}
-
-// ─────────────────────────────────────────── 2 · 中心線路平放大法 — THE LINE
-// Steps 1–3 are 基本功 and must be complete before a ball is struck; step 4 is
-// what finishing them earns. Both ratings live in the card.
-function CentreLineMethod({
-  line,
-  flat,
-  body,
-  free,
-  onLine,
-  onFlat,
-  onBody,
-  onFree
-}) {
-  const [info, setInfo] = useState(false);
-  const basics = line && flat && body;
-  const all = basics && free;
-  const steps = [["1", line, onLine, "睇厚簿．搵中心線路", "Read the contact first — thick or thin — and find the centre line."], ["2", flat, onFlat, "平放支cue", "平放 = no grip force at all. Four fingers only, just cancelling the cue's weight."], ["3", body, onBody, "全身遷就條線", "Eyes, waist, bridge hand — every part gives way to the line."]];
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.cl,
-      ...(all ? st.clArmed : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clHead
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clTitle
-  }, "中心線路平放大法"), all && /*#__PURE__*/React.createElement("span", {
-    style: st.clTag
-  }, "ALL FOUR"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), info && /*#__PURE__*/React.createElement("div", {
-    style: st.clCreed
-  }, "The line every shot is aimed along. With 手腕發力法, these two come before everything else — 唔好再放棄呢個練習."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
-    key: n,
-    n: n,
-    on: on,
-    onClick: onClick,
-    zh: zh,
-    en: en,
-    info: info
-  })), /*#__PURE__*/React.createElement("div", {
-    style: st.clBasics
-  }, basics ? "基本功 done — now play." : "1–3 基本功"), /*#__PURE__*/React.createElement(StepRow, {
-    n: "4",
-    on: free,
-    onClick: onFree,
-    zh: "放鬆自由發揮",
-    en: "Then let go — free play, feel the white.",
-    info: info,
-    gold: true
-  }));
-}
-
-// ─────────────────────────────────────────── 今日練咩 — ONE ABILITY
-// Every session nurtures one of two abilities and only one: consistency (the
-// technique, the foundation forms, the rhythm) or touch and feel (the pure
-// connection with the cue ball). Picked before play, read back before saving,
-// so no session is ever logged without knowing which one it was.
-const FOCI = [["consistency", "一致性", "技術 · 基本功 · 節奏 — 每一球行同一套"], ["feel", "手感", "淨係感受杆頭同白波 — 好似瑜伽"]];
-const FOCUS_HOLD = {
-  consistency: "每一球行同一套 · 趙公子 · 定線 · 手腕 · 平放",
-  feel: "淨係聽杆頭 · 死都要感受連接白波"
-};
-const FOCUS_VERDICT = {
-  consistency: "一致性 · 睇 趙公子 rhythm + 定線執行",
-  feel: "手感 · 睇 連接白波 desire"
-};
-function FocusPick({
-  value,
-  onChange
-}) {
-  const [info, setInfo] = useState(false);
-  const picked = FOCI.find(([k]) => k === value);
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.focusCard,
-      ...(value ? st.focusCardOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clHead
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.focusTitle
-  }, "今日練咩"), picked && /*#__PURE__*/React.createElement("span", {
-    style: st.rowCue
-  }, picked[1]), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), info && /*#__PURE__*/React.createElement("div", {
-    style: st.clCreed
-  }, "Every session nurtures one of two abilities, and only one. 一致性 is all the technique, the foundation forms and the rhythm — 趙公子打法, 定線, 手腕發力, 中心線路平放 — every ball run through the same procedure; the verdict is the 趙公子 rhythm and 定線執行 scores. 手感 is the pure connection with the cue ball: like Yoga, where the only thing in your attention is the feedback coming back through the cue tip. The checklists stay, but they are not the point, and the verdict is the 連接白波 desire score. Pick one before you walk to the table — a session that tries to be both ends up being neither."), /*#__PURE__*/React.createElement("div", {
-    style: st.focusOpts
-  }, FOCI.map(([k, zh, en]) => /*#__PURE__*/React.createElement("button", {
-    key: k,
-    onClick: () => onChange(value === k ? "" : k),
-    style: {
-      ...st.focusOpt,
-      ...(value === k ? st.focusOptOn : {})
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.focusZh
-  }, zh), /*#__PURE__*/React.createElement("span", {
-    style: st.clEn
-  }, en)))), /*#__PURE__*/React.createElement("div", {
-    style: st.reset
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.resetLabel
-  }, value ? "今日守住" : "未揀"), /*#__PURE__*/React.createElement("div", {
-    style: st.resetLine
-  }, value ? FOCUS_HOLD[value] : "揀一個先落枱")));
-}
-
-// ─────────────────────────────────────────── THE FRAME STANDARD — 定線
-// A frame throws random shot lengths and mostly thin cuts — angles a line-up
-// never produces — so the aiming line has to be built and verified against the
-// body on every shot. 雙眼 sets the point on the white; everything after that
-// is one eye, because two eyes cannot agree on a line.
-function EyeLine({
-  setPoint,
-  checkLine,
-  backCue,
-  confirm,
-  score,
-  onSetPoint,
-  onCheckLine,
-  onBackCue,
-  onConfirm,
-  onScore
-}) {
-  const [info, setInfo] = useState(false);
-  const all = setPoint && checkLine && backCue && confirm;
-  const steps = [["1", setPoint, onSetPoint, "雙眼定視 · 揀實白波一個準確點", "Both eyes, and this is a decision rather than a look. Pick one specific, precise point on the white and commit to it — 唔係盲無目的. Everything after this is checked against that point: step 3 asks whether you are still on it, so if the point was vague there is nothing for the next three steps to verify."], ["2", checkLine, onCheckLine, "單眼睇目標球對線", "One eye from here on. Look up to the object ball and check whether you are actually on the line."], ["3", backCue, onBackCue, "單眼返白波 · 微調身同手", "Still one eye, back down to the white. Confirm you are still on the point of contact, and micro-adjust body and arm to correct whatever step 2 showed you. This correction should be small and point a different way each shot. If it is large and always the same direction, that is the cue arriving in the wrong place under your face, not the line being wrong — fix it in 趙公子 step 1, not here."], ["4", confirm, onConfirm, "單眼返目標球 · 啱先出杆", "One eye back up to the object ball. Does it feel right now? Only then deliver."]];
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.cl,
-      ...(all ? st.clArmed : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clHead
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clTitle
-  }, "雙眼定點 → 單眼定線"), all && /*#__PURE__*/React.createElement("span", {
-    style: st.clTag
-  }, "ALL FOUR"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), info && /*#__PURE__*/React.createElement("div", {
-    style: st.clCreed
-  }, "The standard for frame play. A line-up gives you repeated lengths and shallow angles; a frame gives you random distances and mostly thin cuts, so the aiming line has to be built fresh and checked against your body every single shot. This is the routine that builds it. Two eyes set the point on the white, then one eye does everything else — cue ball, object ball, back down, back up — because only one eye can hold a line."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
-    key: n,
-    n: n,
-    on: on,
-    onClick: onClick,
-    zh: zh,
-    en: en,
-    info: info
-  })), /*#__PURE__*/React.createElement("div", {
-    style: st.reset
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.resetLabel
-  }, "由第2步開始"), /*#__PURE__*/React.createElement("div", {
-    style: st.resetLine
-  }, "全部單眼 · 到出杆為止")), /*#__PURE__*/React.createElement(MiniRating, {
-    label: "定線執行",
-    value: score,
-    words: EYE_WORDS,
-    hint: "How well the four steps actually ran — especially on the thin cuts, where the routine is worth most and hardest to hold.",
-    info: info,
-    onChange: onScore
-  }));
-}
-
-// ─────────────────────────────────────────── 3 · 假想球 — NO DOUBT
-// Sits right after the wrist and the line. Picture the ghost ball and the
-// object ball's path into the pocket, and hold it until there is no doubt.
-function GhostBall({
-  see,
-  noDoubt,
-  onSee,
-  onNoDoubt
-}) {
-  const [info, setInfo] = useState(false);
-  const both = see && noDoubt;
-  const steps = [["1", see, onSee, "睇假想球．目標球路線", "See the ghost ball at the contact point, and the object ball's line all the way into the pocket."], ["2", noDoubt, onNoDoubt, "冇可能唔入先出杆", "Hold the picture until there is no doubt left. Any doubt = stand up and start the shot again."]];
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.cl,
-      ...(both ? st.clArmed : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clHead
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.clTitle
-  }, "假想球 → 冇可能唔入"), both && /*#__PURE__*/React.createElement("span", {
-    style: st.clTag
-  }, "BOTH"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), info && /*#__PURE__*/React.createElement("div", {
-    style: st.clCreed
-  }, "Imagine the ghost ball and the object ball's trajectory into the pocket, and keep looking until it reads no way this is gonna miss. No doubt before you deliver — this is what makes the potting accurate."), steps.map(([n, on, onClick, zh, en]) => /*#__PURE__*/React.createElement(StepRow, {
-    key: n,
-    n: n,
-    on: on,
-    onClick: onClick,
-    zh: zh,
-    en: en,
-    info: info
-  })));
-}
-
-// ─────────────────────────────────────────── PRE-SHOT NON-NEGOTIABLES
-// The rules that hold every session, solo or match. Checked before play:
-// a cue-straightness check when you pick it up, then two per-shot rules.
-function PreShotRules({
-  cue,
-  tip,
-  onCue,
-  onTip
-}) {
-  const [info, setInfo] = useState(false);
-  const all = cue && tip;
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.rules,
-      ...(all ? st.rulesArmed : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.rulesTitle
-  }, "攞起支cue", all && /*#__PURE__*/React.createElement("span", {
-    style: st.rulesArmedTag
-  }, "LOCKED IN"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), /*#__PURE__*/React.createElement(StepRow, {
-    n: "0",
-    on: cue,
-    onClick: onCue,
-    zh: "睇支cue直唔直",
-    en: "Sight one-eyed, butt → tip. 等邊 taper. Rotate 90°, sight again. Bent = half-ball off.",
-    info: info
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.rulesTitle,
-      ...st.rulesSubTitle
-    }
-  }, "每一球之前"), /*#__PURE__*/React.createElement(StepRow, {
-    n: "1",
-    on: tip,
-    onClick: onTip,
-    zh: "預先想像杆頭feedback",
-    en: "See the cue-tip contact before you strike.",
-    info: info
-  }));
-}
-
-// ─────────────────────────────────────────── MATCH PREP — 模擬一局
-// A frame against yourself, every session while a match is coming up. A frame
-// is where the method actually gets tested: awkward positions, no easy pots,
-// long gaps between shots. Judged on whether the method held, not on the balls.
-function SimFrame({
-  played,
-  held,
-  onPlayed,
-  onHeld
-}) {
-  const [info, setInfo] = useState(false);
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.rules,
-      ...(played && held ? st.rulesArmed : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.rulesTitle
-  }, "模擬一局 · 對自己", played && held && /*#__PURE__*/React.createElement("span", {
-    style: st.rulesArmedTag
-  }, "HELD IT"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), info && /*#__PURE__*/React.createElement("div", {
-    style: st.clCreed
-  }, "A frame is where the method gets tested — awkward positions, no easy pots, long gaps between shots. Run three or four easy balls on the method before breaking off, so the rhythm is loaded rather than hunted for mid-frame. A frame is supposed to be awkward: a missed pot is not evidence against 趙公子打法, and hard shots are exactly when it is worth most. Score the frame on whether the method held, never on the balls."), /*#__PURE__*/React.createElement(StepRow, {
-    n: "\u25a1",
-    on: played,
-    onClick: onPlayed,
-    zh: "打咗一局模擬賽",
-    en: "A full frame against yourself, played as if it counted.",
-    info: info
-  }), /*#__PURE__*/React.createElement(StepRow, {
-    n: "\u25c9",
-    on: held,
-    onClick: onHeld,
-    zh: "全程守住趙公子打法",
-    en: "Held the method the whole way through — not the pots, the method.",
-    info: info
-  }));
-}
-
-// ─────────────────────────────────────────── THE KEY DRILL — 綠啡黃連環
-// Green → brown → yellow, potted in a row, for the highest count you can reach.
-// This correlates best with how the whole game plays, so every solo session is
-// an attempt on the personal best. Solo only — a match has no place for it.
-function GbyChallenge({
-  value,
-  pb,
-  onChange
-}) {
-  const [info, setInfo] = useState(false);
-  const n = Number(value || 0);
-  const beat = n > 0 && n >= pb;
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.rules,
-      ...(beat ? st.rulesArmed : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.rulesTitle
-  }, "綠啡黃連環 · THE RECORD", beat && /*#__PURE__*/React.createElement("span", {
-    style: st.rulesArmedTag
-  }, "NEW RECORD"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), info && /*#__PURE__*/React.createElement("div", {
-    style: st.clCreed
-  }, "Green, brown, yellow — pot them in a row and keep going for the highest count you can reach. This is the drill that tracks how well the whole game plays, so every solo session is an attempt on the record. It is what keeps the cueing sharp."), /*#__PURE__*/React.createElement("div", {
-    style: st.gbyRow
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    min: "0",
-    value: value,
-    onChange: e => onChange(Number(e.target.value)),
-    style: st.gbyInput,
-    "aria-label": "Best run of green-brown-yellow pots in a row"
-  }), /*#__PURE__*/React.createElement("div", {
-    style: st.gbyUnit
-  }, "in a row", /*#__PURE__*/React.createElement("span", {
-    style: st.gbyUnitSub
-  }, "best run this session")), /*#__PURE__*/React.createElement("div", {
-    style: st.gbyPb
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.gbyPbNum
-  }, pb || "—"), /*#__PURE__*/React.createElement("span", {
-    style: st.gbyPbLabel
-  }, "personal best"))));
-}
-
-// ─────────────────────────────────────────── THE CLOSER — 收波
-// Every session ends on this. The opening potting work it used to sit beside
-// is now covered by the 綠啡黃連環 record challenge above.
-function ClosingDrill({
-  dtod,
-  onDtod
-}) {
-  const [info, setInfo] = useState(false);
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.rules,
-      ...(dtod ? st.rulesArmed : {})
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.rulesTitle
-  }, "每次收枱", dtod && /*#__PURE__*/React.createElement("span", {
-    style: st.rulesArmedTag
-  }, "CLOSED"), /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), /*#__PURE__*/React.createElement(StepRow, {
-    n: "\u25a0",
-    on: dtod,
-    onClick: onDtod,
-    zh: "收波 · 白波D區打返D區",
-    en: "Finish by summing up cue-ball power and feel — 總結白波力量感覺控制.",
-    info: info
-  }));
-}
-
-// ─────────────────────────────────────────── KEYSTONE (final-stroke habit)
-// The habit everything else serves. Buried within 10 days of its last
-// rediscovery (30 Jun → 10 Jul) — this card exists so it can't happen again.
-function KeystoneCreed({
-  value,
-  onChange
-}) {
-  const [info, setInfo] = useState(false);
-  const opts = [["every", "Every strike"], ["partial", "Some strikes"], ["forgot", "Forgot"]];
-  return /*#__PURE__*/React.createElement("div", {
-    style: st.keystone
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.keystoneTitle
-  }, "最後一擊", /*#__PURE__*/React.createElement("span", {
-    style: st.clSpacer
-  }), /*#__PURE__*/React.createElement(InfoBtn, {
-    on: info,
-    onClick: () => setInfo(!info)
-  })), info && /*#__PURE__*/React.createElement("div", {
-    style: st.keystoneBody
-  }, "停一停，最後一下慢而順 — pause at the top of the backswing, then one smooth acceleration through the white. The final ", /*#__PURE__*/React.createElement("em", null, "delivery"), ", not the final feather."), /*#__PURE__*/React.createElement("div", {
-    style: st.keystoneAsk
-  }, "停一停，慢而順 — held it?"), /*#__PURE__*/React.createElement("div", {
-    style: st.seg
-  }, opts.map(([k, l]) => /*#__PURE__*/React.createElement("button", {
-    key: k,
-    onClick: () => onChange(value === k ? "" : k),
-    style: {
-      ...st.segBtn,
-      ...(value === k ? k === "forgot" ? st.segWarnOn : st.segKeystoneOn : {})
-    }
-  }, l))));
-}
-
-// ── Compact 1–10 rating with word feedback. Used by all three fundamentals. ──
 function MiniRating({
   label,
   value,
@@ -1730,10 +885,9 @@ function MiniRating({
     style: st.metricHint
   }, hint));
 }
-const EYE_WORDS = ["", "Never ran it", "Both eyes throughout", "Started it, then forgot", "Easy shots only", "About half the shots", "Most shots, the check rushed", "Four steps, micro-adjust vague", "Full routine on most shots", "Held it on the thin cuts too", "每一球四步 · 單眼到底"];
-const RHYTHM_WORDS = ["", "Never found it", "Lost it on the first hard shot", "Flashes, then gone", "On and off, mostly off", "Half the session", "There, but kept slipping", "Mostly held, came back slowly", "Held it, recovered fast when lost", "Held through the awkward shots too", "全程趙公子 — 冇甩過"];
-const CONNECT_WORDS = ["", "None — just hitting balls", "Barely wanted it", "Went through the motions", "Wanted it, gave up early", "There for half the session", "Present, but not fierce", "Wanted it most shots", "Fierce most of the session", "死都要感受 — nearly every shot", "激進地感受白波 — 全程"];
-
+const GLOW_WORDS = ["", "Never lit", "Lit at address, gone by the stroke", "Flashes only", "Easy shots only", "About half the balls", "There, but kept dimming", "Most balls, faded on the hard ones", "Held on nearly every ball", "Stayed lit through the delivery", "每一球都有餘光 — 冇熄過"];
+const RHYTHM_WORDS = ["", "Never found it", "Lost it on the first hard shot", "Flashes, then gone", "On and off, mostly off", "Half the session", "There, but kept slipping", "Mostly held, came back slowly", "Held it, recovered fast when lost", "Held through the awkward shots too", "全程趙公子式 — 冇甩過"];
+const YUPPIE_WORDS = ["", "Never read it", "Read it once, then forgot", "Flashes of the tempo", "The table set the pace", "Half the session", "There, but kept rushing", "Mostly mine, lost on pressure", "Natural rhythm most of the way", "Held it through the awkward frames", "全程優皮士 — 節奏由我"];
 // ─────────────────────────────────────────── HISTORY
 function History({
   sessions,
@@ -1858,6 +1012,10 @@ function History({
     onClick: onGoLog,
     style: st.save
   }, "Log your first session →")));
+  // Legacy sessions predate the three executions, so a missing score reads
+  // as "—" rather than as a zero.
+  const sc = (s, k) => s[k] === undefined || s[k] === null ? "—" : `${s[k]}/10`;
+  const hot = (s, k) => Number(s[k] || 0) >= 8;
   return /*#__PURE__*/React.createElement("div", null, SyncBar, /*#__PURE__*/React.createElement("div", {
     style: st.list
   }, sessions.map(s => /*#__PURE__*/React.createElement("div", {
@@ -1869,97 +1027,56 @@ function History({
     style: st.rowDate
   }, fmtDate(s.date), /*#__PURE__*/React.createElement("span", {
     style: st.rowMode(s.mode)
-  }, s.mode === "match" ? "MATCH" : "SOLO"), s.venue && /*#__PURE__*/React.createElement("span", {
-    style: st.rowVenue
-  }, s.venue), s.twoPoints && /*#__PURE__*/React.createElement("span", {
+  }, s.mode === "match" ? "MATCH" : "SOLO"), s.ex1Glow && s.ex2Zhao && s.ex3Yuppie ? /*#__PURE__*/React.createElement("span", {
     style: st.rowCue
-  }, "串連兩點 ✓"), s.focus === "consistency" && /*#__PURE__*/React.createElement("span", {
+  }, "三式齊 ✓") : /*#__PURE__*/React.createElement(React.Fragment, null, s.ex1Glow && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
-  }, "一致性"), s.focus === "feel" && /*#__PURE__*/React.createElement("span", {
-    style: st.rowCue
-  }, "手感"), s.zhaoRightLeg && s.zhaoLine && s.zhaoShort && s.zhaoMinEffort && s.wristDoReMi && /*#__PURE__*/React.createElement("span", {
+  }, "餘光 ✓"), s.ex2Zhao && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
-  }, "趙公子 ✓"), s.simFramePlayed && /*#__PURE__*/React.createElement("span", {
-    style: s.simFrameHeld ? st.rowCl : st.rowTrial
-  }, s.simFrameHeld ? "模擬局 ✓" : "模擬局"), s.fierceConnect && /*#__PURE__*/React.createElement("span", {
+  }, "趙公子式 ✓"), s.ex3Yuppie && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
-  }, "激進感受 ✓"), s.murphyReturn && /*#__PURE__*/React.createElement("span", {
-    style: st.rowTrial
-  }, "回杆 ✓"), s.wristBenchmark && s.wristPerShot && /*#__PURE__*/React.createElement("span", {
-    style: st.rowCl
-  }, "手腕發力 ✓"), s.clLine && s.clFlat && s.clBody && s.clFree && /*#__PURE__*/React.createElement("span", {
-    style: st.rowCl
-  }, "平放大法 ✓"), s.eyeSetPoint && s.eyeCheckLine && s.eyeBackCue && s.eyeConfirm && /*#__PURE__*/React.createElement("span", {
-    style: st.rowCl
-  }, "定線 ✓"), s.ghostSee && s.ghostNoDoubt && /*#__PURE__*/React.createElement("span", {
-    style: st.rowCl
-  }, "假想球 ✓"), s.lastDelivery === "every" && /*#__PURE__*/React.createElement("span", {
-    style: st.rowKeyOn
-  }, "last delivery ✓"), s.lastDelivery === "partial" && /*#__PURE__*/React.createElement("span", {
-    style: st.rowKeyMid
-  }, "last delivery ~"), s.lastDelivery === "forgot" && /*#__PURE__*/React.createElement("span", {
-    style: st.rowKeyOff
-  }, "forgot last delivery"), s.ruleCueStraight && /*#__PURE__*/React.createElement("span", {
-    style: st.rowCue
-  }, "cue checked ✓"), s.drillDToD && /*#__PURE__*/React.createElement("span", {
-    style: st.rowBookend
-  }, "收波 ✓"), s.ruleTipFeedback && /*#__PURE__*/React.createElement("span", {
-    style: st.rowRules
-  }, "預先想像 ✓"), !s.enjoymentMode && /*#__PURE__*/React.createElement("span", {
-    style: st.rowFlag
-  }, "no enjoyment mode")), /*#__PURE__*/React.createElement("div", {
+  }, "優皮士 ✓"))), /*#__PURE__*/React.createElement("div", {
     style: st.rowStats
   }, /*#__PURE__*/React.createElement(Stat, {
-    label: "趙公子",
-    v: `${s.zhaoRhythm ?? "—"}/10`,
-    hot: Number(s.zhaoRhythm || 0) >= 8
+    label: "餘光",
+    v: sc(s, "glowScore"),
+    hot: hot(s, "glowScore")
   }), /*#__PURE__*/React.createElement(Stat, {
-    label: "定線",
-    v: `${s.eyeScore ?? "—"}/10`,
-    hot: Number(s.eyeScore || 0) >= 8
+    label: "趙公子式",
+    v: sc(s, "zhaoRhythm"),
+    hot: hot(s, "zhaoRhythm")
   }), /*#__PURE__*/React.createElement(Stat, {
-    label: "連接白波",
-    v: `${s.connectDesire ?? "—"}/10`,
-    hot: Number(s.connectDesire || 0) >= 8
-  }), s.mode !== "match" && Number(s.gbyBest || 0) > 0 && /*#__PURE__*/React.createElement(Stat, {
-    label: "綠啡黃",
-    v: s.gbyBest,
-    hot: true
-  }), Number(s.tableQ || 0) > 0 && /*#__PURE__*/React.createElement(Stat, {
-    label: "Table",
-    v: `${s.tableQ}/5`,
-    dim: true
+    label: "優皮士",
+    v: sc(s, "yuppieScore"),
+    hot: hot(s, "yuppieScore")
   }), /*#__PURE__*/React.createElement(Stat, {
     label: "Min",
     v: s.duration,
     dim: true
   })), s.note && /*#__PURE__*/React.createElement("div", {
     style: st.rowNote
-  }, "“", s.note, "”")), /*#__PURE__*/React.createElement("button", {
+  }, "\u201c", s.note, "\u201d")), /*#__PURE__*/React.createElement("button", {
     onClick: () => onRemove(s.id),
     style: st.del,
     "aria-label": "Delete session"
-  }, "×")))));
+  }, "\u00d7")))));
 }
 
 // ─────────────────────────────────────────── TRENDS
 function Trends({
-  sessions,
-  avg,
-  recentN,
+  sessions
 }) {
   if (sessions.length < 2) return /*#__PURE__*/React.createElement("div", {
     style: st.empty
   }, /*#__PURE__*/React.createElement("div", {
     style: st.emptyMark
-  }, "△"), /*#__PURE__*/React.createElement("p", {
+  }, "\u25b3"), /*#__PURE__*/React.createElement("p", {
     style: st.emptyText
   }, "Log 2 sessions to see trends."));
 
-  // sparkline data — oldest→newest
+  // Oldest → newest. A score only exists from the session it was introduced,
+  // so skip the sessions that never carried it instead of charting false zeros.
   const chrono = [...sessions].reverse();
-  // Each rating only exists from the session it was introduced, so skip older
-  // sessions rather than charting or averaging them as false zeros.
   const series = k => {
     const list = chrono.filter(s => s[k] !== undefined && s[k] !== null);
     const recent = [...list].reverse().slice(0, 12);
@@ -1969,155 +1086,61 @@ function Trends({
       avg: recent.length ? recent.reduce((a, s) => a + Number(s[k]), 0) / recent.length : 0
     };
   };
-  const cd = series("connectDesire");
-  const zr = series("zhaoRhythm");
-  const es = series("eyeScore");
-  // The key drill is solo-only and 0 means "not attempted", so chart and
-  // average across attempts rather than letting blanks drag it down.
-  const gbyTried = chrono.filter(s => s.mode !== "match" && Number(s.gbyBest || 0) > 0);
-  const gbyData = gbyTried.map(s => Number(s.gbyBest));
-  const gbyRecent = [...gbyTried].reverse().slice(0, 12);
-  const gbyAvg = gbyRecent.length ? gbyRecent.reduce((a, s) => a + Number(s.gbyBest), 0) / gbyRecent.length : 0;
-  const gbyPb = gbyTried.reduce((m, s) => Math.max(m, Number(s.gbyBest)), 0);
-
-  // Long pot is optional — average only over sessions that actually rated it,
-  // so untouched sessions don't drag the number toward zero.
-  const lpRated = sessions.slice(0, recentN).filter(s => s.longpot !== undefined && s.longpot !== null);
-  const lpAvg = lpRated.length ? Math.round(lpRated.reduce((a, s) => a + Number(s.longpot), 0) / lpRated.length) : null;
+  const rows = [["glowScore", "餘光", C.cue], ["zhaoRhythm", "趙公子式", C.ok], ["yuppieScore", "優皮士節奏", C.chalkSoft]].map(([k, label, color]) => ({
+    label,
+    color,
+    ...series(k)
+  }));
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: st.featherKpiWrap
-  }, /*#__PURE__*/React.createElement(Kpi, {
-    label: `連接白波 · desire · avg last ${cd.n || 0}`,
-    value: cd.n ? cd.avg.toFixed(1) : "—",
-    suffix: cd.n ? "/10" : "",
-    accent: true
-  })), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
-  }, /*#__PURE__*/React.createElement(Kpi, {
-    label: `定線執行 · avg last ${es.n || 0}`,
-    value: es.n ? es.avg.toFixed(1) : "—",
-    suffix: es.n ? "/10" : "",
+  }, rows.map(r => /*#__PURE__*/React.createElement(Kpi, {
+    key: r.label,
+    label: `${r.label} · avg last ${r.n || 0}`,
+    value: r.n ? r.avg.toFixed(1) : "—",
+    suffix: r.n ? "/10" : "",
     accent: true
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: `趙公子 rhythm · avg last ${zr.n || 0}`,
-    value: zr.n ? zr.avg.toFixed(1) : "—",
-    suffix: zr.n ? "/10" : "",
-    accent: true
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "綠啡黃 · personal best",
-    value: gbyPb || "—",
-    accent: true
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: `綠啡黃 · avg last ${gbyRecent.length || 0}`,
-    value: gbyRecent.length ? gbyAvg.toFixed(1) : "—"
-  }), /*#__PURE__*/React.createElement(Kpi, {
+  })), /*#__PURE__*/React.createElement(Kpi, {
     label: "Sessions logged",
     value: sessions.length
-  })), cd.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "連接白波 · desire over time",
-    data: cd.data,
+  })), rows.filter(r => r.data.length >= 2).map(r => /*#__PURE__*/React.createElement(Spark, {
+    key: r.label,
+    title: `${r.label} over time`,
+    data: r.data,
     suffix: "/10",
     max: 10,
-    color: C.chalkSoft
-  }), zr.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "趙公子 rhythm over time",
-    data: zr.data,
-    suffix: "/10",
-    max: 10,
-    color: C.ok
-  }), es.data.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "定線執行 over time",
-    data: es.data,
-    suffix: "/10",
-    max: 10,
-    color: C.cueDim
-  }), gbyData.length >= 2 && /*#__PURE__*/React.createElement(Spark, {
-    title: "綠啡黃連環 · pots in a row (solo)",
-    data: gbyData,
-    max: Math.max(10, gbyPb),
-    color: C.ok
-  }));
+    color: r.color
+  })));
 }
 
 // ─────────────────────────────────────────── INSIGHTS (automated first-pass analysis)
 function Insights({
   sessions
 }) {
-  if (sessions.length < 2) return /*#__PURE__*/React.createElement("div", {
+  if (!sessions.length) return /*#__PURE__*/React.createElement("div", {
     style: st.empty
   }, /*#__PURE__*/React.createElement("div", {
     style: st.emptyMark
-  }, "◇"), /*#__PURE__*/React.createElement("p", {
+  }, "\u25ce"), /*#__PURE__*/React.createElement("p", {
     style: st.emptyText
-  }, "Insights need 2 sessions to compare."));
-  const has = (s, k) => s[k] !== undefined && s[k] !== null;
-  const avgOf = (list, key) => {
-    const vals = list.filter(s => has(s, key)).map(s => Number(s[key]));
-    return vals.length ? vals.reduce((a, v) => a + v, 0) / vals.length : null;
-  };
-  const fmt = (v, d = 1) => v === null ? "—" : v.toFixed(d);
-
-  // ── 1. Enjoyment-mode split ──
-  const fCons = sessions.filter(s => s.focus === "consistency");
-  const fFeel = sessions.filter(s => s.focus === "feel");
-  const on = sessions.filter(s => s.enjoymentMode);
-  const off = sessions.filter(s => !s.enjoymentMode);
-  const splitMetrics = [["zhaoRhythm", "趙公子 rhythm", "/10"], ["eyeScore", "定線執行", "/10"], ["connectDesire", "連接白波 desire", "/10"], ["gbyBest", "綠啡黃連環", ""]];
-
-  // ── 2. Table-quality split (rated sessions only) ──
-  const goodT = sessions.filter(s => Number(s.tableQ || 0) >= 4);
-  const poorT = sessions.filter(s => Number(s.tableQ || 0) >= 1 && Number(s.tableQ || 0) <= 2);
-
-  // ── 3. Divergence signal — awareness held through poor potting ──
-
-  // ── 3b. Keystone (last delivery) — streak + payoff ──
-  // Sessions are stored newest-first; walk from the top for the current streak.
-  const answered = sessions.filter(s => s.lastDelivery);
-  let streak = 0;
-  for (const s of sessions) {
-    if (s.lastDelivery === "every") streak += 1;else break;
-  }
-  const held = sessions.filter(s => s.lastDelivery === "every");
-  const notHeld = sessions.filter(s => s.lastDelivery === "forgot" || s.lastDelivery === "partial");
-  const heldPct = answered.length ? Math.round(held.length / answered.length * 100) : 0;
-
-  // ── 3a′. 中心線路平放大法 — the primary split: 基本功 complete vs not ──
-  const clDone = sessions.filter(s => s.clLine && s.clFlat && s.clBody);
-  const clNot = sessions.filter(s => has(s, "clLine") && !(s.clLine && s.clFlat && s.clBody));
-  const clSteps = [["clLine", "1 · 睇線"], ["clFlat", "2 · 平放"], ["clBody", "3 · 全身遷就"], ["clFree", "4 · 放鬆自由"]];
-  const fierce = sessions.filter(s => s.fierceConnect);
-  const zhaoSteps = [["zhaoRightLeg", "⚠ · 右腳企直鎖線"], ["zhaoLine", "1 · 搵線落身"], ["zhaoShort", "2 · 短feather短回杆"], ["zhaoMinEffort", "3 · 最少力"], ["wristDoReMi", "4 · Do Re Mi"]];
-  const murphySteps = [["murphyReturn", "回杆盡量直+慢"]];
-  const wristSteps = [["wristBenchmark", "1 · 開枱定 benchmark"], ["wristPerShot", "2 · 每一球揀 %"]];
-  const eyeSteps = [["eyeSetPoint", "1 · 雙眼揀實點"], ["eyeCheckLine", "2 · 單眼對線"], ["eyeBackCue", "3 · 返白波微調"], ["eyeConfirm", "4 · 返目標球確認"]];
-  const ghostSteps = [["ghostSee", "1 · 睇假想球"], ["ghostNoDoubt", "2 · 冇可能唔入"]];
-
-  // ── 3c. Pre-shot two-rules adherence ──
-  const bothRules = sessions.filter(s => s.ruleTipFeedback);
-  const rulesPct = sessions.length ? Math.round(bothRules.length / sessions.length * 100) : 0;
-  const cueChecked = sessions.filter(s => s.ruleCueStraight);
-  const cuePct = sessions.length ? Math.round(cueChecked.length / sessions.length * 100) : 0;
-
-  // ── 3d. The closer — did the session finish on 白波D區打返D區 ──
-  const framePlayed = sessions.filter(s => s.simFramePlayed);
-  const frameHeld = framePlayed.filter(s => s.simFrameHeld);
-  const closedWith = sessions.filter(s => s.drillDToD);
-  const twoPt = sessions.filter(s => s.twoPoints);
-  const pctOf = list => sessions.length ? Math.round(list.length / sessions.length * 100) : 0;
-
-  // ── 5. Records + cadence ──
-  const bestGbyAll = sessions.reduce((m, s) => Math.max(m, Number(s.gbyBest || 0)), 0);
-  const bestZr = sessions.filter(s => has(s, "zhaoRhythm")).reduce((m, s) => Math.max(m, Number(s.zhaoRhythm)), 0);
-  const bestEs = sessions.filter(s => has(s, "eyeScore")).reduce((m, s) => Math.max(m, Number(s.eyeScore)), 0);
-  const bestCd = sessions.filter(s => has(s, "connectDesire")).reduce((m, s) => Math.max(m, Number(s.connectDesire)), 0);
+  }, "Log a session and the read-back appears here."));
+  const EXECS = [["ex1Glow", "glowScore", "1 · 餘光"], ["ex2Zhao", "zhaoRhythm", "2 · 趙公子式"], ["ex3Yuppie", "yuppieScore", "3 · 優皮士節奏"]];
+  const pct = list => Math.round(list.length / sessions.length * 100);
+  const rated = k => sessions.filter(s => s[k] !== undefined && s[k] !== null);
+  const allThree = sessions.filter(s => s.ex1Glow && s.ex2Zhao && s.ex3Yuppie);
   const cutoff = Date.now() - 28 * 24 * 3600 * 1000;
   const last28 = sessions.filter(s => new Date(s.date + "T00:00:00").getTime() >= cutoff).length;
-  const SplitTable = ({
-    a,
-    b,
-    aLabel,
-    bLabel
-  }) => /*#__PURE__*/React.createElement("div", {
+  const fmt1 = v => v === null ? "—" : v.toFixed(1);
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: st.featherKpiWrap
+  }, /*#__PURE__*/React.createElement(Kpi, {
+    label: `三式齊 · all three executed (${allThree.length}/${sessions.length})`,
+    value: `${pct(allThree)}%`,
+    accent: true
+  })), /*#__PURE__*/React.createElement("div", {
+    style: st.insBlock
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "三式 · execution and score"), /*#__PURE__*/React.createElement("div", {
     style: st.insTable
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insRow
@@ -2125,357 +1148,43 @@ function Insights({
     style: st.insCell0
   }), /*#__PURE__*/React.createElement("span", {
     style: st.insHead
-  }, aLabel, " (n=", a.length, ")"), /*#__PURE__*/React.createElement("span", {
+  }, "執行率"), /*#__PURE__*/React.createElement("span", {
     style: st.insHead
-  }, bLabel, " (n=", b.length, ")"), /*#__PURE__*/React.createElement("span", {
+  }, "avg"), /*#__PURE__*/React.createElement("span", {
     style: st.insHead
-  }, "Δ")), splitMetrics.map(([k, label, suf]) => {
-    const va = avgOf(a, k);
-    const vb = avgOf(b, k);
-    const d = va !== null && vb !== null ? va - vb : null;
+  }, "best")), EXECS.map(([tick, score, label]) => {
+    const done = sessions.filter(s => s[tick]);
+    const r = rated(score);
+    const avg = r.length ? r.reduce((a, s) => a + Number(s[score]), 0) / r.length : null;
+    const best = r.reduce((m, s) => Math.max(m, Number(s[score])), 0);
     return /*#__PURE__*/React.createElement("div", {
-      key: k,
+      key: tick,
       style: st.insRow
     }, /*#__PURE__*/React.createElement("span", {
       style: st.insCell0
     }, label), /*#__PURE__*/React.createElement("span", {
-      style: st.insCell
-    }, fmt(va), va !== null ? suf : ""), /*#__PURE__*/React.createElement("span", {
-      style: st.insCell
-    }, fmt(vb), vb !== null ? suf : ""), /*#__PURE__*/React.createElement("span", {
       style: {
         ...st.insCell,
-        color: d === null ? C.boneDim : d > 0 ? C.chalkSoft : d < 0 ? C.red : C.boneDim
+        color: done.length === sessions.length ? C.chalkSoft : C.bone
       }
-    }, d === null ? "—" : `${d > 0 ? "+" : ""}${d.toFixed(1)}`));
-  }));
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: st.insBlock
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "串連兩點 · above all"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      ...st.rulesAdhereNum,
-      color: C.cue
-    }
-  }, pctOf(twoPt), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, "每一球串連兩點 (", twoPt.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
+    }, pct(done), "%"), /*#__PURE__*/React.createElement("span", {
+      style: st.insCell
+    }, fmt1(avg), avg === null ? "" : "/10"), /*#__PURE__*/React.createElement("span", {
+      style: st.insCell
+    }, best || "—"));
+  })), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "心中白波點 ↔ 目標球，用支cue串連. The one figure above all the others — if the point went dark, nothing below could have saved the shot.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insCl
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "趙公子打法 · the method"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, zhaoSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
-    key: k,
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      ...st.rulesAdhereNum,
-      fontSize: 26,
-      color: k === "zhaoRightLeg" ? C.cue : C.chalkSoft
-    }
-  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, label)))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "右腳企直 first — it locks the aim line and spares the waist and shoulder, so anything under 100% is a session you risked both. Then line, short stroke, least effort.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insCl
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "雙眼定點 → 單眼定線 · the frame standard"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, eyeSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
-    key: k,
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      ...st.rulesAdhereNum,
-      fontSize: 26
-    }
-  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, label)))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "揀實一個準確點, then one eye all the way to delivery. A vague point leaves the next three steps nothing to verify.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insCl
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "激進地感受白波 · the spirit"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereNum
-  }, pctOf(fierce), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, "帶住心態入場 (", fierce.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "死都要感受連接白波. When the game turns rubbish, this is the switch — not more technique.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insCl
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "回杆 · on trial (Shaun Murphy)"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, murphySteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
-    key: k,
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      ...st.rulesAdhereNum,
-      fontSize: 26,
-      color: C.bone
-    }
-  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, label)))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "Pull back straight and slow. Still on trial.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insCl
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "手腕發力法 · the engine"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, wristSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
-    key: k,
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      ...st.rulesAdhereNum,
-      fontSize: 26
-    }
-  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, label)))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "Benchmark at 開枱, then every shot a chosen % of it. Below 100% is a session you guessed the power.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insCl
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "假想球 · no doubt"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, ghostSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
-    key: k,
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      ...st.rulesAdhereNum,
-      fontSize: 26
-    }
-  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, label)))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "Hold the picture until 冇可能唔入. Below 100% is a session you fired with doubt.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insCl
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "中心線路平放大法 · the method"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, clSteps.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
-    key: k,
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      ...st.rulesAdhereNum,
-      fontSize: 26,
-      color: k === "clFree" ? C.cue : C.chalkSoft
-    }
-  }, pctOf(sessions.filter(s => s[k])), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, label)))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "1–3 是基本功. Below 100% is a session you played without the line."), clDone.length >= 1 && clNot.length >= 1 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(SplitTable, {
-    a: clDone,
-    b: clNot,
-    aLabel: "基本功 done",
-    bLabel: "Skipped"
-  }), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "This gap is the whole argument for the method."))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insKeystone
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "Non-negotiables · adherence"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      ...st.rulesAdhereNum,
-      color: C.cue
-    }
-  }, cuePct, "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, "cue checked (", cueChecked.length, "/", sessions.length, ")")), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereNum
-  }, rulesPct, "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, "預先想像 (", bothRules.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "Not scored — they're the floor. Below 100% is a session you let slip.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insKeystone
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "模擬一局 · match prep"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereNum
-  }, pctOf(framePlayed), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, "打咗模擬局 (", framePlayed.length, "/", sessions.length, ")")), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereNum
-  }, framePlayed.length ? Math.round(frameHeld.length / framePlayed.length * 100) : 0, "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, "守住打法 (", frameHeld.length, "/", framePlayed.length, ")"))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "The second figure is the one that matters — it is the method surviving a frame, which is what a match is.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insKeystone
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "收波 · adherence"), /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereRow
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.rulesAdhereItem
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereNum
-  }, pctOf(closedWith), "%"), /*#__PURE__*/React.createElement("span", {
-    style: st.rulesAdhereLabel
-  }, "收波 · D 打返 D (", closedWith.length, "/", sessions.length, ")"))), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "每次都要收波 — finish by summing up the cue-ball feel.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...st.insBlock,
-      ...st.insKeystone
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "The last last · final delivery habit"), /*#__PURE__*/React.createElement("div", {
-    style: st.keystoneStreakRow
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.keystoneStreakNum
-  }, streak, /*#__PURE__*/React.createElement("span", {
-    style: st.keystoneStreakUnit
-  }, "in a row")), /*#__PURE__*/React.createElement("div", {
-    style: st.keystoneStreakSide
-  }, answered.length > 0 ? /*#__PURE__*/React.createElement(React.Fragment, null, "Held every strike in ", /*#__PURE__*/React.createElement("strong", {
-    style: {
-      color: C.cue
-    }
-  }, held.length, " of ", answered.length), " ", "answered sessions (", heldPct, "%).") : /*#__PURE__*/React.createElement(React.Fragment, null, "Not answered yet. Tick it each session."))), held.length >= 1 && notHeld.length >= 1 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(SplitTable, {
-    a: held,
-    b: notHeld,
-    aLabel: "Held it",
-    bLabel: "Didn't"
-  }), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "The gap is the argument. Keep logging."))), /*#__PURE__*/React.createElement("div", {
-    style: st.insBlock
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "Records"), /*#__PURE__*/React.createElement("div", {
+  }, "執行率 counts the sessions you ticked it. avg and best only count the sessions that carried that score, so the sessions logged before the three executions existed never drag it down.")), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
-    label: "Best 趙公子 rhythm",
-    value: bestZr || "—",
-    suffix: bestZr ? "/10" : "",
-    accent: bestZr >= 9
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Best 定線執行",
-    value: bestEs || "—",
-    suffix: bestEs ? "/10" : "",
-    accent: bestEs >= 9
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Best 連接白波 desire",
-    value: bestCd || "—",
-    suffix: bestCd ? "/10" : "",
-    accent: bestCd >= 9
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Best 綠啡黃連環",
-    value: bestGbyAll || "—",
-    accent: bestGbyAll > 0
+    label: "Sessions logged",
+    value: sessions.length
   }), /*#__PURE__*/React.createElement(Kpi, {
     label: "Sessions · last 28 days",
     value: last28
-  }))), fCons.length >= 1 && fFeel.length >= 1 && /*#__PURE__*/React.createElement("div", {
-    style: st.insBlock
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "今日練咩 — 一致性 vs 手感"), /*#__PURE__*/React.createElement(SplitTable, {
-    a: fCons,
-    b: fFeel,
-    aLabel: "一致性",
-    bLabel: "手感"
-  }), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "一致性 owns 趙公子 rhythm and 定線執行; 手感 owns 連接白波 desire. Each side should lead on its own score — if it doesn't, the focus wasn't held that session."), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "Unlabelled sessions (n=", sessions.length - fCons.length - fFeel.length, ") sit in neither column.")), on.length >= 1 && off.length >= 1 && /*#__PURE__*/React.createElement("div", {
-    style: st.insBlock
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "Enjoyment mode — on vs off"), /*#__PURE__*/React.createElement(SplitTable, {
-    a: on,
-    b: off,
-    aLabel: "On",
-    bLabel: "Off"
-  }), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, Math.min(on.length, off.length) < 3 ? "Small sample on one side — read as a lean, not a verdict." : "Both sides have enough sessions to take this seriously.")), goodT.length >= 1 && poorT.length >= 1 && /*#__PURE__*/React.createElement("div", {
-    style: st.insBlock
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "Table quality — good (4–5) vs poor (1–2)"), /*#__PURE__*/React.createElement(SplitTable, {
-    a: goodT,
-    b: poorT,
-    aLabel: "Good",
-    bLabel: "Poor"
-  }), /*#__PURE__*/React.createElement("div", {
-    style: st.insCaveat
-  }, "A dip on a poor table isn't a dip in you.")));
+  })));
 }
+
 function Spark({
   title,
   data,
@@ -2754,19 +1463,6 @@ const st = {
     width: "100%",
     boxSizing: "border-box"
   },
-  inputBig: {
-    background: "rgba(0,0,0,0.25)",
-    border: `1px solid ${C.line}`,
-    borderRadius: 9,
-    color: C.cue,
-    padding: "12px",
-    fontSize: 26,
-    fontWeight: 700,
-    fontFamily: "'Georgia', serif",
-    width: "100%",
-    boxSizing: "border-box",
-    textAlign: "center"
-  },
   seg: {
     display: "flex",
     gap: 4,
@@ -2791,35 +1487,6 @@ const st = {
     background: C.chalk,
     color: C.baizeDeep
   },
-  toggle: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    width: "100%",
-    background: "rgba(0,0,0,0.2)",
-    border: `1px solid ${C.line}`,
-    borderRadius: 10,
-    padding: "12px 14px",
-    color: C.boneDim,
-    fontSize: 13.5,
-    cursor: "pointer",
-    fontFamily: "inherit",
-    margin: "4px 0 8px",
-    transition: "all 0.2s"
-  },
-  toggleOn: {
-    color: C.bone,
-    borderColor: "rgba(94,226,160,0.4)",
-    background: "rgba(94,226,160,0.1)"
-  },
-  toggleDot: on => ({
-    width: 16,
-    height: 16,
-    borderRadius: "50%",
-    background: on ? C.ok : "transparent",
-    border: `2px solid ${on ? C.ok : C.boneDim}`,
-    flexShrink: 0
-  }),
   section: {
     display: "flex",
     gap: 12,
@@ -2843,89 +1510,11 @@ const st = {
     color: C.boneDim,
     marginTop: 2
   },
-  gridThree: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
-    gap: 12
-  },
-  tqDots: {
-    display: "flex",
-    alignItems: "center",
-    gap: 7,
-    padding: "10px 2px"
-  },
-  tqDot: {
-    width: 22,
-    height: 22,
-    borderRadius: "50%",
-    border: `1.5px solid ${C.boneDim}`,
-    background: "transparent",
-    cursor: "pointer",
-    padding: 0,
-    transition: "all 0.12s"
-  },
-  tqDotOn: {
-    background: C.cue,
-    borderColor: C.cue
-  },
-  tqVal: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 14,
-    color: C.cue,
-    marginLeft: 6,
-    minWidth: 30
-  },
-  saveWarn: {
-    marginTop: 18,
-    background: "rgba(199,91,67,0.1)",
-    border: "1px solid rgba(199,91,67,0.4)",
-    borderRadius: 10,
-    padding: "11px 14px",
-    fontSize: 12.5,
-    color: "#E39A87",
-    lineHeight: 1.45
-  },
-  rowVenue: {
-    fontSize: 11,
-    color: C.cueDim,
-    fontWeight: 500
-  },
-  rowKeyOn: {
-    fontSize: 10,
-    color: C.cue,
-    fontWeight: 700,
-    letterSpacing: "0.04em"
-  },
-  rowKeyMid: {
-    fontSize: 10,
-    color: C.cueDim,
-    fontWeight: 600
-  },
-  rowKeyOff: {
-    fontSize: 10,
-    color: C.red,
-    fontStyle: "italic"
-  },
-  rowRules: {
-    fontSize: 10,
-    color: C.chalkSoft,
-    fontWeight: 700,
-    letterSpacing: "0.03em"
-  },
   rowCue: {
     fontSize: 10,
     color: C.cue,
     fontWeight: 700,
     letterSpacing: "0.03em"
-  },
-  rowTrial: {
-    fontSize: 10,
-    color: C.boneDim,
-    fontWeight: 700,
-    letterSpacing: "0.03em",
-    border: `1px dashed ${C.boneDim}`,
-    padding: "1px 5px",
-    borderRadius: 5
   },
   rowCl: {
     fontSize: 10,
@@ -2935,13 +1524,6 @@ const st = {
     letterSpacing: "0.03em",
     padding: "2px 6px",
     borderRadius: 5
-  },
-  rowBookend: {
-    fontSize: 10,
-    color: C.chalkSoft,
-    fontWeight: 700,
-    letterSpacing: "0.03em",
-    opacity: 0.85
   },
   insBlock: {
     background: C.panel,
@@ -2957,67 +1539,6 @@ const st = {
     fontWeight: 600,
     textTransform: "uppercase",
     marginBottom: 12
-  },
-  insKeystone: {
-    borderColor: "rgba(217,178,106,0.4)",
-    background: "linear-gradient(180deg, rgba(217,178,106,0.1) 0%, rgba(217,178,106,0.03) 100%)"
-  },
-  insCl: {
-    borderColor: "rgba(94,226,160,0.5)",
-    borderWidth: 1.5,
-    background: "linear-gradient(180deg, rgba(94,226,160,0.12) 0%, rgba(94,226,160,0.03) 100%)"
-  },
-  keystoneStreakRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: 16,
-    marginBottom: 4
-  },
-  keystoneStreakNum: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 44,
-    fontWeight: 600,
-    color: C.cue,
-    lineHeight: 1,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center"
-  },
-  keystoneStreakUnit: {
-    fontSize: 10,
-    color: C.boneDim,
-    fontFamily: "'Inter', sans-serif",
-    fontWeight: 500,
-    marginTop: 4,
-    letterSpacing: "0.06em"
-  },
-  keystoneStreakSide: {
-    fontSize: 13.5,
-    color: C.bone,
-    lineHeight: 1.5,
-    flex: 1
-  },
-  rulesAdhereRow: {
-    display: "flex",
-    gap: 20,
-    marginBottom: 4,
-    flexWrap: "wrap"
-  },
-  rulesAdhereItem: {
-    display: "flex",
-    flexDirection: "column"
-  },
-  rulesAdhereNum: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 34,
-    fontWeight: 600,
-    color: C.chalkSoft,
-    lineHeight: 1
-  },
-  rulesAdhereLabel: {
-    fontSize: 12,
-    color: C.boneDim,
-    marginTop: 6
   },
   insCaveat: {
     fontSize: 11.5,
@@ -3056,68 +1577,66 @@ const st = {
     fontSize: 15,
     color: C.bone
   },
-  featherKpiWrap: {
-    marginBottom: 10
-  },
-  // 今日練咩 — session framing, so it is deliberately quieter than the
-  // technique cards below it. Gold, not baize green: it is a decision, not a
-  // drill.
-  focusCard: {
-    background: "rgba(255,255,255,0.03)",
-    border: `1px solid ${C.line}`,
-    borderRadius: 14,
-    padding: "14px 15px 15px",
-    marginBottom: 18
-  },
-  focusCardOn: {
-    borderColor: "rgba(217,178,106,0.5)",
-    background: "rgba(217,178,106,0.06)"
-  },
-  focusTitle: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 17,
-    fontWeight: 700,
-    color: C.cue,
-    letterSpacing: "0.02em"
-  },
-  focusOpts: {
-    display: "grid",
-    gap: 8
-  },
-  focusOpt: {
-    display: "block",
-    width: "100%",
-    textAlign: "left",
-    background: "rgba(0,0,0,0.22)",
-    border: `1px solid ${C.line}`,
-    borderRadius: 11,
-    padding: "11px 13px",
-    cursor: "pointer",
-    fontFamily: "inherit",
-    color: C.boneDim
-  },
-  focusOptOn: {
-    background: "rgba(217,178,106,0.13)",
-    borderColor: "rgba(217,178,106,0.7)",
-    color: C.cue
-  },
-  focusZh: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 17,
-    fontWeight: 700,
-    lineHeight: 1.25
-  },
-  // 中心線路平放大法 — the hero card. Heavier than every other block on purpose.
-  cl: {
-    background: "linear-gradient(180deg, rgba(94,226,160,0.11) 0%, rgba(94,226,160,0.03) 100%)",
+  // The three executions. Identical on purpose — they are one family, and the
+  // number is the only thing that separates them. Everything on the face is a
+  // keyword; the whole reasoning lives behind the (i).
+  exec: {
+    background: "linear-gradient(180deg, rgba(94,226,160,0.13) 0%, rgba(94,226,160,0.03) 100%)",
     border: "1.5px solid rgba(94,226,160,0.4)",
     borderRadius: 16,
-    padding: "17px 16px 16px",
-    marginBottom: 18
+    padding: "15px 16px 16px",
+    marginBottom: 16
   },
-  clArmed: {
-    borderColor: "rgba(94,226,160,0.75)",
-    background: "linear-gradient(180deg, rgba(94,226,160,0.18) 0%, rgba(94,226,160,0.05) 100%)"
+  execOn: {
+    borderColor: "rgba(94,226,160,0.8)",
+    background: "linear-gradient(180deg, rgba(94,226,160,0.22) 0%, rgba(94,226,160,0.06) 100%)"
+  },
+  execN: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 15,
+    fontWeight: 700,
+    color: C.baizeDeep,
+    background: C.chalkSoft,
+    width: 24,
+    height: 24,
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0
+  },
+  execTitle: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 24,
+    fontWeight: 700,
+    color: C.chalkSoft,
+    letterSpacing: "0.02em",
+    lineHeight: 1.2
+  },
+  execLine: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 16,
+    fontWeight: 700,
+    color: C.bone,
+    lineHeight: 1.45,
+    marginTop: 3
+  },
+  execArt: {
+    display: "block",
+    width: "100%",
+    height: "auto",
+    margin: "10px 0 2px"
+  },
+  execRule: {
+    marginTop: 13,
+    background: "rgba(0,0,0,0.28)"
+  },
+  execRuleOn: {
+    borderColor: "rgba(94,226,160,0.6)",
+    background: "rgba(94,226,160,0.14)"
+  },
+  featherKpiWrap: {
+    marginBottom: 10
   },
   clHead: {
     display: "flex",
@@ -3126,250 +1645,14 @@ const st = {
     flexWrap: "wrap",
     marginBottom: 5
   },
-  clTitle: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 21,
-    fontWeight: 700,
-    color: C.chalkSoft,
-    letterSpacing: "0.02em",
-    lineHeight: 1.2
-  },
-  clTag: {
-    fontSize: 9.5,
-    letterSpacing: "0.1em",
-    color: C.baizeDeep,
-    background: C.chalkSoft,
-    padding: "2px 7px",
-    borderRadius: 5,
-    fontWeight: 700
-  },
-  gbyRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: 14,
-    background: "rgba(0,0,0,0.22)",
-    border: `1px solid ${C.line}`,
-    borderRadius: 11,
-    padding: "12px 14px"
-  },
-  gbyInput: {
-    width: 74,
-    flexShrink: 0,
-    background: "rgba(0,0,0,0.3)",
-    border: `1px solid ${C.line}`,
-    borderRadius: 9,
-    color: C.chalkSoft,
-    fontFamily: "'Georgia', serif",
-    fontSize: 30,
-    fontWeight: 600,
-    textAlign: "center",
-    padding: "6px 4px",
-    boxSizing: "border-box"
-  },
-  gbyUnit: {
-    display: "flex",
-    flexDirection: "column",
-    fontSize: 13.5,
-    fontWeight: 600,
-    color: C.bone
-  },
-  gbyUnitSub: {
-    fontSize: 11,
-    fontWeight: 400,
-    color: C.boneDim,
-    marginTop: 2
-  },
-  gbyPb: {
-    marginLeft: "auto",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end"
-  },
-  gbyPbNum: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 22,
-    fontWeight: 600,
-    color: C.cue,
-    lineHeight: 1
-  },
-  gbyPbLabel: {
-    fontSize: 10,
-    color: C.boneDim,
-    marginTop: 4
-  },
-  // 串連兩點 opens the app, above even the date. Gold rather than baize, for
-  // the same reason the point in the mind is gold: it is the thing that lights
-  // up and stays lit. Heavier than the spirit band on purpose.
-  twoPoints: {
-    background: "linear-gradient(180deg, rgba(217,178,106,0.18) 0%, rgba(217,178,106,0.04) 100%)",
-    border: "1.5px solid rgba(217,178,106,0.5)",
-    borderRadius: 16,
-    padding: "15px 16px 16px",
-    marginBottom: 18
-  },
-  twoPointsOn: {
-    borderColor: "rgba(217,178,106,0.9)",
-    background: "linear-gradient(180deg, rgba(217,178,106,0.28) 0%, rgba(217,178,106,0.07) 100%)"
-  },
-  tpLine: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 27,
-    fontWeight: 700,
-    color: C.cue,
-    lineHeight: 1.25,
-    letterSpacing: "0.02em",
-    marginTop: 2
-  },
-  tpSub: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 17,
-    fontWeight: 700,
-    color: C.bone,
-    lineHeight: 1.35,
-    marginTop: 3
-  },
-  tpArt: {
-    display: "block",
-    width: "100%",
-    height: "auto",
-    margin: "10px 0 2px"
-  },
-  tpGlow: {
-    fontSize: 12,
-    color: C.cue,
-    opacity: 0.92,
-    lineHeight: 1.45,
-    marginTop: 4
-  },
-  tpRuleOn: {
-    borderColor: "rgba(217,178,106,0.7)",
-    background: "rgba(217,178,106,0.17)"
-  },
-  // The spirit band follows it. Not a card in the metric family — it is the
-  // one thing here that is a state of mind, so it gets its own weight.
-  spirit: {
-    background: "linear-gradient(180deg, rgba(94,226,160,0.16) 0%, rgba(94,226,160,0.04) 100%)",
-    border: "1.5px solid rgba(94,226,160,0.45)",
-    borderRadius: 16,
-    padding: "15px 16px 16px",
-    marginBottom: 18
-  },
-  spiritOn: {
-    borderColor: "rgba(94,226,160,0.85)",
-    background: "linear-gradient(180deg, rgba(94,226,160,0.26) 0%, rgba(94,226,160,0.07) 100%)"
-  },
-  spiritEyebrow: {
-    fontSize: 10,
-    letterSpacing: "0.18em",
-    color: C.boneDim,
-    fontWeight: 700
-  },
-  spiritLine: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 23,
-    fontWeight: 700,
-    color: C.chalkSoft,
-    lineHeight: 1.35,
-    letterSpacing: "0.02em"
-  },
-  spiritCarry: {
-    fontSize: 12,
-    color: C.chalkSoft,
-    opacity: 0.85,
-    marginTop: 7,
-    lineHeight: 1.4
-  },
   spiritStory: {
     fontSize: 12,
     color: C.boneDim,
     lineHeight: 1.5,
     margin: "9px 0 2px"
   },
-  spiritRule: {
-    marginTop: 13,
-    background: "rgba(0,0,0,0.28)"
-  },
-  spiritRuleOn: {
-    borderColor: "rgba(94,226,160,0.6)",
-    background: "rgba(94,226,160,0.14)"
-  },
-  // On trial: dashed and desaturated, so it never looks like settled practice.
-  trial: {
-    background: "rgba(255,255,255,0.04)",
-    border: `1.5px dashed rgba(233,231,226,0.3)`,
-    boxShadow: "none"
-  },
-  trialOn: {
-    borderColor: "rgba(94,226,160,0.55)",
-    background: "rgba(94,226,160,0.08)"
-  },
-  trialTitle: {
-    color: C.bone,
-    fontSize: 19
-  },
-  trialTag: {
-    fontSize: 9,
-    letterSpacing: "0.12em",
-    color: C.boneDim,
-    border: `1px solid ${C.boneDim}`,
-    padding: "2px 6px",
-    borderRadius: 5,
-    fontWeight: 700
-  },
-  // The reset cue stays on the card face — it is what you reach for mid-frame,
-  // so hiding it behind the (i) would defeat the point.
-  reset: {
-    marginTop: 12,
-    padding: "10px 12px",
-    borderRadius: 10,
-    background: "rgba(94,226,160,0.09)",
-    border: `1px dashed rgba(94,226,160,0.45)`
-  },
-  resetLabel: {
-    fontSize: 9.5,
-    letterSpacing: "0.14em",
-    color: C.boneDim,
-    fontWeight: 700,
-    marginBottom: 4
-  },
-  resetLine: {
-    fontFamily: "'Georgia', serif",
-    fontSize: 16,
-    fontWeight: 700,
-    color: C.chalkSoft,
-    lineHeight: 1.35
-  },
   clSpacer: {
     marginLeft: "auto"
-  },
-  clCreed: {
-    fontSize: 12,
-    color: C.boneDim,
-    lineHeight: 1.45,
-    marginBottom: 14
-  },
-  clEn: {
-    display: "block",
-    fontSize: 11.5,
-    color: C.boneDim,
-    marginTop: 3,
-    lineHeight: 1.35
-  },
-  clBasics: {
-    fontSize: 11,
-    letterSpacing: "0.05em",
-    color: C.boneDim,
-    fontStyle: "italic",
-    margin: "2px 0 10px",
-    paddingLeft: 2
-  },
-  clFreeRule: {
-    borderColor: "rgba(217,178,106,0.35)",
-    background: "rgba(217,178,106,0.07)"
-  },
-  clFreeOn: {
-    borderColor: "rgba(217,178,106,0.7)",
-    background: "rgba(217,178,106,0.15)"
   },
   infoBtn: {
     width: 20,
@@ -3421,55 +1704,6 @@ const st = {
     fontStyle: "italic",
     margin: "2px 0 9px"
   },
-  clFreeCheck: on => ({
-    width: 26,
-    height: 26,
-    borderRadius: "50%",
-    flexShrink: 0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: on ? 15 : 13,
-    fontWeight: 700,
-    color: on ? C.baizeDeep : C.cue,
-    background: on ? C.cue : "transparent",
-    border: on ? "none" : `1.5px solid ${C.cue}`,
-    fontFamily: "'Georgia', serif"
-  }),
-  rules: {
-    background: "rgba(255,255,255,0.03)",
-    border: `1px solid ${C.line}`,
-    borderRadius: 14,
-    padding: "15px 16px 16px",
-    marginBottom: 16
-  },
-  rulesArmed: {
-    borderColor: "rgba(94,226,160,0.45)",
-    background: "rgba(94,226,160,0.07)"
-  },
-  rulesTitle: {
-    fontSize: 11,
-    letterSpacing: "0.16em",
-    color: C.boneDim,
-    fontWeight: 700,
-    marginBottom: 12,
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    flexWrap: "wrap"
-  },
-  rulesSubTitle: {
-    marginTop: 4
-  },
-  rulesArmedTag: {
-    fontSize: 9.5,
-    letterSpacing: "0.1em",
-    color: C.baizeDeep,
-    background: C.chalkSoft,
-    padding: "2px 7px",
-    borderRadius: 5,
-    fontWeight: 700
-  },
   rule: {
     display: "flex",
     alignItems: "center",
@@ -3484,10 +1718,6 @@ const st = {
     cursor: "pointer",
     fontFamily: "inherit",
     transition: "all 0.15s"
-  },
-  ruleOn: {
-    borderColor: "rgba(94,226,160,0.5)",
-    background: "rgba(94,226,160,0.1)"
   },
   ruleCheck: on => ({
     width: 26,
@@ -3508,43 +1738,6 @@ const st = {
     fontSize: 13.5,
     color: C.bone,
     lineHeight: 1.4
-  },
-  keystone: {
-    background: "linear-gradient(180deg, rgba(217,178,106,0.14) 0%, rgba(217,178,106,0.05) 100%)",
-    border: "1px solid rgba(217,178,106,0.4)",
-    borderRadius: 14,
-    padding: "16px 17px 15px",
-    marginBottom: 16
-  },
-  keystoneTitle: {
-    fontSize: 11,
-    letterSpacing: "0.18em",
-    color: C.cue,
-    fontWeight: 700,
-    marginBottom: 9,
-    display: "flex",
-    alignItems: "center",
-    gap: 10
-  },
-  keystoneBody: {
-    fontSize: 13,
-    color: C.bone,
-    lineHeight: 1.6
-  },
-  keystoneAsk: {
-    fontSize: 12,
-    color: C.boneDim,
-    fontWeight: 600,
-    margin: "14px 0 8px",
-    letterSpacing: "0.02em"
-  },
-  segKeystoneOn: {
-    background: C.cue,
-    color: C.baizeDeep
-  },
-  segWarnOn: {
-    background: C.red,
-    color: "#fff"
   },
   // Secondary rating card. 中心線路 overrides this with clRatingCard to lead.
   metricHint: {
@@ -3746,11 +1939,6 @@ const st = {
     background: m === "match" ? "rgba(217,178,106,0.18)" : "rgba(94,226,160,0.16)",
     color: m === "match" ? C.cue : C.chalkSoft
   }),
-  rowFlag: {
-    fontSize: 10,
-    color: C.cueDim,
-    fontStyle: "italic"
-  },
   rowStats: {
     display: "flex",
     gap: 16,
