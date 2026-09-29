@@ -761,6 +761,45 @@ function ExecCard({
   }));
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// KNOWLEDGE
+// ══════════════════════════════════════════════════════════════════════════
+// Things learnt as facts, not trained as skills. No tick, no score — nothing
+// here is logged, because there is nothing to execute: you know it or you
+// don't. It sits above the three executions because it is settled before the
+// first shot — at the cue rack, not at the table.
+const KNOWLEDGE = [{
+  title: "揀cue先睇cue頭",
+  lines: ["cue頭太薄 · 軟身深縮易滑杆", "揀cue頭厚（未磨蝕）嘅house cue"],
+  story: "Learnt 2026-09-27. Even with the best Do Re Mi cueing, a house cue whose tip is worn too thin miscues far too often on a soft deep screw. Switched to a house cue with a thicker, less consumed tip and the very same shot had no issues whatsoever. The delivery was never the problem — the tip was. So this is not something to practise away: check the tip before choosing the cue, and when a soft deep screw starts miscueing, look at the tip before doubting the cueing."
+}];
+function KnowCard({
+  title,
+  lines,
+  story
+}) {
+  const [info, setInfo] = useState(false);
+  return /*#__PURE__*/React.createElement("div", {
+    style: st.know
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.clHead
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.knowTag
+  }, "知識"), /*#__PURE__*/React.createElement("div", {
+    style: st.knowTitle
+  }, title), /*#__PURE__*/React.createElement("span", {
+    style: st.clSpacer
+  }), /*#__PURE__*/React.createElement(InfoBtn, {
+    on: info,
+    onClick: () => setInfo(!info)
+  })), lines.map(l => /*#__PURE__*/React.createElement("div", {
+    key: l,
+    style: st.execLine
+  }, l)), info && /*#__PURE__*/React.createElement("div", {
+    style: st.spiritStory
+  }, story));
+}
+
 // ─────────────────────────────────────────── LOG FORM
 function LogForm({
   draft,
@@ -799,7 +838,10 @@ function LogForm({
       ...st.segBtn,
       ...(draft.mode === k ? st.segOn : {})
     }
-  }, l))), /*#__PURE__*/React.createElement(ExecCard, {
+  }, l))), KNOWLEDGE.map(k => /*#__PURE__*/React.createElement(KnowCard, {
+    key: k.title,
+    ...k
+  })), /*#__PURE__*/React.createElement(ExecCard, {
     n: "1",
     title: "心中有餘光",
     lines: ["白波點一直發光", "用支cue串連白波點同目標球"],
@@ -1634,6 +1676,32 @@ const st = {
   execRuleOn: {
     borderColor: "rgba(94,226,160,0.6)",
     background: "rgba(94,226,160,0.14)"
+  },
+  // Knowledge — cue gold, not mint, so it never reads as a fourth execution.
+  know: {
+    background: "linear-gradient(180deg, rgba(217,178,106,0.12) 0%, rgba(217,178,106,0.03) 100%)",
+    border: "1.5px solid rgba(217,178,106,0.4)",
+    borderRadius: 16,
+    padding: "13px 16px 14px",
+    marginBottom: 16
+  },
+  knowTag: {
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: "0.08em",
+    color: C.baizeDeep,
+    background: C.cue,
+    borderRadius: 6,
+    padding: "3px 7px",
+    flexShrink: 0
+  },
+  knowTitle: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 20,
+    fontWeight: 700,
+    color: C.cue,
+    letterSpacing: "0.02em",
+    lineHeight: 1.2
   },
   featherKpiWrap: {
     marginBottom: 10
