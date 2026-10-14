@@ -378,23 +378,42 @@ const blankSession = () => ({
   // nothing the body does in 2 or 3 can save the shot.
   ex1Glow: false,
   glowScore: 7,
-  // ── 2 · 趙公子式 ────────────────────────────────────────────────────────
+  // ── 2 · 睇厚薄 · Slice Cutting ─────────────────────────────────────────
+  // The slice of the object ball to be covered and cut. For every shot,
+  // picture how much of the object ball the white has to take, then watch
+  // what it actually took. Reliable at any angle, thin or thick, and the
+  // most honest feedback there is on whether the ball goes in. Runs in
+  // parallel with 餘光: 餘光 is where the cue meets the white, 睇厚薄 is
+  // where the white meets the object ball. Together they are the aiming.
+  exSlice: false,
+  sliceScore: 7,
+  // ── 3 · 趙公子式 ────────────────────────────────────────────────────────
   // 鎖腳 · 平放Cue落白波點位 · 短feathering · Do Re Mi squeeze into cue ball.
   // How the body gets onto the line that joins the two points. Proven on the
   // North Point pool table, then on the Snookery match table.
   ex2Zhao: false,
   zhaoRhythm: 7,
   // kept under its original name on purpose — every session that already
-  // rated the 趙公子 rhythm still counts toward this execution
-  // ── 3 · 優皮士節奏 ──────────────────────────────────────────────────────
+  // rated the 趙公子 rhythm still counts toward this execution. Likewise the
+  // ex2/ex3 key names predate 睇厚薄 and keep their numbers so stored
+  // sessions still match; the card order is set by the form, not the keys.
+  // ── 4 · 優皮士節奏 ──────────────────────────────────────────────────────
   // 內心讀出「優皮士」and the most natural rhythm follows. 濕cue也好，瞄准也
   // 好 — this rhythm dominates and powers everything done at the table. Not a
   // step inside the shot: the tempo the whole session runs at.
   ex3Yuppie: false,
   yuppieScore: 7,
+  // ── 5 · 最後一擊 ────────────────────────────────────────────────────────
+  // Last delivery is a smooth acceleration out of a little pause. In the
+  // pause, sense the force the shot asks for; on the delivery, feel the force
+  // actually given. Every rep feeds the next — that is touch and feel. The
+  // old 最後一擊 card stored a string under lastDelivery (still in LEGACY
+  // below); these are new keys so the two never collide.
+  exDelivery: false,
+  deliveryScore: 7,
   note: "",
   // ── LEGACY ─────────────────────────────────────────────────────────────
-  // Retired from the interface when the tracker was reduced to the three
+  // Retired from the interface when the tracker was reduced to the
   // executions above. Every one of them is still carried here so that older
   // sessions — and every CSV export ever taken — keep their exact shape.
   // Nothing writes these any more; nothing reads them but the exporter.
@@ -517,7 +536,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "ex1Glow", "glowScore", "ex2Zhao", "ex3Yuppie", "yuppieScore", "focus", "twoPoints", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "ex1Glow", "glowScore", "exSlice", "sliceScore", "ex2Zhao", "ex3Yuppie", "yuppieScore", "exDelivery", "deliveryScore", "focus", "twoPoints", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -636,10 +655,12 @@ function App() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════
-// THE THREE EXECUTIONS
+// THE FIVE EXECUTIONS
 // ══════════════════════════════════════════════════════════════════════════
-// Everything else has been dropped. These three are all that is needed to
+// Everything else has been dropped. These five are all that is needed to
 // play, to practise, and to turn the whole thing into habit at the table.
+// 1 and 2 are the aiming — one end of the line each — 3 is the body, 4 the
+// tempo, 5 the delivery that carries the touch and feel.
 // One card each, one tick each, one score each — nothing in between.
 
 // The picture execution 1 is about: the cue, the white with the point lit on
@@ -700,7 +721,61 @@ const GlowArt = () => /*#__PURE__*/React.createElement("svg", {
   strokeWidth: 1.2
 }));
 
-// One card, used three times. The face is keywords only; the whole reasoning
+// The picture execution 2 is about: the object ball, the white arriving on
+// it, and the slice the white covers and cuts lit between them.
+const SliceArt = () => /*#__PURE__*/React.createElement("svg", {
+  viewBox: "0 0 300 70",
+  style: st.execArt,
+  role: "img",
+  "aria-label": "白波食目標球嘅厚薄，切入袋"
+}, /*#__PURE__*/React.createElement("line", {
+  x1: 172,
+  y1: 35,
+  x2: 290,
+  y2: 35,
+  stroke: GOLD,
+  strokeWidth: 1.5,
+  strokeDasharray: "5 6",
+  opacity: 0.8
+}), /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("clipPath", {
+  id: "sliceClip"
+}, /*#__PURE__*/React.createElement("circle", {
+  cx: 150,
+  cy: 35,
+  r: 22
+}))), /*#__PURE__*/React.createElement("circle", {
+  cx: 150,
+  cy: 35,
+  r: 22,
+  fill: "rgba(199,91,67,0.5)",
+  stroke: "rgba(199,91,67,0.95)",
+  strokeWidth: 1.2
+}), /*#__PURE__*/React.createElement("circle", {
+  cx: 124,
+  cy: 47,
+  r: 22,
+  fill: GOLD,
+  opacity: 0.55,
+  clipPath: "url(#sliceClip)"
+}), /*#__PURE__*/React.createElement("circle", {
+  cx: 124,
+  cy: 47,
+  r: 22,
+  fill: "none",
+  stroke: "rgba(233,231,226,0.55)",
+  strokeWidth: 1.2,
+  strokeDasharray: "3 3"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: 20,
+  y1: 58,
+  x2: 100,
+  y2: 51,
+  stroke: C.cueDim,
+  strokeWidth: 6,
+  strokeLinecap: "round"
+}));
+
+// One card, used five times. The face is keywords only; the whole reasoning
 // — including the parts that must never be lost — sits behind the (i).
 function ExecCard({
   n,
@@ -815,6 +890,20 @@ function LogForm({
     onScore: v => set("glowScore", v)
   }), /*#__PURE__*/React.createElement(ExecCard, {
     n: "2",
+    title: "睇厚薄",
+    lines: ["Slice Cutting · 白波要食目標球幾多", "先想像厚薄 · 再睇住白波食落去"],
+    art: /*#__PURE__*/React.createElement(SliceArt, null),
+    story: "每一球波，未落cue之前先想像：白波要食目標球幾多 — the slice of the object ball to be covered and cut. Then, on the delivery, watch what the white actually took. It works at any angle, thin or thick, a small cut or a wide one, and the slice is the most reliable feedback there is on whether the object ball is going into the pocket: when the pictured slice and the observed slice agree, the ball drops; when they don't, the slice shows which way it missed and by how much, and the next ball corrects itself. It runs in parallel with 餘光 and is just as foundational. 餘光 gives the sense of where the cue meets the white; 睇厚薄 gives the sense of where the white meets the object ball. One end of the line each — together they are the aiming. Every single shot, from now on.",
+    tick: draft.exSlice,
+    tickLabel: "每一球都睇厚薄",
+    score: draft.sliceScore,
+    scoreLabel: "睇厚薄",
+    words: SLICE_WORDS,
+    hint: "How many balls had the slice pictured before the shot — and checked against what the white actually took.",
+    onTick: () => set("exSlice", !draft.exSlice),
+    onScore: v => set("sliceScore", v)
+  }), /*#__PURE__*/React.createElement(ExecCard, {
+    n: "3",
     title: "趙公子式",
     lines: ["鎖腳 · 平放Cue落白波點位", "短feathering · Do Re Mi squeeze"],
     story: "Four parts, one action, and the order is the order. 鎖腳 — 右腳企直 on every single shot. It anchors the whole body onto the line of aim, and because it locks before anything else moves it spares both the waist and the shoulder; that is why it comes first and why it matters beyond snooker — a hurt back follows you off the table. 平放Cue落白波點位 — lay the cue onto the point, 平放 meaning zero grip force: four fingers only carry the cue's weight against gravity, nothing squeezes. It lands on its spot the moment you are down — 下巴右方少少, under the aiming eye — never as a correction afterwards. This is 中心線路平放大法 reduced to the thing that actually did the work, and it is never to be abandoned: it is what turned rubbish, frustrating snooker into snooker worth playing. 短feathering — short feather, short backswing, minimum effort for the shot in front of you. Do Re Mi squeeze into cue ball — the three fingers squeeze in sequence on the final delivery only, hitting through the white. Never during the feathering: holding it back is what lifted the consistency, and applying it early is what brings the miscues back. This is the foundation of the potting. Proven on the North Point pool table, then on the Snookery match table.",
@@ -827,7 +916,7 @@ function LogForm({
     onTick: () => set("ex2Zhao", !draft.ex2Zhao),
     onScore: v => set("zhaoRhythm", v)
   }), /*#__PURE__*/React.createElement(ExecCard, {
-    n: "3",
+    n: "4",
     title: "優皮士節奏",
     lines: ["內心讀出「優皮士」", "濕cue、瞄準、出杆 — 全部跟呢個節奏"],
     story: "內心讀出優皮士，去拎達到最自然節奏。 Say it inside, and the most natural rhythm you have arrives with it. 濕cue也好，瞄准也好 — this rhythm dominates and powers everything done on the table. It is not a step inside the shot like the other two: it is the tempo the whole session runs at, and the other two executions are carried by it. Deploying it is what first produced 10+ in 綠啡黃連環. When the table turns awkward and the rhythm goes, this is the way back in — read it again, let the tempo return, and the body follows.",
@@ -839,6 +928,19 @@ function LogForm({
     hint: "How much of the session ran at the natural rhythm rather than the table's.",
     onTick: () => set("ex3Yuppie", !draft.ex3Yuppie),
     onScore: v => set("yuppieScore", v)
+  }), /*#__PURE__*/React.createElement(ExecCard, {
+    n: "5",
+    title: "最後一擊",
+    lines: ["停一停 · 最後一下順暢加速", "預期幾大力 → 感受出咗幾大力"],
+    story: "Last delivery is a smooth acceleration with a little pause — 停一停，然後順住加速送出去. In the pause you sense how much force the shot is asking for; on the delivery you feel how much force you actually gave the white, with the sensation turned up high. Every rep closes the gap between the two a little, each ball is positive feedback for the next, and over the sessions it adds up to more and more control of the cue ball: touch and feel. The Do Re Mi squeeze of 趙公子式 rides inside this acceleration, it does not replace it. It matters beyond the score. Fully immersing in this little pause and rhythm is where the enjoyment of the game lives, and the relaxation and satisfaction it leaves are carried off the table into the rest of life. This is the old 最後一擊 — 停一停，慢而順 — once buried within ten days of being rediscovered, now one of the five so it cannot be buried again.",
+    tick: draft.exDelivery,
+    tickLabel: "每一球最後一擊都停一停、順加速",
+    score: draft.deliveryScore,
+    scoreLabel: "最後一擊",
+    words: DELIVERY_WORDS,
+    hint: "How many deliveries came out of the pause as one smooth acceleration — and how closely the force felt matched the force meant.",
+    onTick: () => set("exDelivery", !draft.exDelivery),
+    onScore: v => set("deliveryScore", v)
   }), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "01",
     title: "One line",
@@ -886,8 +988,10 @@ function MiniRating({
   }, hint));
 }
 const GLOW_WORDS = ["", "Never lit", "Lit at address, gone by the stroke", "Flashes only", "Easy shots only", "About half the balls", "There, but kept dimming", "Most balls, faded on the hard ones", "Held on nearly every ball", "Stayed lit through the delivery", "每一球都有餘光 — 冇熄過"];
+const SLICE_WORDS = ["", "Never pictured it", "Guessed, never looked", "Pictured it on easy balls only", "Pictured it, rarely checked it", "About half the balls", "There, but rushed the look", "Most balls, lost it on the thin cuts", "Pictured and checked nearly every ball", "Every ball — the slice called it before it dropped", "每一球都睇厚薄 — 冇估過"];
 const RHYTHM_WORDS = ["", "Never found it", "Lost it on the first hard shot", "Flashes, then gone", "On and off, mostly off", "Half the session", "There, but kept slipping", "Mostly held, came back slowly", "Held it, recovered fast when lost", "Held through the awkward shots too", "全程趙公子式 — 冇甩過"];
 const YUPPIE_WORDS = ["", "Never read it", "Read it once, then forgot", "Flashes of the tempo", "The table set the pace", "Half the session", "There, but kept rushing", "Mostly mine, lost on pressure", "Natural rhythm most of the way", "Held it through the awkward frames", "全程優皮士 — 節奏由我"];
+const DELIVERY_WORDS = ["", "Never found it", "Snatched every delivery", "Paused, then jabbed", "Smooth on easy shots only", "About half the deliveries", "There, but kept rushing the pause", "Mostly smooth, lost it under pressure", "Nearly every shot, felt the force", "Every delivery — force meant, force given", "停一停 · 順加速 — 每一球都有手感"];
 // ─────────────────────────────────────────── HISTORY
 function History({
   sessions,
@@ -1012,7 +1116,7 @@ function History({
     onClick: onGoLog,
     style: st.save
   }, "Log your first session →")));
-  // Legacy sessions predate the three executions, so a missing score reads
+  // Legacy sessions predate the executions, so a missing score reads
   // as "—" rather than as a zero.
   const sc = (s, k) => s[k] === undefined || s[k] === null ? "—" : `${s[k]}/10`;
   const hot = (s, k) => Number(s[k] || 0) >= 8;
@@ -1027,20 +1131,28 @@ function History({
     style: st.rowDate
   }, fmtDate(s.date), /*#__PURE__*/React.createElement("span", {
     style: st.rowMode(s.mode)
-  }, s.mode === "match" ? "MATCH" : "SOLO"), s.ex1Glow && s.ex2Zhao && s.ex3Yuppie ? /*#__PURE__*/React.createElement("span", {
+  }, s.mode === "match" ? "MATCH" : "SOLO"), s.ex1Glow && s.exSlice && s.ex2Zhao && s.ex3Yuppie && s.exDelivery ? /*#__PURE__*/React.createElement("span", {
     style: st.rowCue
-  }, "三式齊 ✓") : /*#__PURE__*/React.createElement(React.Fragment, null, s.ex1Glow && /*#__PURE__*/React.createElement("span", {
+  }, "五式齊 ✓") : /*#__PURE__*/React.createElement(React.Fragment, null, s.ex1Glow && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
-  }, "餘光 ✓"), s.ex2Zhao && /*#__PURE__*/React.createElement("span", {
+  }, "餘光 ✓"), s.exSlice && /*#__PURE__*/React.createElement("span", {
+    style: st.rowCl
+  }, "厚薄 ✓"), s.ex2Zhao && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
   }, "趙公子式 ✓"), s.ex3Yuppie && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
-  }, "優皮士 ✓"))), /*#__PURE__*/React.createElement("div", {
+  }, "優皮士 ✓"), s.exDelivery && /*#__PURE__*/React.createElement("span", {
+    style: st.rowCl
+  }, "最後一擊 ✓"))), /*#__PURE__*/React.createElement("div", {
     style: st.rowStats
   }, /*#__PURE__*/React.createElement(Stat, {
     label: "餘光",
     v: sc(s, "glowScore"),
     hot: hot(s, "glowScore")
+  }), /*#__PURE__*/React.createElement(Stat, {
+    label: "厚薄",
+    v: sc(s, "sliceScore"),
+    hot: hot(s, "sliceScore")
   }), /*#__PURE__*/React.createElement(Stat, {
     label: "趙公子式",
     v: sc(s, "zhaoRhythm"),
@@ -1049,6 +1161,10 @@ function History({
     label: "優皮士",
     v: sc(s, "yuppieScore"),
     hot: hot(s, "yuppieScore")
+  }), /*#__PURE__*/React.createElement(Stat, {
+    label: "最後一擊",
+    v: sc(s, "deliveryScore"),
+    hot: hot(s, "deliveryScore")
   }), /*#__PURE__*/React.createElement(Stat, {
     label: "Min",
     v: s.duration,
@@ -1086,7 +1202,7 @@ function Trends({
       avg: recent.length ? recent.reduce((a, s) => a + Number(s[k]), 0) / recent.length : 0
     };
   };
-  const rows = [["glowScore", "餘光", C.cue], ["zhaoRhythm", "趙公子式", C.ok], ["yuppieScore", "優皮士節奏", C.chalkSoft]].map(([k, label, color]) => ({
+  const rows = [["glowScore", "餘光", C.cue], ["sliceScore", "睇厚薄", C.red], ["zhaoRhythm", "趙公子式", C.ok], ["yuppieScore", "優皮士節奏", C.chalkSoft], ["deliveryScore", "最後一擊", C.bone]].map(([k, label, color]) => ({
     label,
     color,
     ...series(k)
@@ -1123,24 +1239,28 @@ function Insights({
   }, "\u25ce"), /*#__PURE__*/React.createElement("p", {
     style: st.emptyText
   }, "Log a session and the read-back appears here."));
-  const EXECS = [["ex1Glow", "glowScore", "1 · 餘光"], ["ex2Zhao", "zhaoRhythm", "2 · 趙公子式"], ["ex3Yuppie", "yuppieScore", "3 · 優皮士節奏"]];
-  const pct = list => Math.round(list.length / sessions.length * 100);
-  const rated = k => sessions.filter(s => s[k] !== undefined && s[k] !== null);
-  const allThree = sessions.filter(s => s.ex1Glow && s.ex2Zhao && s.ex3Yuppie);
+  const EXECS = [["ex1Glow", "glowScore", "1 · 餘光"], ["exSlice", "sliceScore", "2 · 睇厚薄"], ["ex2Zhao", "zhaoRhythm", "3 · 趙公子式"], ["ex3Yuppie", "yuppieScore", "4 · 優皮士節奏"], ["exDelivery", "deliveryScore", "5 · 最後一擊"]];
+  // A session only counts toward an execution from the day that execution
+  // existed — one logged before it had no tick to give, so it isn't a miss.
+  const carried = k => sessions.filter(s => s[k] !== undefined && s[k] !== null);
+  const pct = (list, of) => of.length ? `${Math.round(list.length / of.length * 100)}%` : "—";
+  const rated = carried;
+  const allFiveOf = sessions.filter(s => EXECS.every(([t]) => s[t] !== undefined));
+  const allFive = allFiveOf.filter(s => EXECS.every(([t]) => s[t]));
   const cutoff = Date.now() - 28 * 24 * 3600 * 1000;
   const last28 = sessions.filter(s => new Date(s.date + "T00:00:00").getTime() >= cutoff).length;
   const fmt1 = v => v === null ? "—" : v.toFixed(1);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: st.featherKpiWrap
   }, /*#__PURE__*/React.createElement(Kpi, {
-    label: `三式齊 · all three executed (${allThree.length}/${sessions.length})`,
-    value: `${pct(allThree)}%`,
+    label: `五式齊 · all five executed (${allFive.length}/${allFiveOf.length})`,
+    value: pct(allFive, allFiveOf),
     accent: true
   })), /*#__PURE__*/React.createElement("div", {
     style: st.insBlock
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
-  }, "三式 · execution and score"), /*#__PURE__*/React.createElement("div", {
+  }, "五式 · execution and score"), /*#__PURE__*/React.createElement("div", {
     style: st.insTable
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insRow
@@ -1153,7 +1273,8 @@ function Insights({
   }, "avg"), /*#__PURE__*/React.createElement("span", {
     style: st.insHead
   }, "best")), EXECS.map(([tick, score, label]) => {
-    const done = sessions.filter(s => s[tick]);
+    const of = carried(tick);
+    const done = of.filter(s => s[tick]);
     const r = rated(score);
     const avg = r.length ? r.reduce((a, s) => a + Number(s[score]), 0) / r.length : null;
     const best = r.reduce((m, s) => Math.max(m, Number(s[score])), 0);
@@ -1165,16 +1286,16 @@ function Insights({
     }, label), /*#__PURE__*/React.createElement("span", {
       style: {
         ...st.insCell,
-        color: done.length === sessions.length ? C.chalkSoft : C.bone
+        color: of.length && done.length === of.length ? C.chalkSoft : C.bone
       }
-    }, pct(done), "%"), /*#__PURE__*/React.createElement("span", {
+    }, pct(done, of)), /*#__PURE__*/React.createElement("span", {
       style: st.insCell
     }, fmt1(avg), avg === null ? "" : "/10"), /*#__PURE__*/React.createElement("span", {
       style: st.insCell
     }, best || "—"));
   })), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "執行率 counts the sessions you ticked it. avg and best only count the sessions that carried that score, so the sessions logged before the three executions existed never drag it down.")), /*#__PURE__*/React.createElement("div", {
+  }, "執行率 counts the sessions you ticked it, out of the sessions logged since that execution existed. avg and best only count the sessions that carried that score, so sessions logged before an execution existed never drag it down.")), /*#__PURE__*/React.createElement("div", {
     style: st.kpiRow
   }, /*#__PURE__*/React.createElement(Kpi, {
     label: "Sessions logged",
@@ -1577,7 +1698,7 @@ const st = {
     fontSize: 15,
     color: C.bone
   },
-  // The three executions. Identical on purpose — they are one family, and the
+  // The five executions. Identical on purpose — they are one family, and the
   // number is the only thing that separates them. Everything on the face is a
   // keyword; the whole reasoning lives behind the (i).
   exec: {
