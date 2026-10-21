@@ -411,6 +411,17 @@ const blankSession = () => ({
   // below); these are new keys so the two never collide.
   exDelivery: false,
   deliveryScore: 7,
+  // ── 試 · 新握杆 · trial, not one of the five ─────────────────────────────
+  // Starting hold: the cue held upside down and dropped onto the shoulder —
+  // where it lands, only thumb and index finger touch it. On the delivery
+  // the other three fingers close together, at the same moment. Tested
+  // against the Do Re Mi squeeze of 趙公子式 for the next few sessions.
+  // gripTrial marks the sessions it was used; gripScore rates how repeatable
+  // the grip was whichever grip was used, so the two can be compared.
+  gripTrial: false,
+  gripScore: 7,
+  gripVerdict: "",
+  // better | same | worse — against Do Re Mi, only when gripTrial
   note: "",
   // ── LEGACY ─────────────────────────────────────────────────────────────
   // Retired from the interface when the tracker was reduced to the
@@ -536,7 +547,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "ex1Glow", "glowScore", "exSlice", "sliceScore", "ex2Zhao", "ex3Yuppie", "yuppieScore", "exDelivery", "deliveryScore", "focus", "twoPoints", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "ex1Glow", "glowScore", "exSlice", "sliceScore", "ex2Zhao", "ex3Yuppie", "yuppieScore", "exDelivery", "deliveryScore", "gripTrial", "gripScore", "gripVerdict", "focus", "twoPoints", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -631,7 +642,8 @@ function App() {
   }, "Racking up your sessions…") : view === "log" ? /*#__PURE__*/React.createElement(LogForm, {
     draft: draft,
     setDraft: setDraft,
-    onSave: saveDraft
+    onSave: saveDraft,
+    trialCount: sessions.filter(s => s.gripTrial).length
   }) : view === "history" ? /*#__PURE__*/React.createElement(History, {
     sessions: sessions,
     onRemove: remove,
@@ -777,6 +789,8 @@ const SliceArt = () => /*#__PURE__*/React.createElement("svg", {
 
 // One card, used five times. The face is keywords only; the whole reasoning
 // — including the parts that must never be lost — sits behind the (i).
+// A trial card borrows the same shape in cue gold, so it reads as on test
+// rather than as a sixth execution.
 function ExecCard({
   n,
   title,
@@ -790,20 +804,28 @@ function ExecCard({
   words,
   hint,
   onTick,
-  onScore
+  onScore,
+  trial,
+  children
 }) {
   const [info, setInfo] = useState(false);
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.exec,
-      ...(tick ? st.execOn : {})
+      ...(trial ? tick ? st.trialOn : st.trial : tick ? st.execOn : {})
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.clHead
   }, /*#__PURE__*/React.createElement("span", {
-    style: st.execN
+    style: {
+      ...st.execN,
+      ...(trial ? st.trialN : {})
+    }
   }, n), /*#__PURE__*/React.createElement("div", {
-    style: st.execTitle
+    style: {
+      ...st.execTitle,
+      ...(trial ? st.trialTitle : {})
+    }
   }, title), /*#__PURE__*/React.createElement("span", {
     style: st.clSpacer
   }), /*#__PURE__*/React.createElement(InfoBtn, {
@@ -820,6 +842,7 @@ function ExecCard({
       ...st.rule,
       ...st.execRule,
       ...(tick ? st.execRuleOn : {}),
+      ...(trial && tick ? st.trialRuleOn : {}),
       marginBottom: 0
     }
   }, /*#__PURE__*/React.createElement("span", {
@@ -833,14 +856,15 @@ function ExecCard({
     hint: hint,
     info: info,
     onChange: onScore
-  }));
+  }), children || null);
 }
 
 // ─────────────────────────────────────────── LOG FORM
 function LogForm({
   draft,
   setDraft,
-  onSave
+  onSave,
+  trialCount
 }) {
   const set = (k, v) => setDraft({
     ...draft,
@@ -875,6 +899,35 @@ function LogForm({
       ...(draft.mode === k ? st.segOn : {})
     }
   }, l))), /*#__PURE__*/React.createElement(ExecCard, {
+    trial: true,
+    n: "試",
+    title: "新握杆",
+    lines: ["起手：cue倒轉跌落膊頭 · 得拇指同食指掂住", "出杆一刻 · 其餘三指同時收埋"],
+    story: "A trial, not one of the five — and not guaranteed to work. The starting hold for every shot: hold the cue upside down and let it drop onto your shoulder; where it lands, only the thumb and the index finger are touching the cue. That is the starting point, every single shot. Then, as the cue is delivered through the cue ball, the other three fingers close to grip the cue at the same time — together, not one after another. It is being tested against the Do Re Mi grip of 趙公子式, where the cue lands parallel in the palm on every shot and the three fingers squeeze in sequence, and for the next couple of sessions it stands in for that step. The question it has to answer is not whether it feels new but which grip you can replicate identically on every single shot and control the shot with. Tick it on the sessions you used it, rate how repeatable the grip was whichever grip you used, and call it against Do Re Mi — Insights keeps the two side by side.",
+    tick: draft.gripTrial,
+    tickLabel: "今日用咗新握杆",
+    score: draft.gripScore,
+    scoreLabel: "握杆一致",
+    words: GRIP_WORDS,
+    hint: "How identical the grip was from shot to shot — the same starting hold, the same moment the fingers close — and how much control of the shot it gave. Rate it on Do Re Mi sessions too, so the two can be compared.",
+    onTick: () => set("gripTrial", !draft.gripTrial),
+    onScore: v => set("gripScore", v)
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.trialCount
+  }, draft.gripTrial ? `Trial session ${trialCount + 1}` : trialCount ? `Used in ${trialCount} session${trialCount === 1 ? "" : "s"} so far` : "Not tried yet — test it over the next couple of sessions"), draft.gripTrial && /*#__PURE__*/React.createElement("div", {
+    style: st.trialVerdict
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.trialVerdictLabel
+  }, "vs Do Re Mi"), /*#__PURE__*/React.createElement("div", {
+    style: st.seg
+  }, [["better", "Better"], ["same", "Same"], ["worse", "Worse"]].map(([k, l]) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    onClick: () => set("gripVerdict", draft.gripVerdict === k ? "" : k),
+    style: {
+      ...st.segBtn,
+      ...(draft.gripVerdict === k ? st.trialSegOn : {})
+    }
+  }, l))))), /*#__PURE__*/React.createElement(ExecCard, {
     n: "1",
     title: "心中有餘光",
     lines: ["白波點一直發光", "用支cue串連白波點同目標球"],
@@ -991,7 +1044,13 @@ const GLOW_WORDS = ["", "Never lit", "Lit at address, gone by the stroke", "Flas
 const SLICE_WORDS = ["", "Never pictured it", "Guessed, never looked", "Pictured it on easy balls only", "Pictured it, rarely checked it", "About half the balls", "There, but rushed the look", "Most balls, lost it on the thin cuts", "Pictured and checked nearly every ball", "Every ball — the slice called it before it dropped", "每一球都睇厚薄 — 冇估過"];
 const RHYTHM_WORDS = ["", "Never found it", "Lost it on the first hard shot", "Flashes, then gone", "On and off, mostly off", "Half the session", "There, but kept slipping", "Mostly held, came back slowly", "Held it, recovered fast when lost", "Held through the awkward shots too", "全程趙公子式 — 冇甩過"];
 const YUPPIE_WORDS = ["", "Never read it", "Read it once, then forgot", "Flashes of the tempo", "The table set the pace", "Half the session", "There, but kept rushing", "Mostly mine, lost on pressure", "Natural rhythm most of the way", "Held it through the awkward frames", "全程優皮士 — 節奏由我"];
+const GRIP_WORDS = ["", "Different every shot", "Never settled on a starting hold", "Same hold on easy shots only", "Fingers kept closing early or late", "About half the shots", "There, but drifted under pressure", "Most shots, lost it on the hard ones", "Nearly every shot the same", "Same hold, same close — the shot under control", "每一球都一樣 — 握得返、控制得到"];
 const DELIVERY_WORDS = ["", "Never found it", "Snatched every delivery", "Paused, then jabbed", "Smooth on easy shots only", "About half the deliveries", "There, but kept rushing the pause", "Mostly smooth, lost it under pressure", "Nearly every shot, felt the force", "Every delivery — force meant, force given", "停一停 · 順加速 — 每一球都有手感"];
+const GRIP_VERDICT = {
+  better: "better than Do Re Mi",
+  same: "same as Do Re Mi",
+  worse: "worse than Do Re Mi"
+};
 // ─────────────────────────────────────────── HISTORY
 function History({
   sessions,
@@ -1143,7 +1202,9 @@ function History({
     style: st.rowCl
   }, "優皮士 ✓"), s.exDelivery && /*#__PURE__*/React.createElement("span", {
     style: st.rowCl
-  }, "最後一擊 ✓"))), /*#__PURE__*/React.createElement("div", {
+  }, "最後一擊 ✓")), s.gripTrial && /*#__PURE__*/React.createElement("span", {
+    style: st.rowTrial
+  }, "新握杆", s.gripVerdict ? ` · ${GRIP_VERDICT[s.gripVerdict]}` : "")), /*#__PURE__*/React.createElement("div", {
     style: st.rowStats
   }, /*#__PURE__*/React.createElement(Stat, {
     label: "餘光",
@@ -1165,6 +1226,10 @@ function History({
     label: "最後一擊",
     v: sc(s, "deliveryScore"),
     hot: hot(s, "deliveryScore")
+  }), s.gripScore !== undefined && s.gripScore !== null && /*#__PURE__*/React.createElement(Stat, {
+    label: "握杆",
+    v: sc(s, "gripScore"),
+    hot: hot(s, "gripScore")
   }), /*#__PURE__*/React.createElement(Stat, {
     label: "Min",
     v: s.duration,
@@ -1250,7 +1315,61 @@ function Insights({
   const cutoff = Date.now() - 28 * 24 * 3600 * 1000;
   const last28 = sessions.filter(s => new Date(s.date + "T00:00:00").getTime() >= cutoff).length;
   const fmt1 = v => v === null ? "—" : v.toFixed(1);
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+
+  // 新握杆 against Do Re Mi. Do Re Mi is every session logged without the new
+  // grip, so 趙公子式 and 最後一擊 carry a baseline from before the trial;
+  // 握杆一致 only exists from the trial on, and fills in as it is rated.
+  const onGrip = sessions.filter(s => s.gripTrial);
+  const onDoReMi = sessions.filter(s => !s.gripTrial);
+  const avgOf = (list, k) => {
+    const r = list.filter(s => s[k] !== undefined && s[k] !== null);
+    return r.length ? r.reduce((a, s) => a + Number(s[k]), 0) / r.length : null;
+  };
+  const verdicts = ["better", "same", "worse"].map(k => `${k[0].toUpperCase()}${k.slice(1)} ${onGrip.filter(s => s.gripVerdict === k).length}`).join(" · ");
+  const GripTrial = onGrip.length ? /*#__PURE__*/React.createElement("div", {
+    style: st.insBlock
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "試 · 新握杆 vs Do Re Mi"), /*#__PURE__*/React.createElement("div", {
+    style: st.insTable
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insRow3
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.insCell0
+  }), /*#__PURE__*/React.createElement("span", {
+    style: st.insHead
+  }, "新握杆"), /*#__PURE__*/React.createElement("span", {
+    style: st.insHead
+  }, "Do Re Mi")), /*#__PURE__*/React.createElement("div", {
+    style: st.insRow3
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.insCell0
+  }, "Sessions"), /*#__PURE__*/React.createElement("span", {
+    style: st.insCell
+  }, onGrip.length), /*#__PURE__*/React.createElement("span", {
+    style: st.insCell
+  }, onDoReMi.length)), [["gripScore", "握杆一致"], ["zhaoRhythm", "趙公子式"], ["deliveryScore", "最後一擊"]].map(([k, label]) => {
+    const a = avgOf(onGrip, k);
+    const b = avgOf(onDoReMi, k);
+    return /*#__PURE__*/React.createElement("div", {
+      key: k,
+      style: st.insRow3
+    }, /*#__PURE__*/React.createElement("span", {
+      style: st.insCell0
+    }, label), /*#__PURE__*/React.createElement("span", {
+      style: {
+        ...st.insCell,
+        color: a !== null && b !== null && a > b ? C.cue : C.bone
+      }
+    }, fmt1(a), a === null ? "" : "/10"), /*#__PURE__*/React.createElement("span", {
+      style: st.insCell
+    }, fmt1(b), b === null ? "" : "/10"));
+  })), /*#__PURE__*/React.createElement("div", {
+    style: st.trialVerdicts
+  }, "Your call vs Do Re Mi: ", verdicts), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "Do Re Mi counts every session logged without the new grip, so 趙公子式 and 最後一擊 include everything before the trial. 握杆一致 only exists from the trial on — rate it on Do Re Mi sessions too and that column fills in.")) : null;
+  return /*#__PURE__*/React.createElement("div", null, GripTrial, /*#__PURE__*/React.createElement("div", {
     style: st.featherKpiWrap
   }, /*#__PURE__*/React.createElement(Kpi, {
     label: `五式齊 · all five executed (${allFive.length}/${allFiveOf.length})`,
@@ -1758,6 +1877,69 @@ const st = {
   },
   featherKpiWrap: {
     marginBottom: 10
+  },
+  // The trial card: the execution's shape in cue gold, dashed while untried.
+  trial: {
+    background: "linear-gradient(180deg, rgba(217,178,106,0.12) 0%, rgba(217,178,106,0.03) 100%)",
+    border: "1.5px dashed rgba(217,178,106,0.55)"
+  },
+  trialOn: {
+    background: "linear-gradient(180deg, rgba(217,178,106,0.2) 0%, rgba(217,178,106,0.05) 100%)",
+    border: "1.5px solid rgba(217,178,106,0.85)"
+  },
+  trialN: {
+    background: C.cue,
+    fontSize: 13
+  },
+  trialTitle: {
+    color: C.cue
+  },
+  trialRuleOn: {
+    borderColor: "rgba(217,178,106,0.6)",
+    background: "rgba(217,178,106,0.14)"
+  },
+  trialSegOn: {
+    background: C.cue,
+    color: C.baizeDeep
+  },
+  trialCount: {
+    fontSize: 11.5,
+    color: C.cueDim,
+    fontStyle: "italic",
+    marginTop: 10
+  },
+  trialVerdict: {
+    marginTop: 12
+  },
+  trialVerdictLabel: {
+    fontSize: 11,
+    letterSpacing: "0.12em",
+    textTransform: "uppercase",
+    color: C.boneDim,
+    fontWeight: 600,
+    marginBottom: 6
+  },
+  trialVerdicts: {
+    fontSize: 13,
+    color: C.bone,
+    marginTop: 11
+  },
+  rowTrial: {
+    fontSize: 10,
+    color: C.baizeDeep,
+    background: C.cue,
+    fontWeight: 700,
+    letterSpacing: "0.03em",
+    padding: "2px 6px",
+    borderRadius: 5
+  },
+  insRow3: {
+    display: "grid",
+    gridTemplateColumns: "1.4fr 1fr 1fr",
+    gap: 8,
+    padding: "6px 0",
+    borderBottom: `1px solid ${C.line}`,
+    alignItems: "baseline"
   },
   clHead: {
     display: "flex",
