@@ -363,11 +363,18 @@ const C = {
   teal: "#6FD3C8",
   rose: "#E39AA6"
 };
-const TODAY = () => new Date().toISOString().slice(0, 10);
+// Local calendar date — toISOString() is UTC and would log yesterday's date
+// for a session entered before 08:00 in Hong Kong.
+const TODAY = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
 const uid = () => `s_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 
 // What you measure — chosen to NOT pull attention off the cue ball mid-frame.
 // All logged AFTER the session, from feel + a few countable facts.
+// Every score starts null (unrated): one left untouched is saved as unrated
+// and stays out of every average, rather than being recorded as a 7.
 const blankSession = () => ({
   id: uid(),
   date: TODAY(),
@@ -381,17 +388,17 @@ const blankSession = () => ({
   // down, tip to the sky, resting on the shoulder, thumb and index only, and
   // the other three fingers still close together on the delivery.
   exHukou: false,
-  hukouScore: 7,
+  hukouScore: null,
   // ── 2 · 出杆方向 ─────────────────────────────────────────────────────────
   // Sliding along the 虎口, the final backswing and the delivery point exactly
   // where the cue ball is to be sent. The trick to consistent potting.
   exDirection: false,
-  directionScore: 7,
+  directionScore: null,
   // ── 3 · John Higgins 節奏 ───────────────────────────────────────────────
   // Re-picked: the most natural, consistent and relaxing way to play, in all
   // circumstances, drills, situations and shots. 1 and 2 are adapted to it.
   exHiggins: false,
-  higginsScore: 7,
+  higginsScore: null,
   // ── 4 · 心中有餘光 ──────────────────────────────────────────────────────
   // Every ball is the linking of the point held on the white to the object
   // ball, the cue being the only thing that joins them. 餘光 is the word that
@@ -399,14 +406,14 @@ const blankSession = () => ({
   // attention from getting down to the cue going through. If it goes dark,
   // nothing the body does in 2 or 3 can save the shot.
   ex1Glow: false,
-  glowScore: 7,
+  glowScore: null,
   // ── 5 · 精準瞄波大法 ────────────────────────────────────────────────────
   // 20261025. At the moment two eyes become one, read how far off the slice
   // on the object ball is; look at the white and let the body's natural
   // movement adjust; read the slice again; then fire. First used: four of
   // five blues.
   exAim: false,
-  aimScore: 7,
+  aimScore: null,
   // ── 6 · 睇厚薄 · Slice Cutting ─────────────────────────────────────────
   // The slice of the object ball to be covered and cut. For every shot,
   // picture how much of the object ball the white has to take, then watch
@@ -415,7 +422,7 @@ const blankSession = () => ({
   // parallel with 餘光: 餘光 is where the cue meets the white, 睇厚薄 is
   // where the white meets the object ball. Together they are the aiming.
   exSlice: false,
-  sliceScore: 7,
+  sliceScore: null,
   // ── 7 · 趙公子式 ────────────────────────────────────────────────────────
   // 鎖腳 · 平放Cue落白波點位 · 短feathering · 三指齊收. 平放 is carried by the
   // 起手 hold of 虎口滑杆 (1); the other three fingers close together on the
@@ -423,7 +430,7 @@ const blankSession = () => ({
   // How the body gets onto the line that joins the two points. Proven on the
   // North Point pool table, then on the Snookery match table.
   ex2Zhao: false,
-  zhaoRhythm: 7,
+  zhaoRhythm: null,
   // kept under its original name on purpose — every session that already
   // rated the 趙公子 rhythm still counts toward this execution. Likewise the
   // ex2/ex3 key names predate 睇厚薄 and keep their numbers so stored
@@ -433,7 +440,7 @@ const blankSession = () => ({
   // 好 — this rhythm dominates and powers everything done at the table. Not a
   // step inside the shot: the tempo the whole session runs at.
   ex3Yuppie: false,
-  yuppieScore: 7,
+  yuppieScore: null,
   // ── 9 · 最後一擊 ────────────────────────────────────────────────────────
   // Last delivery is a smooth acceleration out of a little pause. In the
   // pause, sense the force the shot asks for; on the delivery, feel the force
@@ -441,7 +448,7 @@ const blankSession = () => ({
   // old 最後一擊 card stored a string under lastDelivery (still in LEGACY
   // below); these are new keys so the two never collide.
   exDelivery: false,
-  deliveryScore: 7,
+  deliveryScore: null,
   note: "",
   // ── LEGACY ─────────────────────────────────────────────────────────────
   // Retired from the interface when the tracker was reduced to the
@@ -512,22 +519,63 @@ const blankSession = () => ({
   ruleTipFeedback: false,
   lastDelivery: ""
 });
+// The nine, in card order: [tick key, score key, label, chart colour].
+const EXECS = [["exHukou", "hukouScore", "虎口滑杆", C.chalkBlue], ["exDirection", "directionScore", "出杆方向", C.teal], ["exHiggins", "higginsScore", "Higgins 節奏", C.rose], ["ex1Glow", "glowScore", "餘光", C.cue], ["exAim", "aimScore", "精準瞄波", C.lilac], ["exSlice", "sliceScore", "睇厚薄", C.red], ["ex2Zhao", "zhaoRhythm", "趙公子式", C.ok], ["ex3Yuppie", "yuppieScore", "優皮士節奏", C.chalkSoft], ["exDelivery", "deliveryScore", "最後一擊", C.bone]];
+const has = (s, k) => s[k] !== undefined && s[k] !== null;
+const mean = list => list.length ? list.reduce((a, v) => a + v, 0) / list.length : null;
+// Scores for one execution, newest first, from the sessions that rated it.
+const scoresOf = (sessions, k) => sessions.filter(s => has(s, k)).map(s => Number(s[k]));
+const isDirty = d => !!(d.note || EXECS.some(([t, k]) => d[t] || has(d, k)));
+// The execution to work on next: lowest average over its last three rated
+// sessions. Ties go to the earlier card, so the top-priority three win.
+const focusOf = sessions => {
+  let best = null;
+  EXECS.forEach(([, k, label], i) => {
+    const recent = scoresOf(sessions, k).slice(0, 3);
+    if (!recent.length) return;
+    const avg = mean(recent);
+    if (!best || avg < best.avg) best = {
+      n: i + 1,
+      key: k,
+      label,
+      avg,
+      of: recent.length
+    };
+  });
+  return best;
+};
 function App() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState(blankSession());
-  const [view, setView] = useState("log"); // log | history | trends
+  const [view, setView] = useState("log"); // log | history | progress
   const [importMsg, setImportMsg] = useState(null);
   const [exportPanel, setExportPanel] = useState(null); // { fmt, text } | null
   const [copyOK, setCopyOK] = useState(false);
+  const [backup, setBackup] = useState(null); // { at, count } of the last JSON export taken
+  const restored = useRef(false);
   useEffect(() => {
     try {
       const raw = localStorage.getItem("snooker:sessions");
       if (raw) setSessions(JSON.parse(raw));
-    } catch (e) {} finally {
-      setLoading(false);
-    }
+    } catch (e) {}
+    // A half-filled form survives the app being closed.
+    try {
+      const d = JSON.parse(localStorage.getItem("snooker:draft") || "null");
+      if (d && d.id && isDirty(d)) {
+        setDraft(d);
+        restored.current = true;
+      }
+      setBackup(JSON.parse(localStorage.getItem("snooker:backup") || "null"));
+    } catch (e) {}
+    setLoading(false);
   }, []);
+  useEffect(() => {
+    if (loading) return;
+    try {
+      if (isDirty(draft)) localStorage.setItem("snooker:draft", JSON.stringify(draft));else localStorage.removeItem("snooker:draft");
+    } catch (e) {}
+  }, [draft, loading]);
   const persist = next => {
     setSessions(next);
     try {
@@ -548,16 +596,39 @@ function App() {
     };
   };
   useEffect(() => {
-    if (!loading && sessions.length) setDraft(d => seedFrom(sessions, d));
+    if (!loading && sessions.length && !restored.current) setDraft(d => seedFrom(sessions, d));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
+  // Saving a session that is already in the list replaces it — that is an edit.
+  const editing = sessions.some(s => s.id === draft.id);
   const saveDraft = () => {
-    const next = [draft, ...sessions].sort((a, b) => a.date < b.date ? 1 : -1);
+    const next = [draft, ...sessions.filter(s => s.id !== draft.id)].sort((a, b) => a.date < b.date ? 1 : -1);
     persist(next);
     setDraft(seedFrom(next, blankSession()));
     setView("history");
   };
-  const remove = id => persist(sessions.filter(s => s.id !== id));
+  const resetDraft = () => setDraft(seedFrom(sessions, blankSession()));
+  const editSession = s => {
+    if (!editing && isDirty(draft) && !window.confirm("Replace the unsaved session in the log form?")) return;
+    setDraft({
+      ...s
+    });
+    setView("log");
+    window.scrollTo(0, 0);
+  };
+  const remove = id => {
+    if (window.confirm("Delete this session? This can't be undone.")) persist(sessions.filter(s => s.id !== id));
+  };
+  const markBackup = () => {
+    const b = {
+      at: Date.now(),
+      count: sessions.length
+    };
+    setBackup(b);
+    try {
+      localStorage.setItem("snooker:backup", JSON.stringify(b));
+    } catch (e) {}
+  };
 
   // ── export / import (cross-device sync) ──
   // Artifacts run sandboxed, so file-download via <a download> is unreliable.
@@ -591,6 +662,7 @@ function App() {
   const copyText = async text => {
     try {
       await navigator.clipboard.writeText(text);
+      if (exportPanel && exportPanel.fmt === "json") markBackup();
       setCopyOK(true);
       setTimeout(() => setCopyOK(false), 2000);
     } catch (e) {
@@ -606,6 +678,7 @@ function App() {
       });
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
+      if (fmt === "json") markBackup();
     } catch (e) {
       // popup blocked — the copy panel is still available
     }
@@ -655,7 +728,7 @@ function App() {
     style: st.sub
   }, "Logged ", /*#__PURE__*/React.createElement("em", null, "after"), " the frame, never during.")), /*#__PURE__*/React.createElement("nav", {
     style: st.tabs
-  }, [["log", "Log session"], ["history", `History${sessions.length ? ` · ${sessions.length}` : ""}`], ["trends", "Trends"], ["insights", "Insights"]].map(([k, label]) => /*#__PURE__*/React.createElement("button", {
+  }, [["log", "Log session"], ["history", `History${sessions.length ? ` · ${sessions.length}` : ""}`], ["progress", "Progress"]].map(([k, label]) => /*#__PURE__*/React.createElement("button", {
     key: k,
     onClick: () => setView(k),
     style: {
@@ -667,10 +740,15 @@ function App() {
   }, "Racking up your sessions…") : view === "log" ? /*#__PURE__*/React.createElement(LogForm, {
     draft: draft,
     setDraft: setDraft,
-    onSave: saveDraft
+    onSave: saveDraft,
+    onReset: resetDraft,
+    editing: editing,
+    sessions: sessions
   }) : view === "history" ? /*#__PURE__*/React.createElement(History, {
     sessions: sessions,
     onRemove: remove,
+    onEdit: editSession,
+    backup: backup,
     onGoLog: () => setView("log"),
     onExport: openExport,
     onImportText: importText,
@@ -681,9 +759,7 @@ function App() {
     onCopy: copyText,
     onOpenTab: openInTab,
     copyOK: copyOK
-  }) : view === "trends" ? /*#__PURE__*/React.createElement(Trends, {
-    sessions: sessions
-  }) : /*#__PURE__*/React.createElement(Insights, {
+  }) : /*#__PURE__*/React.createElement(Progress, {
     sessions: sessions
   }), /*#__PURE__*/React.createElement("footer", {
     style: st.footer
@@ -828,7 +904,8 @@ function ExecCard({
   words,
   hint,
   onTick,
-  onScore
+  onScore,
+  last
 }) {
   const [info, setInfo] = useState(false);
   return /*#__PURE__*/React.createElement("div", {
@@ -864,12 +941,13 @@ function ExecCard({
     style: st.ruleCheck(tick)
   }, tick ? "\u2713" : "\u25cf"), /*#__PURE__*/React.createElement("span", {
     style: st.ruleText
-  }, /*#__PURE__*/React.createElement("strong", null, tickLabel))), /*#__PURE__*/React.createElement(MiniRating, {
+  }, /*#__PURE__*/React.createElement("strong", null, tickLabel))), /*#__PURE__*/React.createElement(ScoreRow, {
     label: scoreLabel,
     value: score,
     words: words,
     hint: hint,
     info: info,
+    last: last,
     onChange: onScore
   }));
 }
@@ -878,15 +956,36 @@ function ExecCard({
 function LogForm({
   draft,
   setDraft,
-  onSave
+  onSave,
+  onReset,
+  editing,
+  sessions
 }) {
   const set = (k, v) => setDraft({
     ...draft,
     [k]: v
   });
+  // Last session's score for a card — the one before this, when editing.
+  const prior = sessions.find(s => s.id !== draft.id && s.date <= draft.date) || sessions.find(s => s.id !== draft.id);
+  const lastOf = k => prior && has(prior, k) ? prior[k] : null;
+  const focus = focusOf(sessions.filter(s => s.id !== draft.id));
+  const ratedN = EXECS.filter(([, k]) => has(draft, k)).length;
   return /*#__PURE__*/React.createElement("div", {
     style: st.card
+  }, editing ? /*#__PURE__*/React.createElement("div", {
+    style: st.editBar
+  }, /*#__PURE__*/React.createElement("span", null, "Editing ", fmtDate(draft.date)), /*#__PURE__*/React.createElement("button", {
+    onClick: onReset,
+    style: st.linkBtn
+  }, "Cancel")) : focus && /*#__PURE__*/React.createElement("div", {
+    style: st.focus
   }, /*#__PURE__*/React.createElement("div", {
+    style: st.focusLabel
+  }, "今日重點 · Focus for this session"), /*#__PURE__*/React.createElement("div", {
+    style: st.focusName
+  }, focus.n, " · ", focus.label), /*#__PURE__*/React.createElement("div", {
+    style: st.focusWhy
+  }, "Your lowest recent score: ", focus.avg.toFixed(1), "/10 over the last ", focus.of === 1 ? "rated session" : `${focus.of} rated sessions`, ".")), /*#__PURE__*/React.createElement("div", {
     style: st.metaRow
   }, /*#__PURE__*/React.createElement(Field, {
     label: "Date"
@@ -924,7 +1023,8 @@ function LogForm({
     words: HUKOU_WORDS,
     hint: "How many shots had the cue slipping along the 虎口 through the feathering and the delivery — and staying parallel.",
     onTick: () => set("exHukou", !draft.exHukou),
-    onScore: v => set("hukouScore", v)
+    onScore: v => set("hukouScore", v),
+    last: lastOf("hukouScore")
   }), /*#__PURE__*/React.createElement(ExecCard, {
     n: "2",
     title: "出杆方向",
@@ -937,7 +1037,8 @@ function LogForm({
     words: DIRECTION_WORDS,
     hint: "How many final backswings and deliveries pointed exactly where the cue ball was meant to go.",
     onTick: () => set("exDirection", !draft.exDirection),
-    onScore: v => set("directionScore", v)
+    onScore: v => set("directionScore", v),
+    last: lastOf("directionScore")
   }), /*#__PURE__*/React.createElement(ExecCard, {
     n: "3",
     title: "Higgins 節奏",
@@ -950,7 +1051,8 @@ function LogForm({
     words: HIGGINS_WORDS,
     hint: "How much of the session — every drill, every situation, every shot — ran at the Higgins rhythm.",
     onTick: () => set("exHiggins", !draft.exHiggins),
-    onScore: v => set("higginsScore", v)
+    onScore: v => set("higginsScore", v),
+    last: lastOf("higginsScore")
   }), /*#__PURE__*/React.createElement(ExecCard, {
     n: "4",
     title: "心中有餘光",
@@ -964,7 +1066,8 @@ function LogForm({
     words: GLOW_WORDS,
     hint: "How steadily the point stayed lit — through the feathering and through the delivery, not just at address.",
     onTick: () => set("ex1Glow", !draft.ex1Glow),
-    onScore: v => set("glowScore", v)
+    onScore: v => set("glowScore", v),
+    last: lastOf("glowScore")
   }), /*#__PURE__*/React.createElement(ExecCard, {
     n: "5",
     title: "精準瞄波大法",
@@ -977,7 +1080,8 @@ function LogForm({
     words: AIM_WORDS,
     hint: "How many balls had the gap read at the two-eyes-to-one moment, the body adjust naturally, and a second read before firing.",
     onTick: () => set("exAim", !draft.exAim),
-    onScore: v => set("aimScore", v)
+    onScore: v => set("aimScore", v),
+    last: lastOf("aimScore")
   }), /*#__PURE__*/React.createElement(ExecCard, {
     n: "6",
     title: "睇厚薄",
@@ -991,7 +1095,8 @@ function LogForm({
     words: SLICE_WORDS,
     hint: "How many balls had the slice pictured before the shot — and checked against what the white actually took.",
     onTick: () => set("exSlice", !draft.exSlice),
-    onScore: v => set("sliceScore", v)
+    onScore: v => set("sliceScore", v),
+    last: lastOf("sliceScore")
   }), /*#__PURE__*/React.createElement(ExecCard, {
     n: "7",
     title: "趙公子式",
@@ -1004,7 +1109,8 @@ function LogForm({
     words: RHYTHM_WORDS,
     hint: "How well the four parts held, and how fast they came back when the table knocked them out.",
     onTick: () => set("ex2Zhao", !draft.ex2Zhao),
-    onScore: v => set("zhaoRhythm", v)
+    onScore: v => set("zhaoRhythm", v),
+    last: lastOf("zhaoRhythm")
   }), /*#__PURE__*/React.createElement(ExecCard, {
     n: "8",
     title: "優皮士節奏",
@@ -1017,7 +1123,8 @@ function LogForm({
     words: YUPPIE_WORDS,
     hint: "How much of the session ran at the natural rhythm rather than the table's.",
     onTick: () => set("ex3Yuppie", !draft.ex3Yuppie),
-    onScore: v => set("yuppieScore", v)
+    onScore: v => set("yuppieScore", v),
+    last: lastOf("yuppieScore")
   }), /*#__PURE__*/React.createElement(ExecCard, {
     n: "9",
     title: "最後一擊",
@@ -1030,50 +1137,66 @@ function LogForm({
     words: DELIVERY_WORDS,
     hint: "How many deliveries came out of the pause as one smooth acceleration — and how closely the force felt matched the force meant.",
     onTick: () => set("exDelivery", !draft.exDelivery),
-    onScore: v => set("deliveryScore", v)
+    onScore: v => set("deliveryScore", v),
+    last: lastOf("deliveryScore")
   }), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "01",
     title: "One line",
     note: "Optional"
   }), /*#__PURE__*/React.createElement("textarea", {
     placeholder: "e.g. slow smooth acceleration held on the black…",
-    value: draft.note,
+    value: draft.note || "",
     onChange: e => set("note", e.target.value),
     style: st.textarea,
     rows: 2
-  }), /*#__PURE__*/React.createElement("button", {
+  }), /*#__PURE__*/React.createElement("div", {
+    style: st.saveMeta
+  }, /*#__PURE__*/React.createElement("span", null, ratedN, " of ", EXECS.length, " rated", ratedN < EXECS.length ? " · unrated ones stay out of your averages" : ""), !editing && isDirty(draft) && /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      if (window.confirm("Clear everything entered in this form?")) onReset();
+    },
+    style: st.linkBtn
+  }, "Clear")), /*#__PURE__*/React.createElement("button", {
     onClick: onSave,
-    style: st.save
-  }, "Save session →"));
+    style: {
+      ...st.save,
+      marginTop: 8
+    }
+  }, editing ? "Update session →" : "Save session →"));
 }
 
-function MiniRating({
+// One tap per score. Nothing is selected until you choose, tapping the chosen
+// number again clears it, and the dashed number is last session's score.
+function ScoreRow({
   label,
   value,
   words,
   hint,
   info,
+  last,
   onChange
 }) {
+  const rated = value !== undefined && value !== null;
+  const hasLast = last !== undefined && last !== null;
   return /*#__PURE__*/React.createElement("div", {
-    style: st.acc
+    style: st.scoreWrap
   }, /*#__PURE__*/React.createElement("div", {
-    style: st.accTop
-  }, /*#__PURE__*/React.createElement("span", {
-    style: st.accLabel
-  }, label), /*#__PURE__*/React.createElement("span", {
-    style: st.accVal
-  }, value, "/10")), /*#__PURE__*/React.createElement("div", {
-    style: st.accWord
-  }, words[value] || ""), /*#__PURE__*/React.createElement("input", {
-    type: "range",
-    min: 1,
-    max: 10,
-    step: 1,
-    value: value,
-    onChange: e => onChange(Number(e.target.value)),
-    style: st.range
-  }), info && /*#__PURE__*/React.createElement("div", {
+    style: st.scoreBtns,
+    role: "group",
+    "aria-label": `${label} score, 1 to 10`
+  }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => /*#__PURE__*/React.createElement("button", {
+    key: v,
+    onClick: () => onChange(value === v ? null : v),
+    "aria-pressed": value === v,
+    style: {
+      ...st.scoreBtn,
+      ...(rated && v < value ? st.scoreBtnFill : {}),
+      ...(hasLast && Number(last) === v && value !== v ? st.scoreBtnLast : {}),
+      ...(value === v ? st.scoreBtnOn : {})
+    }
+  }, v))), /*#__PURE__*/React.createElement("div", {
+    style: rated ? st.scoreWord : st.scoreWordOff
+  }, rated ? `${value}/10 · ${words[value] || ""}` : hasLast ? `Not rated yet · last session ${last}/10` : "Not rated yet"), info && /*#__PURE__*/React.createElement("div", {
     style: st.metricHint
   }, hint));
 }
@@ -1095,6 +1218,8 @@ const GRIP_VERDICT = {
 function History({
   sessions,
   onRemove,
+  onEdit,
+  backup,
   onGoLog,
   onExport,
   onImportText,
@@ -1109,6 +1234,12 @@ function History({
   const fileRef = React.useRef(null);
   const [showImport, setShowImport] = React.useState(false);
   const [pasteVal, setPasteVal] = React.useState("");
+  // Sessions live only in this browser's storage; a copied JSON export is the
+  // only backup. Say plainly how old the last one is.
+  const newer = backup ? Math.max(0, sessions.length - backup.count) : sessions.length;
+  const days = backup ? Math.floor((Date.now() - backup.at) / 86400000) : null;
+  const backupStale = !backup || newer >= 3;
+  const backupText = !backup ? `Not backed up yet — ${sessions.length === 1 ? "this session exists" : `these ${sessions.length} sessions exist`} only in this browser. Export JSON and copy it somewhere safe.` : `Last backup: ${days === 0 ? "today" : days === 1 ? "yesterday" : `${days} days ago`}${newer ? ` · ${newer} session${newer === 1 ? "" : "s"} logged since` : " · up to date"}.`;
   const SyncBar = /*#__PURE__*/React.createElement("div", {
     style: st.syncBar
   }, /*#__PURE__*/React.createElement("div", {
@@ -1204,7 +1335,12 @@ function History({
     }
   }, importMsg.text), /*#__PURE__*/React.createElement("div", {
     style: st.syncHint
-  }, "Export here, Import there — sessions merge, no duplicates. CSV is for analysis."));
+  }, "Export here, Import there — sessions merge, no duplicates. CSV is for analysis."), sessions.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.syncHint,
+      color: backupStale ? C.red : C.boneDim
+    }
+  }, backupText));
   if (!sessions.length) return /*#__PURE__*/React.createElement("div", null, SyncBar, /*#__PURE__*/React.createElement("div", {
     style: st.empty
   }, /*#__PURE__*/React.createElement("div", {
@@ -1308,140 +1444,156 @@ function History({
     dim: true
   })), s.note && /*#__PURE__*/React.createElement("div", {
     style: st.rowNote
-  }, "\u201c", s.note, "\u201d")), /*#__PURE__*/React.createElement("button", {
+  }, "\u201c", s.note, "\u201d")), /*#__PURE__*/React.createElement("div", {
+    style: st.rowActions
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => onEdit(s),
+    style: st.editBtn
+  }, "Edit"), /*#__PURE__*/React.createElement("button", {
     onClick: () => onRemove(s.id),
     style: st.del,
     "aria-label": "Delete session"
-  }, "\u00d7")))));
+  }, "\u00d7"))))));
 }
 
-// ─────────────────────────────────────────── TRENDS
-function Trends({
+// ─────────────────────────────────────────── PROGRESS
+// One table for the nine: where each stands now, which way it is moving, and
+// how often it gets done. Tap a row for its full chart.
+function Progress({
   sessions
 }) {
-  if (sessions.length < 2) return /*#__PURE__*/React.createElement("div", {
-    style: st.empty
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.emptyMark
-  }, "\u25b3"), /*#__PURE__*/React.createElement("p", {
-    style: st.emptyText
-  }, "Log 2 sessions to see trends."));
-
-  // Oldest → newest. A score only exists from the session it was introduced,
-  // so skip the sessions that never carried it instead of charting false zeros.
-  const chrono = [...sessions].reverse();
-  const series = k => {
-    const list = chrono.filter(s => s[k] !== undefined && s[k] !== null);
-    const recent = [...list].reverse().slice(0, 12);
-    return {
-      data: list.map(s => Number(s[k])),
-      n: recent.length,
-      avg: recent.length ? recent.reduce((a, s) => a + Number(s[k]), 0) / recent.length : 0
-    };
-  };
-  const rows = [["hukouScore", "虎口滑杆", C.chalkBlue], ["directionScore", "出杆方向", C.teal], ["higginsScore", "Higgins 節奏", C.rose], ["glowScore", "餘光", C.cue], ["aimScore", "精準瞄波", C.lilac], ["sliceScore", "睇厚薄", C.red], ["zhaoRhythm", "趙公子式", C.ok], ["yuppieScore", "優皮士節奏", C.chalkSoft], ["deliveryScore", "最後一擊", C.bone]].map(([k, label, color]) => ({
-    label,
-    color,
-    ...series(k)
-  }));
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: st.kpiRow
-  }, rows.map(r => /*#__PURE__*/React.createElement(Kpi, {
-    key: r.label,
-    label: `${r.label} · avg last ${r.n || 0}`,
-    value: r.n ? r.avg.toFixed(1) : "—",
-    suffix: r.n ? "/10" : "",
-    accent: true
-  })), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Sessions logged",
-    value: sessions.length
-  })), rows.filter(r => r.data.length >= 2).map(r => /*#__PURE__*/React.createElement(Spark, {
-    key: r.label,
-    title: `${r.label} over time`,
-    data: r.data,
-    suffix: "/10",
-    max: 10,
-    color: r.color
-  })));
-}
-
-// ─────────────────────────────────────────── INSIGHTS (automated first-pass analysis)
-function Insights({
-  sessions
-}) {
+  const [open, setOpen] = useState(null);
   if (!sessions.length) return /*#__PURE__*/React.createElement("div", {
     style: st.empty
   }, /*#__PURE__*/React.createElement("div", {
     style: st.emptyMark
   }, "\u25ce"), /*#__PURE__*/React.createElement("p", {
     style: st.emptyText
-  }, "Log a session and the read-back appears here."));
-  const EXECS = [["exHukou", "hukouScore", "1 · 虎口滑杆"], ["exDirection", "directionScore", "2 · 出杆方向"], ["exHiggins", "higginsScore", "3 · Higgins 節奏"], ["ex1Glow", "glowScore", "4 · 餘光"], ["exAim", "aimScore", "5 · 精準瞄波"], ["exSlice", "sliceScore", "6 · 睇厚薄"], ["ex2Zhao", "zhaoRhythm", "7 · 趙公子式"], ["ex3Yuppie", "yuppieScore", "8 · 優皮士節奏"], ["exDelivery", "deliveryScore", "9 · 最後一擊"]];
+  }, "Log a session and your progress appears here."));
+  const pct = (n, of) => of ? `${Math.round(n / of * 100)}%` : "—";
+  const fmt1 = v => v === null ? "—" : v.toFixed(1);
+  const focus = focusOf(sessions);
   // A session only counts toward an execution from the day that execution
   // existed — one logged before it had no tick to give, so it isn't a miss.
-  const carried = k => sessions.filter(s => s[k] !== undefined && s[k] !== null);
-  const pct = (list, of) => of.length ? `${Math.round(list.length / of.length * 100)}%` : "—";
-  const rated = carried;
-  const allNineOf = sessions.filter(s => EXECS.every(([t]) => s[t] !== undefined));
-  const allNine = allNineOf.filter(s => EXECS.every(([t]) => s[t]));
+  const rows = EXECS.map(([tick, k, label, color], i) => {
+    const scores = scoresOf(sessions, k); // newest first
+    // Same three-session window as the focus, so the two always agree.
+    const now = mean(scores.slice(0, 3));
+    const before = mean(scores.slice(3, 6));
+    const carried = sessions.filter(s => s[tick] !== undefined && s[tick] !== null);
+    return {
+      n: i + 1,
+      k,
+      label,
+      color,
+      scores,
+      now,
+      delta: now !== null && before !== null ? now - before : null,
+      done: pct(carried.filter(s => s[tick]).length, carried.length),
+      all: mean(scores),
+      best: scores.length ? Math.max(...scores) : null
+    };
+  });
+  const allOf = sessions.filter(s => EXECS.every(([t]) => s[t] !== undefined));
+  const all = allOf.filter(s => EXECS.every(([t]) => s[t]));
   const cutoff = Date.now() - 28 * 24 * 3600 * 1000;
   const last28 = sessions.filter(s => new Date(s.date + "T00:00:00").getTime() >= cutoff).length;
-  const fmt1 = v => v === null ? "—" : v.toFixed(1);
-
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: st.featherKpiWrap
+    style: st.kpiRow3
   }, /*#__PURE__*/React.createElement(Kpi, {
-    label: `九式齊 · all nine executed (${allNine.length}/${allNineOf.length})`,
-    value: pct(allNine, allNineOf),
+    label: `九式齊 (${all.length}/${allOf.length})`,
+    value: pct(all.length, allOf.length),
     accent: true
+  }), /*#__PURE__*/React.createElement(Kpi, {
+    label: "Sessions",
+    value: sessions.length
+  }), /*#__PURE__*/React.createElement(Kpi, {
+    label: "Last 28 days",
+    value: last28
   })), /*#__PURE__*/React.createElement("div", {
     style: st.insBlock
   }, /*#__PURE__*/React.createElement("div", {
     style: st.insTitle
-  }, "九式 · execution and score"), /*#__PURE__*/React.createElement("div", {
-    style: st.insTable
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insRow
+  }, "九式 · now, trend, 執行率"), /*#__PURE__*/React.createElement("div", {
+    style: st.progHeadRow
+  }, /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
+    style: st.insHead
+  }, "now"), /*#__PURE__*/React.createElement("span", {
+    style: st.insHead
+  }, "trend"), /*#__PURE__*/React.createElement("span", {
+    style: st.insHead
+  }, "執行率")), rows.map(r => /*#__PURE__*/React.createElement("div", {
+    key: r.k,
+    style: st.progItem
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setOpen(open === r.k ? null : r.k),
+    "aria-expanded": open === r.k,
+    style: st.progRow
   }, /*#__PURE__*/React.createElement("span", {
-    style: st.insCell0
+    style: {
+      ...st.progName,
+      ...(focus && focus.key === r.k ? {
+        color: C.cue
+      } : {})
+    }
+  }, r.n, " · ", r.label), /*#__PURE__*/React.createElement(MiniSpark, {
+    data: r.scores.slice(0, 12).reverse(),
+    color: r.color
   }), /*#__PURE__*/React.createElement("span", {
-    style: st.insHead
-  }, "執行率"), /*#__PURE__*/React.createElement("span", {
-    style: st.insHead
-  }, "avg"), /*#__PURE__*/React.createElement("span", {
-    style: st.insHead
-  }, "best")), EXECS.map(([tick, score, label]) => {
-    const of = carried(tick);
-    const done = of.filter(s => s[tick]);
-    const r = rated(score);
-    const avg = r.length ? r.reduce((a, s) => a + Number(s[score]), 0) / r.length : null;
-    const best = r.reduce((m, s) => Math.max(m, Number(s[score])), 0);
-    return /*#__PURE__*/React.createElement("div", {
-      key: tick,
-      style: st.insRow
-    }, /*#__PURE__*/React.createElement("span", {
-      style: st.insCell0
-    }, label), /*#__PURE__*/React.createElement("span", {
-      style: {
-        ...st.insCell,
-        color: of.length && done.length === of.length ? C.chalkSoft : C.bone
-      }
-    }, pct(done, of)), /*#__PURE__*/React.createElement("span", {
-      style: st.insCell
-    }, fmt1(avg), avg === null ? "" : "/10"), /*#__PURE__*/React.createElement("span", {
-      style: st.insCell
-    }, best || "—"));
-  })), /*#__PURE__*/React.createElement("div", {
+    style: st.insCell
+  }, fmt1(r.now)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.progDelta,
+      color: r.delta === null || Math.abs(r.delta) < 0.05 ? C.boneDim : r.delta > 0 ? C.ok : C.red
+    }
+  }, r.delta === null ? "—" : Math.abs(r.delta) < 0.05 ? "＝" : `${r.delta > 0 ? "▲" : "▼"} ${Math.abs(r.delta).toFixed(1)}`), /*#__PURE__*/React.createElement("span", {
+    style: st.insCell
+  }, r.done)), open === r.k && /*#__PURE__*/React.createElement("div", {
+    style: st.progDetail
+  }, r.scores.length >= 2 ? /*#__PURE__*/React.createElement(Spark, {
+    title: `${r.label} · every rated session`,
+    data: [...r.scores].reverse(),
+    suffix: "/10",
+    max: 10,
+    color: r.color
+  }) : null, /*#__PURE__*/React.createElement("div", {
+    style: st.progDetailLine
+  }, r.scores.length ? `Rated in ${r.scores.length} session${r.scores.length === 1 ? "" : "s"} · all-time average ${fmt1(r.all)} · best ${r.best}` : "Not rated in any session yet.")))), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, "執行率 counts the sessions you ticked it, out of the sessions logged since that execution existed. avg and best only count the sessions that carried that score, so sessions logged before an execution existed never drag it down.")), /*#__PURE__*/React.createElement("div", {
-    style: st.kpiRow
-  }, /*#__PURE__*/React.createElement(Kpi, {
-    label: "Sessions logged",
-    value: sessions.length
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Sessions · last 28 days",
-    value: last28
-  })));
+  }, focus ? `Gold is your focus: ${focus.label} has the lowest recent score. ` : "", "now is the average of the last 3 sessions that rated it; trend compares that with the 3 before. 執行率 is the share of sessions you ticked it, counted from when that execution was added. Tap a row for its chart.")));
+}
+
+// Twelve most recent scores, oldest to newest, small enough to sit in a row.
+function MiniSpark({
+  data,
+  color
+}) {
+  const W = 64,
+    H = 22,
+    pad = 3;
+  if (data.length < 2) return /*#__PURE__*/React.createElement("span", {
+    style: st.miniSparkEmpty
+  }, data.length ? "·" : "");
+  const x = i => pad + i * (W - pad * 2) / (data.length - 1);
+  const y = v => H - pad - (v - 1) / 9 * (H - pad * 2);
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: `0 0 ${W} ${H}`,
+    width: W,
+    height: H,
+    "aria-hidden": true
+  }, /*#__PURE__*/React.createElement("path", {
+    d: data.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" "),
+    fill: "none",
+    stroke: color,
+    strokeWidth: "1.6",
+    strokeLinejoin: "round",
+    strokeLinecap: "round"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: x(data.length - 1),
+    cy: y(data[data.length - 1]),
+    r: "2.2",
+    fill: color
+  }));
 }
 
 function Spark({
@@ -1611,13 +1763,16 @@ function fmtDate(d) {
 }
 
 // ─────────────────────────────────────────── STYLES
+// On a phone the page, the card and each execution all pad their sides; trim
+// each so the ten score buttons get the width.
+const NARROW = typeof window !== "undefined" && window.innerWidth < 520;
 const st = {
   page: {
     minHeight: "100vh",
     background: `radial-gradient(120% 80% at 50% -10%, ${C.felt} 0%, ${C.baize} 45%, ${C.baizeDeep} 100%)`,
     color: C.bone,
     fontFamily: "'Inter', system-ui, sans-serif",
-    padding: "28px 24px 64px",
+    padding: NARROW ? "24px 12px 64px" : "28px 24px 64px",
     maxWidth: "100%",
     margin: "0 auto"
   },
@@ -1684,7 +1839,7 @@ const st = {
     background: C.panel,
     border: `1px solid ${C.line}`,
     borderRadius: 14,
-    padding: 22
+    padding: NARROW ? 12 : 22
   },
   metaRow: {
     display: "flex",
@@ -1728,7 +1883,8 @@ const st = {
     background: "rgba(0,0,0,0.25)",
     borderRadius: 9,
     padding: 4,
-    border: `1px solid ${C.line}`
+    border: `1px solid ${C.line}`,
+    marginBottom: 12
   },
   segBtn: {
     flex: 1,
@@ -1843,8 +1999,8 @@ const st = {
     background: "linear-gradient(180deg, rgba(94,226,160,0.13) 0%, rgba(94,226,160,0.03) 100%)",
     border: "1.5px solid rgba(94,226,160,0.4)",
     borderRadius: 16,
-    padding: "15px 16px 16px",
-    marginBottom: 16
+    padding: NARROW ? "13px 12px 13px" : "15px 16px 16px",
+    marginBottom: 12
   },
   execOn: {
     borderColor: "rgba(94,226,160,0.8)",
@@ -1866,7 +2022,7 @@ const st = {
   },
   execTitle: {
     fontFamily: "'Georgia', serif",
-    fontSize: 24,
+    fontSize: 21,
     fontWeight: 700,
     color: C.chalkSoft,
     letterSpacing: "0.02em",
@@ -1874,7 +2030,7 @@ const st = {
   },
   execLine: {
     fontFamily: "'Georgia', serif",
-    fontSize: 16,
+    fontSize: 14.5,
     fontWeight: 700,
     color: C.bone,
     lineHeight: 1.45,
@@ -1887,8 +2043,190 @@ const st = {
     margin: "10px 0 2px"
   },
   execRule: {
-    marginTop: 13,
+    marginTop: 10,
+    padding: "9px 12px",
     background: "rgba(0,0,0,0.28)"
+  },
+  scoreWrap: {
+    marginTop: 8
+  },
+  scoreBtns: {
+    display: "flex",
+    gap: 3
+  },
+  scoreBtn: {
+    flex: 1,
+    minWidth: 0,
+    height: 42,
+    padding: 0,
+    background: "rgba(0,0,0,0.28)",
+    border: `1px solid ${C.line}`,
+    borderRadius: 8,
+    color: C.boneDim,
+    fontFamily: "'Georgia', serif",
+    fontSize: 15,
+    fontWeight: 600,
+    cursor: "pointer"
+  },
+  scoreBtnFill: {
+    background: "rgba(94,226,160,0.16)",
+    borderColor: "rgba(94,226,160,0.3)",
+    color: C.bone
+  },
+  scoreBtnOn: {
+    background: C.chalkSoft,
+    borderColor: C.chalkSoft,
+    color: C.baizeDeep,
+    fontWeight: 700
+  },
+  scoreBtnLast: {
+    border: `1.5px dashed ${C.cue}`,
+    color: C.cue
+  },
+  scoreWord: {
+    fontSize: 12.5,
+    color: C.chalkSoft,
+    fontStyle: "italic",
+    marginTop: 6
+  },
+  scoreWordOff: {
+    fontSize: 12.5,
+    color: C.boneDim,
+    marginTop: 6
+  },
+  focus: {
+    background: "rgba(217,178,106,0.09)",
+    border: "1px solid rgba(217,178,106,0.45)",
+    borderRadius: 12,
+    padding: "11px 13px 12px",
+    marginBottom: 14
+  },
+  focusLabel: {
+    fontSize: 10.5,
+    letterSpacing: "0.12em",
+    textTransform: "uppercase",
+    color: C.cueDim,
+    fontWeight: 600
+  },
+  focusName: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 19,
+    fontWeight: 700,
+    color: C.cue,
+    margin: "3px 0 2px"
+  },
+  focusWhy: {
+    fontSize: 12,
+    color: C.boneDim,
+    lineHeight: 1.4
+  },
+  editBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    background: "rgba(217,178,106,0.09)",
+    border: "1px solid rgba(217,178,106,0.45)",
+    borderRadius: 12,
+    padding: "9px 13px",
+    marginBottom: 14,
+    fontSize: 13.5,
+    fontWeight: 600,
+    color: C.cue
+  },
+  linkBtn: {
+    background: "none",
+    border: "none",
+    color: C.cue,
+    fontSize: 12.5,
+    fontWeight: 600,
+    padding: "6px 4px",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    textDecoration: "underline"
+  },
+  saveMeta: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 18,
+    minHeight: 30,
+    fontSize: 12,
+    color: C.boneDim
+  },
+  rowActions: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    gap: 8,
+    flexShrink: 0
+  },
+  editBtn: {
+    background: "none",
+    border: `1px solid ${C.line}`,
+    color: C.boneDim,
+    height: 28,
+    padding: "0 9px",
+    borderRadius: 7,
+    cursor: "pointer",
+    fontSize: 12,
+    fontFamily: "inherit"
+  },
+  kpiRow3: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: 8,
+    marginBottom: 10
+  },
+  progHeadRow: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) 64px 34px 46px 42px",
+    gap: 7,
+    padding: "0 0 5px",
+    textAlign: "right"
+  },
+  progItem: {
+    borderTop: `1px solid ${C.line}`
+  },
+  progRow: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) 64px 34px 46px 42px",
+    gap: 7,
+    alignItems: "center",
+    width: "100%",
+    minHeight: 44,
+    padding: "6px 0",
+    background: "none",
+    border: "none",
+    color: C.bone,
+    textAlign: "right",
+    fontFamily: "inherit",
+    cursor: "pointer"
+  },
+  progName: {
+    fontSize: 13,
+    fontWeight: 500,
+    color: C.bone,
+    textAlign: "left",
+    lineHeight: 1.25
+  },
+  progDelta: {
+    fontSize: 11.5,
+    fontWeight: 600,
+    whiteSpace: "nowrap"
+  },
+  progDetail: {
+    padding: "2px 0 10px"
+  },
+  progDetailLine: {
+    fontSize: 11.5,
+    color: C.boneDim
+  },
+  miniSparkEmpty: {
+    display: "block",
+    width: 64,
+    textAlign: "center",
+    color: C.boneDim
   },
   execRuleOn: {
     borderColor: "rgba(94,226,160,0.6)",
