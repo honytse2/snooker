@@ -365,6 +365,7 @@ const C = {
 };
 // Local calendar date — toISOString() is UTC and would log yesterday's date
 // for a session entered before 08:00 in Hong Kong.
+const GOLD = "#FFD86B";
 const TODAY = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -381,6 +382,22 @@ const blankSession = () => ({
   duration: 60,
   mode: "solo",
   // solo | match
+  // ── TOUCH AND FEEL · what the whole ledger is for ────────────────────────
+  // Optimise the touch and feel, not the results. Before each shot, imagine
+  // how the cue tip and the impact should feel; play to get as close to that
+  // as possible; take the feedback from the tip afterwards. Potting, position
+  // and cue-ball control are side products of that.
+  feelImagine: null,
+  feelClose: null,
+  feelFeedback: null,
+  // ── SIDE PRODUCTS · optional ────────────────────────────────────────────
+  // Rated only to see whether results follow feel. They never set the focus.
+  resPot: null,
+  resPosition: null,
+  resCueball: null,
+  // ── THE NINE · secondary ────────────────────────────────────────────────
+  // Everything from here to the note serves the feel above and is folded
+  // away in the form.
   // ── 1 · 虎口滑杆 ─────────────────────────────────────────────────────────
   // Through the feathering and the delivery the cue slips along the 虎口,
   // touching it all the way — that contact keeps the cue parallel. It grows
@@ -525,12 +542,17 @@ const has = (s, k) => s[k] !== undefined && s[k] !== null;
 const mean = list => list.length ? list.reduce((a, v) => a + v, 0) / list.length : null;
 // Scores for one execution, newest first, from the sessions that rated it.
 const scoresOf = (sessions, k) => sessions.filter(s => has(s, k)).map(s => Number(s[k]));
-const isDirty = d => !!(d.note || EXECS.some(([t, k]) => d[t] || has(d, k)));
-// The execution to work on next: lowest average over its last three rated
-// sessions. Ties go to the earlier card, so the top-priority three win.
+// The feel loop, in order: [score key, label, English, chart colour].
+const FEEL = [["feelImagine", "想像", "Imagine", C.cue], ["feelClose", "貼近", "Closeness", GOLD], ["feelFeedback", "回饋", "Feedback", C.cueDim]];
+// The side products: [score key, label, chart colour].
+const RESULTS = [["resPot", "Potting", C.chalkBlue], ["resPosition", "Position", C.teal], ["resCueball", "Cue-ball control", C.rose]];
+const isDirty = d => !!(d.note || EXECS.some(([t, k]) => d[t] || has(d, k)) || [...FEEL, ...RESULTS].some(([k]) => has(d, k)));
+// The part of the feel loop to work on next: lowest average over its last
+// three rated sessions. Only the feel sets the focus — never the results,
+// never the nine.
 const focusOf = sessions => {
   let best = null;
-  EXECS.forEach(([, k, label], i) => {
+  FEEL.forEach(([k, label], i) => {
     const recent = scoresOf(sessions, k).slice(0, 3);
     if (!recent.length) return;
     const avg = mean(recent);
@@ -643,7 +665,7 @@ function App() {
   const buildCSV = () => {
     // CSV column -> internal session key. "cueball" lives under the legacy
     // "safety" key (renamed in the UI, kept in storage for back-compat).
-    const cols = ["date", "mode", "exHukou", "hukouScore", "exDirection", "directionScore", "exHiggins", "higginsScore", "exGrip", "ex1Glow", "glowScore", "exAim", "aimScore", "exSlice", "sliceScore", "ex2Zhao", "ex3Yuppie", "yuppieScore", "exDelivery", "deliveryScore", "gripTrial", "gripScore", "gripVerdict", "focus", "twoPoints", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
+    const cols = ["date", "mode", "feelImagine", "feelClose", "feelFeedback", "resPot", "resPosition", "resCueball", "exHukou", "hukouScore", "exDirection", "directionScore", "exHiggins", "higginsScore", "exGrip", "ex1Glow", "glowScore", "exAim", "aimScore", "exSlice", "sliceScore", "ex2Zhao", "ex3Yuppie", "yuppieScore", "exDelivery", "deliveryScore", "gripTrial", "gripScore", "gripVerdict", "focus", "twoPoints", "duration", "enjoymentMode", "venue", "tableQ", "fierceConnect", "connectDesire", "zhaoRightLeg", "zhaoLine", "zhaoShort", "zhaoMinEffort", "zhaoRhythm", "addressGap", "murphyReturn", "murphyFeatherStart", "murphyStraight", "murphySlow", "yuppieRhythm", "wristForce", "wristBenchmark", "wristPerShot", "wristDoReMi", "centreLine", "clAccuracy", "ghostConfidence", "eyeScore", "eyeSetPoint", "eyeCheckLine", "eyeBackCue", "eyeConfirm", "ghostSee", "ghostNoDoubt", "simFramePlayed", "simFrameHeld", "gbyBest", "clLine", "clFlat", "clBody", "clFree", "feather", "presence", "natural", "longpot", "cueball", "highBreak", "fifties", "centuries", "drillDone", "drillLow", "drillHigh", "drillMins", "drillOpenTable", "drillDToD", "expName", "expVerdict", "lastDelivery", "ruleCueStraight", "ruleChinChest", "ruleTipFeedback", "note"];
     const keyFor = col => col === "cueball" ? "safety" : col;
     const esc = v => {
       const s = String(v ?? "");
@@ -779,7 +801,6 @@ function App() {
 
 // The picture execution 1 is about: the cue, the white with the point lit on
 // it, and the line running from that point to the object ball.
-const GOLD = "#FFD86B";
 const GlowArt = () => /*#__PURE__*/React.createElement("svg", {
   viewBox: "0 0 300 70",
   style: st.execArt,
@@ -905,20 +926,28 @@ function ExecCard({
   hint,
   onTick,
   onScore,
-  last
+  last,
+  feel
 }) {
   const [info, setInfo] = useState(false);
   return /*#__PURE__*/React.createElement("div", {
     style: {
       ...st.exec,
-      ...(tick ? st.execOn : {})
+      ...(tick ? st.execOn : {}),
+      ...(feel ? st.feelCard : {})
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: st.clHead
   }, /*#__PURE__*/React.createElement("span", {
-    style: st.execN
+    style: {
+      ...st.execN,
+      ...(feel ? st.feelN : {})
+    }
   }, n), /*#__PURE__*/React.createElement("div", {
-    style: st.execTitle
+    style: {
+      ...st.execTitle,
+      ...(feel ? st.feelTitle : {})
+    }
   }, title), /*#__PURE__*/React.createElement("span", {
     style: st.clSpacer
   }), /*#__PURE__*/React.createElement(InfoBtn, {
@@ -929,7 +958,7 @@ function ExecCard({
     style: st.execLine
   }, l)), art || null, info && /*#__PURE__*/React.createElement("div", {
     style: st.spiritStory
-  }, story), /*#__PURE__*/React.createElement("button", {
+  }, story), tickLabel && /*#__PURE__*/React.createElement("button", {
     onClick: onTick,
     style: {
       ...st.rule,
@@ -969,23 +998,32 @@ function LogForm({
   const prior = sessions.find(s => s.id !== draft.id && s.date <= draft.date) || sessions.find(s => s.id !== draft.id);
   const lastOf = k => prior && has(prior, k) ? prior[k] : null;
   const focus = focusOf(sessions.filter(s => s.id !== draft.id));
-  const ratedN = EXECS.filter(([, k]) => has(draft, k)).length;
+  const ratedN = FEEL.filter(([k]) => has(draft, k)).length;
+  const nineN = EXECS.filter(([t, k]) => draft[t] || has(draft, k)).length;
+  const [showNine, setShowNine] = useState(false);
   return /*#__PURE__*/React.createElement("div", {
     style: st.card
-  }, editing ? /*#__PURE__*/React.createElement("div", {
+  }, editing && /*#__PURE__*/React.createElement("div", {
     style: st.editBar
   }, /*#__PURE__*/React.createElement("span", null, "Editing ", fmtDate(draft.date)), /*#__PURE__*/React.createElement("button", {
     onClick: onReset,
     style: st.linkBtn
-  }, "Cancel")) : focus && /*#__PURE__*/React.createElement("div", {
-    style: st.focus
+  }, "Cancel")), /*#__PURE__*/React.createElement("div", {
+    style: st.creed
   }, /*#__PURE__*/React.createElement("div", {
     style: st.focusLabel
-  }, "今日重點 · Focus for this session"), /*#__PURE__*/React.createElement("div", {
-    style: st.focusName
-  }, focus.n, " · ", focus.label), /*#__PURE__*/React.createElement("div", {
-    style: st.focusWhy
-  }, "Your lowest recent score: ", focus.avg.toFixed(1), "/10 over the last ", focus.of === 1 ? "rated session" : `${focus.of} rated sessions`, ".")), /*#__PURE__*/React.createElement("div", {
+  }, "The whole point"), /*#__PURE__*/React.createElement("div", {
+    style: st.creedHead
+  }, "Optimise the touch and feel, not the results."), [["1", "Imagine how the cue tip and the impact should feel."], ["2", "Play to get as close to that feel as you can."], ["3", "Take the feedback from the tip after every shot."]].map(([n, t]) => /*#__PURE__*/React.createElement("div", {
+    key: n,
+    style: st.creedStep
+  }, /*#__PURE__*/React.createElement("span", {
+    style: st.creedN
+  }, n), /*#__PURE__*/React.createElement("span", null, t))), /*#__PURE__*/React.createElement("div", {
+    style: st.creedFoot
+  }, "Potting, position and cue-ball control are the side products."), !editing && focus && /*#__PURE__*/React.createElement("div", {
+    style: st.creedFocus
+  }, "今日重點 · ", /*#__PURE__*/React.createElement("strong", null, focus.label), " — your lowest recent feel score, ", focus.avg.toFixed(1), "/10 over the last ", focus.of === 1 ? "rated session" : `${focus.of} rated sessions`, ".")), /*#__PURE__*/React.createElement("div", {
     style: st.metaRow
   }, /*#__PURE__*/React.createElement(Field, {
     label: "Date"
@@ -1012,6 +1050,66 @@ function LogForm({
       ...(draft.mode === k ? st.segOn : {})
     }
   }, l))), /*#__PURE__*/React.createElement(ExecCard, {
+    feel: true,
+    n: "1",
+    title: "想像 · Imagine",
+    lines: ["出杆之前 · 先想像呢一球嘅手感", "cue tip點樣掂白波 · 撞擊應該係咩感覺"],
+    story: "Before each shot, imagine how the cue tip and the impact should feel for this shot. That imagined feel is the target — not the pocket, not the position. Everything else in the shot is played towards it.",
+    score: draft.feelImagine,
+    scoreLabel: "想像",
+    words: IMAGINE_WORDS,
+    hint: "How many shots had the feel of the tip and the impact imagined before you played them — and how clearly.",
+    onScore: v => set("feelImagine", v),
+    last: lastOf("feelImagine")
+  }), /*#__PURE__*/React.createElement(ExecCard, {
+    feel: true,
+    n: "2",
+    title: "貼近 · Closeness",
+    lines: ["打出嚟嘅手感 · 同想像嘅有幾近", "每一球只求貼近手感 · 唔求結果"],
+    story: "Play the shot to optimise one thing: how close the real touch and feel gets to the feel you imagined. This is the score the whole ledger exists for. Potting accuracy, position and cue-ball control are side products of the shot and its touch and feel — they are not what the shot is played for.",
+    score: draft.feelClose,
+    scoreLabel: "貼近",
+    words: CLOSE_WORDS,
+    hint: "Across the session, how close the feel of the tip and the impact came to the feel you imagined.",
+    onScore: v => set("feelClose", v),
+    last: lastOf("feelClose")
+  }), /*#__PURE__*/React.createElement(ExecCard, {
+    feel: true,
+    n: "3",
+    title: "回饋 · Feedback",
+    lines: ["打完每一球 · 收cue tip畀你嘅回饋", "感受呢一球係點 · 下一球再貼近啲"],
+    story: "After each shot, receive the feedback from the cue tip and from how the shot felt. That feedback — not where the balls went — is what tells you how the shot was, and it is what the next shot's imagined feel is built on.",
+    score: draft.feelFeedback,
+    scoreLabel: "回饋",
+    words: FEEDBACK_WORDS,
+    hint: "How many shots you stayed with afterwards to take in what the tip and the shot felt like.",
+    onScore: v => set("feelFeedback", v),
+    last: lastOf("feelFeedback")
+  }), /*#__PURE__*/React.createElement("div", {
+    style: st.sideBox
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.sideTitle
+  }, "Side products · optional"), /*#__PURE__*/React.createElement("div", {
+    style: st.sideNote
+  }, "Results follow from the feel. Rate them only to see whether they do."), RESULTS.map(([k, label]) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    style: st.sideRow
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.sideLabel
+  }, label), /*#__PURE__*/React.createElement(ScoreRow, {
+    label: label,
+    value: draft[k],
+    last: lastOf(k),
+    onChange: v => set(k, v)
+  })))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowNine(!showNine),
+    "aria-expanded": showNine,
+    style: st.foldBtn
+  }, /*#__PURE__*/React.createElement("span", null, "九式 · the nine executions", /*#__PURE__*/React.createElement("span", {
+    style: st.foldNote
+  }, " · secondary", nineN ? ` · ${nineN} filled in` : "")), /*#__PURE__*/React.createElement("span", null, showNine ? "\u2212" : "+")), showNine && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: st.sideNote
+  }, "These serve the feel. Open them to read the reminders, or to rate them if you want to."), /*#__PURE__*/React.createElement(ExecCard, {
     n: "1",
     title: "虎口滑杆",
     lines: ["feathering同出杆 · 支cue沿住虎口滑", "掂住虎口 · 支cue先保持平行"],
@@ -1139,19 +1237,19 @@ function LogForm({
     onTick: () => set("exDelivery", !draft.exDelivery),
     onScore: v => set("deliveryScore", v),
     last: lastOf("deliveryScore")
-  }), /*#__PURE__*/React.createElement(SectionLabel, {
+  })), /*#__PURE__*/React.createElement(SectionLabel, {
     n: "01",
     title: "One line",
     note: "Optional"
   }), /*#__PURE__*/React.createElement("textarea", {
-    placeholder: "e.g. slow smooth acceleration held on the black…",
+    placeholder: "e.g. what the tip felt like on the best shot tonight…",
     value: draft.note || "",
     onChange: e => set("note", e.target.value),
     style: st.textarea,
     rows: 2
   }), /*#__PURE__*/React.createElement("div", {
     style: st.saveMeta
-  }, /*#__PURE__*/React.createElement("span", null, ratedN, " of ", EXECS.length, " rated", ratedN < EXECS.length ? " · unrated ones stay out of your averages" : ""), !editing && isDirty(draft) && /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("span", null, ratedN, " of ", FEEL.length, " feel scores rated"), !editing && isDirty(draft) && /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       if (window.confirm("Clear everything entered in this form?")) onReset();
     },
@@ -1196,10 +1294,13 @@ function ScoreRow({
     }
   }, v))), /*#__PURE__*/React.createElement("div", {
     style: rated ? st.scoreWord : st.scoreWordOff
-  }, rated ? `${value}/10 · ${words[value] || ""}` : hasLast ? `Not rated yet · last session ${last}/10` : "Not rated yet"), info && /*#__PURE__*/React.createElement("div", {
+  }, rated ? `${value}/10${words ? ` · ${words[value] || ""}` : ""}` : hasLast ? `Not rated yet · last session ${last}/10` : "Not rated yet"), info && /*#__PURE__*/React.createElement("div", {
     style: st.metricHint
   }, hint));
 }
+const IMAGINE_WORDS = ["", "Never imagined it", "Just hit the ball", "Imagined it once or twice", "Easy shots only", "About half the shots", "There, but vague", "Most shots, skipped under pressure", "A clear feel before nearly every shot", "Every shot had its feel before I played", "每一球都先想像手感 — 先想後打"];
+const CLOSE_WORDS = ["", "Nothing like I imagined", "Far off all session", "Close once or twice", "Close on easy shots only", "About half the shots", "Near, but not quite", "Close on most shots", "Very close nearly every shot", "Almost exactly as imagined", "打出嚟同想像嘅一樣 — 手感到位"];
+const FEEDBACK_WORDS = ["", "Felt nothing", "Only watched where the balls went", "Noticed the tip once or twice", "Felt it on easy shots only", "About half the shots", "Felt it, but moved on too fast", "Took it in on most shots", "Clear feedback nearly every shot", "Every shot told me something", "每一球都收到回饋 — cue tip話我知"];
 const GLOW_WORDS = ["", "Never lit", "Lit at address, gone by the stroke", "Flashes only", "Easy shots only", "About half the balls", "There, but kept dimming", "Most balls, faded on the hard ones", "Held on nearly every ball", "Stayed lit through the delivery", "每一球都有餘光 — 冇熄過"];
 const SLICE_WORDS = ["", "Never pictured it", "Guessed, never looked", "Pictured it on easy balls only", "Pictured it, rarely checked it", "About half the balls", "There, but rushed the look", "Most balls, lost it on the thin cuts", "Pictured and checked nearly every ball", "Every ball — the slice called it before it dropped", "每一球都睇厚薄 — 冇估過"];
 const RHYTHM_WORDS = ["", "Never found it", "Lost it on the first hard shot", "Flashes, then gone", "On and off, mostly off", "Half the session", "There, but kept slipping", "Mostly held, came back slowly", "Held it, recovered fast when lost", "Held through the awkward shots too", "全程趙公子式 — 冇甩過"];
@@ -1398,7 +1499,31 @@ function History({
     style: st.rowTrial
   }, "新握杆", s.gripVerdict ? ` · ${GRIP_VERDICT[s.gripVerdict]}` : "")), /*#__PURE__*/React.createElement("div", {
     style: st.rowStats
-  }, s.hukouScore !== undefined && s.hukouScore !== null && /*#__PURE__*/React.createElement(Stat, {
+  }, has(s, "feelImagine") && /*#__PURE__*/React.createElement(Stat, {
+    label: "想像",
+    v: sc(s, "feelImagine"),
+    hot: true
+  }), has(s, "feelClose") && /*#__PURE__*/React.createElement(Stat, {
+    label: "貼近",
+    v: sc(s, "feelClose"),
+    hot: true
+  }), has(s, "feelFeedback") && /*#__PURE__*/React.createElement(Stat, {
+    label: "回饋",
+    v: sc(s, "feelFeedback"),
+    hot: true
+  }), has(s, "resPot") && /*#__PURE__*/React.createElement(Stat, {
+    label: "Potting",
+    v: sc(s, "resPot"),
+    dim: true
+  }), has(s, "resPosition") && /*#__PURE__*/React.createElement(Stat, {
+    label: "Position",
+    v: sc(s, "resPosition"),
+    dim: true
+  }), has(s, "resCueball") && /*#__PURE__*/React.createElement(Stat, {
+    label: "Cue ball",
+    v: sc(s, "resCueball"),
+    dim: true
+  }), s.hukouScore !== undefined && s.hukouScore !== null && /*#__PURE__*/React.createElement(Stat, {
     label: "虎口",
     v: sc(s, "hukouScore"),
     hot: hot(s, "hukouScore")
@@ -1457,64 +1582,34 @@ function History({
 }
 
 // ─────────────────────────────────────────── PROGRESS
-// One table for the nine: where each stands now, which way it is moving, and
-// how often it gets done. Tap a row for its full chart.
-function Progress({
-  sessions
+// Feel first, the side products next, the nine last and folded away.
+const pct = (n, of) => of ? `${Math.round(n / of * 100)}%` : "—";
+const fmt1 = v => v === null ? "—" : v.toFixed(1);
+// One row per score: now is the last three rated sessions, trend compares
+// that with the three before.
+const progRow = (sessions, k, label, color, last) => {
+  const scores = scoresOf(sessions, k); // newest first
+  const now = mean(scores.slice(0, 3));
+  const before = mean(scores.slice(3, 6));
+  return {
+    k,
+    label,
+    color,
+    scores,
+    now,
+    delta: now !== null && before !== null ? now - before : null,
+    all: mean(scores),
+    best: scores.length ? Math.max(...scores) : null,
+    last: last === undefined ? scores.length ? Math.max(...scores) : "—" : last
+  };
+};
+function ProgTable({
+  rows,
+  lastHead,
+  goldKey
 }) {
   const [open, setOpen] = useState(null);
-  if (!sessions.length) return /*#__PURE__*/React.createElement("div", {
-    style: st.empty
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.emptyMark
-  }, "\u25ce"), /*#__PURE__*/React.createElement("p", {
-    style: st.emptyText
-  }, "Log a session and your progress appears here."));
-  const pct = (n, of) => of ? `${Math.round(n / of * 100)}%` : "—";
-  const fmt1 = v => v === null ? "—" : v.toFixed(1);
-  const focus = focusOf(sessions);
-  // A session only counts toward an execution from the day that execution
-  // existed — one logged before it had no tick to give, so it isn't a miss.
-  const rows = EXECS.map(([tick, k, label, color], i) => {
-    const scores = scoresOf(sessions, k); // newest first
-    // Same three-session window as the focus, so the two always agree.
-    const now = mean(scores.slice(0, 3));
-    const before = mean(scores.slice(3, 6));
-    const carried = sessions.filter(s => s[tick] !== undefined && s[tick] !== null);
-    return {
-      n: i + 1,
-      k,
-      label,
-      color,
-      scores,
-      now,
-      delta: now !== null && before !== null ? now - before : null,
-      done: pct(carried.filter(s => s[tick]).length, carried.length),
-      all: mean(scores),
-      best: scores.length ? Math.max(...scores) : null
-    };
-  });
-  const allOf = sessions.filter(s => EXECS.every(([t]) => s[t] !== undefined));
-  const all = allOf.filter(s => EXECS.every(([t]) => s[t]));
-  const cutoff = Date.now() - 28 * 24 * 3600 * 1000;
-  const last28 = sessions.filter(s => new Date(s.date + "T00:00:00").getTime() >= cutoff).length;
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: st.kpiRow3
-  }, /*#__PURE__*/React.createElement(Kpi, {
-    label: `九式齊 (${all.length}/${allOf.length})`,
-    value: pct(all.length, allOf.length),
-    accent: true
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Sessions",
-    value: sessions.length
-  }), /*#__PURE__*/React.createElement(Kpi, {
-    label: "Last 28 days",
-    value: last28
-  })), /*#__PURE__*/React.createElement("div", {
-    style: st.insBlock
-  }, /*#__PURE__*/React.createElement("div", {
-    style: st.insTitle
-  }, "九式 · now, trend, 執行率"), /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: st.progHeadRow
   }, /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
     style: st.insHead
@@ -1522,7 +1617,7 @@ function Progress({
     style: st.insHead
   }, "trend"), /*#__PURE__*/React.createElement("span", {
     style: st.insHead
-  }, "執行率")), rows.map(r => /*#__PURE__*/React.createElement("div", {
+  }, lastHead)), rows.map(r => /*#__PURE__*/React.createElement("div", {
     key: r.k,
     style: st.progItem
   }, /*#__PURE__*/React.createElement("button", {
@@ -1532,11 +1627,11 @@ function Progress({
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       ...st.progName,
-      ...(focus && focus.key === r.k ? {
+      ...(goldKey === r.k ? {
         color: C.cue
       } : {})
     }
-  }, r.n, " · ", r.label), /*#__PURE__*/React.createElement(MiniSpark, {
+  }, r.label), /*#__PURE__*/React.createElement(MiniSpark, {
     data: r.scores.slice(0, 12).reverse(),
     color: r.color
   }), /*#__PURE__*/React.createElement("span", {
@@ -1548,7 +1643,7 @@ function Progress({
     }
   }, r.delta === null ? "—" : Math.abs(r.delta) < 0.05 ? "＝" : `${r.delta > 0 ? "▲" : "▼"} ${Math.abs(r.delta).toFixed(1)}`), /*#__PURE__*/React.createElement("span", {
     style: st.insCell
-  }, r.done)), open === r.k && /*#__PURE__*/React.createElement("div", {
+  }, r.last)), open === r.k && /*#__PURE__*/React.createElement("div", {
     style: st.progDetail
   }, r.scores.length >= 2 ? /*#__PURE__*/React.createElement(Spark, {
     title: `${r.label} · every rated session`,
@@ -1558,9 +1653,104 @@ function Progress({
     color: r.color
   }) : null, /*#__PURE__*/React.createElement("div", {
     style: st.progDetailLine
-  }, r.scores.length ? `Rated in ${r.scores.length} session${r.scores.length === 1 ? "" : "s"} · all-time average ${fmt1(r.all)} · best ${r.best}` : "Not rated in any session yet.")))), /*#__PURE__*/React.createElement("div", {
+  }, r.scores.length ? `Rated in ${r.scores.length} session${r.scores.length === 1 ? "" : "s"} · all-time average ${fmt1(r.all)} · best ${r.best}` : "Not rated in any session yet.")))));
+}
+function Progress({
+  sessions
+}) {
+  const [showNine, setShowNine] = useState(false);
+  if (!sessions.length) return /*#__PURE__*/React.createElement("div", {
+    style: st.empty
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.emptyMark
+  }, "\u25ce"), /*#__PURE__*/React.createElement("p", {
+    style: st.emptyText
+  }, "Log a session and your progress appears here."));
+  const focus = focusOf(sessions);
+  const feelRows = FEEL.map(([k, label, en, color]) => progRow(sessions, k, `${label} · ${en}`, color));
+  const resRows = RESULTS.map(([k, label, color]) => progRow(sessions, k, label, color));
+  // A session only counts toward an execution from the day that execution
+  // existed — one logged before it had no tick to give, so it isn't a miss.
+  const nineRows = EXECS.map(([tick, k, label, color], i) => {
+    const carried = sessions.filter(s => s[tick] !== undefined && s[tick] !== null);
+    return progRow(sessions, k, `${i + 1} · ${label}`, color, pct(carried.filter(s => s[tick]).length, carried.length));
+  });
+  const close = feelRows[1];
+  // Do results follow feel? Sessions that rated both, split at the average
+  // closeness, with the side products averaged on each side.
+  const resultOf = s => mean(RESULTS.filter(([k]) => has(s, k)).map(([k]) => Number(s[k])));
+  const both = sessions.filter(s => has(s, "feelClose") && resultOf(s) !== null);
+  const mid = mean(both.map(s => Number(s.feelClose)));
+  const hi = both.filter(s => Number(s.feelClose) >= mid);
+  const lo = both.filter(s => Number(s.feelClose) < mid);
+  const follow = both.length < 4 || !lo.length ? "Once four sessions have both a 貼近 score and a side product rated, with some closer than others, this line shows whether results follow feel." : `Do results follow feel? On your ${hi.length} closer-feel session${hi.length === 1 ? "" : "s"} the side products averaged ${fmt1(mean(hi.map(resultOf)))}; on the ${lo.length} less close, ${fmt1(mean(lo.map(resultOf)))}.`;
+  const cutoff = Date.now() - 28 * 24 * 3600 * 1000;
+  const last28 = sessions.filter(s => new Date(s.date + "T00:00:00").getTime() >= cutoff).length;
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: st.kpiRow3
+  }, /*#__PURE__*/React.createElement(Kpi, {
+    label: "貼近 · closeness now",
+    value: fmt1(close.now),
+    suffix: close.now === null ? "" : "/10",
+    accent: true
+  }), /*#__PURE__*/React.createElement(Kpi, {
+    label: "Sessions",
+    value: sessions.length
+  }), /*#__PURE__*/React.createElement(Kpi, {
+    label: "Last 28 days",
+    value: last28
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insBlock,
+      ...st.feelBlock
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...st.insTitle,
+      color: C.cue
+    }
+  }, "手感 · touch and feel"), /*#__PURE__*/React.createElement(ProgTable, {
+    rows: feelRows,
+    lastHead: "best",
+    goldKey: focus && focus.key
+  }), /*#__PURE__*/React.createElement("div", {
     style: st.insCaveat
-  }, focus ? `Gold is your focus: ${focus.label} has the lowest recent score. ` : "", "now is the average of the last 3 sessions that rated it; trend compares that with the 3 before. 執行率 is the share of sessions you ticked it, counted from when that execution was added. Tap a row for its chart.")));
+  }, focus ? `Gold is your focus: ${focus.label} has the lowest recent score. ` : "No feel scores yet — they start with your next session. ", "now is the average of the last 3 sessions that rated it; trend compares that with the 3 before. Tap a row for its chart.")), /*#__PURE__*/React.createElement("div", {
+    style: st.insBlock
+  }, /*#__PURE__*/React.createElement("div", {
+    style: st.insTitle
+  }, "Side products"), /*#__PURE__*/React.createElement(ProgTable, {
+    rows: resRows,
+    lastHead: "best"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, follow)), /*#__PURE__*/React.createElement("div", {
+    style: st.insBlock
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowNine(!showNine),
+    "aria-expanded": showNine,
+    style: {
+      ...st.foldBtn,
+      margin: 0,
+      padding: 0,
+      border: "none",
+      background: "none"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...st.insTitle,
+      marginBottom: 0
+    }
+  }, "九式 · the nine · secondary"), /*#__PURE__*/React.createElement("span", null, showNine ? "\u2212" : "+")), showNine && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 12
+    }
+  }, /*#__PURE__*/React.createElement(ProgTable, {
+    rows: nineRows,
+    lastHead: "執行率"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: st.insCaveat
+  }, "執行率 is the share of sessions you ticked it, counted from when that execution was added."))));
 }
 
 // Twelve most recent scores, oldest to newest, small enough to sit in a row.
@@ -2049,6 +2239,117 @@ const st = {
   },
   scoreWrap: {
     marginTop: 8
+  },
+  // Touch and feel is the one thing in gold: the creed, the three feel cards
+  // and their table. Everything else stays in the secondary mint.
+  creed: {
+    background: "rgba(217,178,106,0.09)",
+    border: "1px solid rgba(217,178,106,0.45)",
+    borderRadius: 12,
+    padding: "12px 13px 13px",
+    marginBottom: 14
+  },
+  creedHead: {
+    fontFamily: "'Georgia', serif",
+    fontSize: 19,
+    fontWeight: 700,
+    color: C.cue,
+    lineHeight: 1.25,
+    margin: "4px 0 9px"
+  },
+  creedStep: {
+    display: "flex",
+    gap: 9,
+    alignItems: "baseline",
+    fontSize: 13.5,
+    color: C.bone,
+    lineHeight: 1.4,
+    marginBottom: 4
+  },
+  creedN: {
+    fontFamily: "'Georgia', serif",
+    fontWeight: 700,
+    color: C.cue,
+    flexShrink: 0
+  },
+  creedFoot: {
+    fontSize: 12.5,
+    color: C.boneDim,
+    fontStyle: "italic",
+    marginTop: 7
+  },
+  creedFocus: {
+    fontSize: 12.5,
+    color: C.bone,
+    lineHeight: 1.4,
+    marginTop: 10,
+    paddingTop: 9,
+    borderTop: "1px solid rgba(217,178,106,0.3)"
+  },
+  feelCard: {
+    background: "linear-gradient(180deg, rgba(217,178,106,0.15) 0%, rgba(217,178,106,0.04) 100%)",
+    border: "1.5px solid rgba(217,178,106,0.6)"
+  },
+  feelN: {
+    background: C.cue
+  },
+  feelTitle: {
+    color: C.cue
+  },
+  feelBlock: {
+    borderColor: "rgba(217,178,106,0.45)",
+    background: "rgba(217,178,106,0.05)"
+  },
+  sideBox: {
+    border: `1px solid ${C.line}`,
+    borderRadius: 12,
+    padding: "12px 12px 13px",
+    marginBottom: 12,
+    background: "rgba(0,0,0,0.18)"
+  },
+  sideTitle: {
+    fontSize: 11,
+    letterSpacing: "0.12em",
+    textTransform: "uppercase",
+    color: C.boneDim,
+    fontWeight: 600
+  },
+  sideNote: {
+    fontSize: 12,
+    color: C.boneDim,
+    lineHeight: 1.4,
+    margin: "3px 0 10px"
+  },
+  sideRow: {
+    marginTop: 11
+  },
+  sideLabel: {
+    fontSize: 13,
+    fontWeight: 600,
+    color: C.bone
+  },
+  foldBtn: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 10,
+    width: "100%",
+    minHeight: 44,
+    padding: "0 12px",
+    marginBottom: 12,
+    background: "rgba(0,0,0,0.18)",
+    border: `1px solid ${C.line}`,
+    borderRadius: 12,
+    color: C.bone,
+    fontSize: 13.5,
+    fontWeight: 600,
+    fontFamily: "inherit",
+    textAlign: "left",
+    cursor: "pointer"
+  },
+  foldNote: {
+    color: C.boneDim,
+    fontWeight: 400
   },
   scoreBtns: {
     display: "flex",

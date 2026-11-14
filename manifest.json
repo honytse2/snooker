@@ -1,7 +1,7 @@
 {
   "name": "The Cue-Ball Ledger",
   "short_name": "Cue-Ball",
-  "description": "Snooker practice ledger — feathering awareness, the last last, and the two non-negotiables, logged after every session.",
+  "description": "Snooker practice ledger — optimise the touch and feel, not the results. Logged after every session.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
